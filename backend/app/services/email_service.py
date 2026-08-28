@@ -112,3 +112,4 @@ class EmailService:
         except Exception as e:
             logger.error(f"❌ Failed to send SMTP email to {to_email}: {e}")
             return False
+

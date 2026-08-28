@@ -72,7 +72,8 @@ def register(req: RegisterRequest, db: Session = Depends(get_db)):
             "user_id": new_user.id,
             "phone": new_user.phone,
             "email": new_user.email,
-            "otp_sent": True
+            "otp_sent": True,
+            "dev_otp": real_otp
         }
     }
 
