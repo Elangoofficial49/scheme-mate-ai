@@ -33,25 +33,30 @@ class AuthProvider with ChangeNotifier {
     return false;
   }
 
-  Future<bool> register(String phone, String password, String name) async {
+  Future<Map<String, dynamic>> register({
+    required String fullName,
+    required String email,
+    required String aadhaarNumber,
+    required String phone,
+    required String password,
+  }) async {
     final res = await ApiClient.post("/auth/register", {
+      "full_name": fullName,
+      "email": email,
+      "aadhaar_number": aadhaarNumber,
       "phone": phone,
       "password": password,
-      "full_name": name,
       "role": "USER"
     });
+    return res;
+  }
 
-    if (res["success"] == true && res["data"] != null) {
-      _isLoggedIn = true;
-      _userId = res["data"]["user_id"];
-      _phone = res["data"]["phone"];
-      _fullName = name;
-      _roles = List<String>.from(res["data"]["roles"] ?? ["USER"]);
-      ApiClient.authToken = res["data"]["access_token"];
-      notifyListeners();
-      return true;
-    }
-    return false;
+  Future<bool> verifyOtp(String phone, String otp) async {
+    final res = await ApiClient.post("/auth/verify-otp", {
+      "phone": phone,
+      "otp": otp,
+    });
+    return res["success"] == true;
   }
 
   void logout() {
