@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../core/theme/app_theme.dart';
 import '../providers/auth_provider.dart';
+import 'business_profile_form_screen.dart';
 import 'onboarding_screen.dart';
 
 class AuthScreen extends StatefulWidget {
@@ -38,7 +39,7 @@ class _AuthScreenState extends State<AuthScreen> {
     if (success && mounted) {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => const OnboardingScreen()),
+        MaterialPageRoute(builder: (context) => const BusinessProfileFormScreen()),
       );
     } else if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(

@@ -19,6 +19,12 @@ class EntrepreneurProfile(Base):
     category = Column(String, nullable=True)     # "General", "OBC", "SC", "ST", "Minority"
     disability_status = Column(String, nullable=True)
     
+    company_name = Column(String, nullable=True)
+    business_description = Column(Text, nullable=True)
+    source_of_income = Column(String, nullable=True)
+    certificate_uploaded = Column(Boolean, default=False)
+    certificate_type = Column(String, nullable=True)
+    
     occupation = Column(String, nullable=True)
     business_type = Column(String, nullable=True)   # "Manufacturing", "Service", "Trading", "Agro"
     business_stage = Column(String, nullable=True)  # "Idea", "New Enterprise", "Existing"

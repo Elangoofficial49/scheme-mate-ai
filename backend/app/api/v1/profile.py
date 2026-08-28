@@ -18,6 +18,11 @@ class ProfileUpdateRequest(BaseModel):
     urban_rural: Optional[str] = None
     category: Optional[str] = None
     disability_status: Optional[str] = None
+    company_name: Optional[str] = None
+    business_description: Optional[str] = None
+    source_of_income: Optional[str] = None
+    certificate_uploaded: Optional[bool] = None
+    certificate_type: Optional[str] = None
     occupation: Optional[str] = None
     business_type: Optional[str] = None
     business_stage: Optional[str] = None
@@ -55,6 +60,11 @@ def get_profile(payload: dict = Depends(get_current_user_token), db: Session = D
             "urban_rural": profile.urban_rural,
             "category": profile.category,
             "disability_status": profile.disability_status,
+            "company_name": profile.company_name,
+            "business_description": profile.business_description,
+            "source_of_income": profile.source_of_income,
+            "certificate_uploaded": profile.certificate_uploaded or False,
+            "certificate_type": profile.certificate_type,
             "occupation": profile.occupation,
             "business_type": profile.business_type,
             "business_stage": profile.business_stage,
