@@ -76,11 +76,9 @@ class _AuthScreenState extends State<AuthScreen> {
       setState(() => _isLoading = false);
 
       if (res["success"] == true && mounted) {
-        final devOtp = res["data"]?["dev_otp"]?.toString();
         _showEmailOTPDialog(
           phone: _phoneController.text.trim(),
           email: _emailController.text.trim(),
-          devOtp: devOtp,
         );
       } else if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -93,8 +91,8 @@ class _AuthScreenState extends State<AuthScreen> {
     }
   }
 
-  void _showEmailOTPDialog({required String phone, required String email, String? devOtp}) {
-    final otpController = TextEditingController(text: devOtp ?? "");
+  void _showEmailOTPDialog({required String phone, required String email}) {
+    final otpController = TextEditingController();
     bool isVerifying = false;
 
     showDialog(
@@ -126,7 +124,7 @@ class _AuthScreenState extends State<AuthScreen> {
                     style: TextStyle(fontSize: 13, color: Colors.grey.shade800),
                   ),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                     decoration: BoxDecoration(
                       color: AppTheme.primaryBlue.withOpacity(0.08),
                       borderRadius: BorderRadius.circular(6),
@@ -144,38 +142,6 @@ class _AuthScreenState extends State<AuthScreen> {
                       ],
                     ),
                   ),
-                  if (devOtp != null) ...[
-                    const SizedBox(height: 10),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: AppTheme.successGreen.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(6),
-                        border: Border.all(color: AppTheme.successGreen.withOpacity(0.3)),
-                      ),
-                      child: Row(
-                        children: [
-                          const Icon(Icons.key, size: 16, color: AppTheme.successGreen),
-                          const SizedBox(width: 6),
-                          Expanded(
-                            child: Text(
-                              "Generated Security OTP: $devOtp",
-                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: AppTheme.successGreen),
-                            ),
-                          ),
-                          TextButton(
-                            onPressed: () {
-                              setModalState(() {
-                                otpController.text = devOtp;
-                              });
-                            },
-                            style: TextButton.styleFrom(visualDensity: VisualDensity.compact, padding: EdgeInsets.zero),
-                            child: const Text("Fill", style: TextStyle(fontWeight: FontWeight.bold)),
-                          )
-                        ],
-                      ),
-                    ),
-                  ],
                   const SizedBox(height: 16),
                   TextField(
                     controller: otpController,
