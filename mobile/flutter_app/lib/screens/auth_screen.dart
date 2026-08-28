@@ -92,7 +92,7 @@ class _AuthScreenState extends State<AuthScreen> {
   }
 
   void _showEmailOTPDialog({required String phone, required String email}) {
-    final otpController = TextEditingController(text: "123456"); // Pre-filled demo 6-digit OTP
+    final otpController = TextEditingController();
     bool isVerifying = false;
 
     showDialog(

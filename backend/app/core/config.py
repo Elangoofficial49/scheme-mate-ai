@@ -36,6 +36,14 @@ class Settings(BaseSettings):
     # OCR Provider
     OCR_PROVIDER: str = "local_regex"  # "tesseract", "paddleocr", "local_regex"
     
+    # Email / SMTP Service
+    SMTP_HOST: Optional[str] = "smtp.gmail.com"
+    SMTP_PORT: int = 587
+    SMTP_USER: Optional[str] = None
+    SMTP_PASSWORD: Optional[str] = None
+    SMTP_FROM_EMAIL: str = "noreply.schememate@gmail.com"
+    SMTP_USE_TLS: bool = True
+    
     # CORS
     BACKEND_CORS_ORIGINS: List[str] = [
         "http://localhost:3000",

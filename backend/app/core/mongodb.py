@@ -63,3 +63,4 @@ def close_mongodb():
     if mongo_manager.sync_client:
         mongo_manager.sync_client.close()
     logger.info("MongoDB connection closed.")
+

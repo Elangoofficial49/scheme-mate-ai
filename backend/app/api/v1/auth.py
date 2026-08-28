@@ -6,6 +6,7 @@ from app.core.database import get_db
 from app.models.user import User
 from app.core.security import get_password_hash, verify_password, create_access_token, create_refresh_token, decode_refresh_token
 from app.services.audit_service import AuditService
+from app.services.email_service import EmailService
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
@@ -57,6 +58,11 @@ def register(req: RegisterRequest, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(new_user)
 
+    # Generate dynamic 6-digit OTP and send to user's real email
+    real_otp = EmailService.generate_and_store_otp(req.phone)
+    EmailService.generate_and_store_otp(req.email)
+    EmailService.send_otp_email(to_email=req.email, otp=real_otp, user_name=req.full_name)
+
     AuditService.log_action(db, "USER_REGISTER_INITIATED", user_id=new_user.id, details=f"Email: {req.email}, Phone: {req.phone}")
 
     return {
@@ -66,7 +72,7 @@ def register(req: RegisterRequest, db: Session = Depends(get_db)):
             "user_id": new_user.id,
             "phone": new_user.phone,
             "email": new_user.email,
-            "demo_otp": "123456"
+            "otp_sent": True
         }
     }
 
@@ -103,7 +109,8 @@ def login(req: LoginRequest, db: Session = Depends(get_db)):
 
 @router.post("/verify-otp")
 def verify_otp(req: VerifyOTPRequest, db: Session = Depends(get_db)):
-    if len(req.otp) == 6:
+    is_valid = EmailService.verify_otp(req.phone, req.otp)
+    if is_valid:
         user = db.query(User).filter(User.phone == req.phone).first()
         if user:
             user.is_verified = True
@@ -116,7 +123,7 @@ def verify_otp(req: VerifyOTPRequest, db: Session = Depends(get_db)):
                 "phone": req.phone
             }
         }
-    raise HTTPException(status_code=400, detail={"code": "INVALID_OTP", "message": "Invalid 6-digit OTP"})
+    raise HTTPException(status_code=400, detail={"code": "INVALID_OTP", "message": "Invalid or expired 6-digit OTP code."})
 
 @router.post("/refresh")
 def refresh(req: RefreshRequest):
