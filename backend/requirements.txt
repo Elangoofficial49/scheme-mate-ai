@@ -17,4 +17,6 @@ pytest-asyncio>=0.23.5
 python-dotenv>=1.0.1
 numpy>=1.26.4
 prometheus-client>=0.20.0
+motor>=3.7.0
+pymongo>=4.17.0
 

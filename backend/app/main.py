@@ -3,6 +3,7 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
 from app.core.database import init_db
+from app.core.mongodb import init_mongodb, close_mongodb, get_mongodb
 from app.security.middleware import SecurityHeadersMiddleware, RateLimitMiddleware, global_exception_handler
 from app.api.v1 import auth, profile, schemes, matching, documents, action_plan, sync, notifications, admin
 
@@ -12,18 +13,19 @@ app = FastAPI(
     description="AI-Driven Scheme Matching & Assistance System for Marginalized Entrepreneurs (SIH Solution)"
 )
 
-# 1. CORS Middleware
+# 1. Security Headers & Rate Limiting Middleware
+app.add_middleware(SecurityHeadersMiddleware)
+app.add_middleware(RateLimitMiddleware, max_requests=120, window_seconds=60)
+
+# 2. CORS Middleware (Added last so it wraps and intercepts all requests first)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.BACKEND_CORS_ORIGINS,
+    allow_origin_regex=r"https?://.*",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-# 2. Security Headers & Rate Limiting Middleware
-app.add_middleware(SecurityHeadersMiddleware)
-app.add_middleware(RateLimitMiddleware, max_requests=120, window_seconds=60)
 
 # 3. Global Exception Handler
 app.add_exception_handler(Exception, global_exception_handler)
@@ -42,6 +44,11 @@ app.include_router(admin.router, prefix=settings.API_V1_STR)
 @app.on_event("startup")
 def startup_event():
     init_db()
+    init_mongodb()
+
+@app.on_event("shutdown")
+def shutdown_event():
+    close_mongodb()
 
 @app.get("/")
 def root():
@@ -55,8 +62,10 @@ def root():
 
 @app.get("/health")
 def health_check():
+    mongo_status = "connected" if get_mongodb() is not None else "ready"
     return {
         "status": "healthy",
         "timestamp": time.time(),
-        "database": "connected"
+        "database": "connected",
+        "mongodb": mongo_status
     }

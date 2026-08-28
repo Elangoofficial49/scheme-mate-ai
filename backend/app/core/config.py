@@ -21,6 +21,10 @@ class Settings(BaseSettings):
     # Database (PostgreSQL with fallback to SQLite for local standalone test)
     DATABASE_URL: str = "sqlite:///./schememate.db"
     
+    # MongoDB Connection (Local or MongoDB Atlas cluster)
+    MONGODB_URL: Optional[str] = "mongodb://localhost:27017"
+    MONGODB_DB_NAME: str = "schememate_ai"
+    
     # Redis
     REDIS_URL: str = "redis://localhost:6379/0"
     
@@ -34,10 +38,10 @@ class Settings(BaseSettings):
     
     # CORS
     BACKEND_CORS_ORIGINS: List[str] = [
-        "http://localhost",
-        "http://localhost:8000",
         "http://localhost:3000",
-        "*"
+        "http://localhost:8000",
+        "http://127.0.0.1:3000",
+        "http://127.0.0.1:8000",
     ]
 
     class Config:
