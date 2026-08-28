@@ -1,0 +1,22 @@
+{
+  "operators": [
+    {"symbol": "=", "name": "EQUALS", "description": "Exact equality match"},
+    {"symbol": "!=", "name": "NOT_EQUALS", "description": "Value must not equal specified target"},
+    {"symbol": ">", "name": "GREATER_THAN", "description": "Strictly greater than numerical bound"},
+    {"symbol": "<", "name": "LESS_THAN", "description": "Strictly less than numerical bound"},
+    {"symbol": ">=", "name": "GREATER_THAN_OR_EQUAL", "description": "Greater than or equal to minimum threshold"},
+    {"symbol": "<=", "name": "LESS_THAN_OR_EQUAL", "description": "Less than or equal to maximum threshold"},
+    {"symbol": "IN", "name": "IN_SET", "description": "User field value must be in target list"},
+    {"symbol": "NOT_IN", "name": "NOT_IN_SET", "description": "User field value must not be in target list"},
+    {"symbol": "CONTAINS", "name": "CONTAINS_TEXT", "description": "Substring or array inclusion match"},
+    {"symbol": "BETWEEN", "name": "RANGE_BETWEEN", "description": "Value must lie within inclusive range [min, max]"}
+  ],
+  "default_match_weights": {
+    "eligibility_match": 0.30,
+    "business_type_match": 0.20,
+    "financial_need_match": 0.15,
+    "location_match": 0.15,
+    "user_goal_match": 0.10,
+    "overall_relevance": 0.10
+  }
+}

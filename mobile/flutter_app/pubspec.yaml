@@ -1,0 +1,35 @@
+name: scheme_mate_ai
+description: "SchemeMate AI - AI-Driven Scheme Matching and Assistance System for Marginalized Entrepreneurs"
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  provider: ^6.1.1
+  http: ^1.2.0
+  shared_preferences: ^2.2.2
+  sqflite: ^2.3.0
+  path: ^1.9.0
+  image_picker: ^1.0.7
+  flutter_tts: ^3.8.5
+  speech_to_text: ^6.6.0
+  intl: ^0.20.3
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/i18n/en.json
+    - assets/i18n/ta.json
+    - assets/i18n/hi.json
+
