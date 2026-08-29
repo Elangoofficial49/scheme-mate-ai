@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../core/theme/app_theme.dart';
@@ -94,6 +95,9 @@ class _AuthScreenState extends State<AuthScreen> {
   void _showEmailOTPDialog({required String phone, required String email, String? devOtp}) {
     final otpController = TextEditingController();
     bool isVerifying = false;
+    bool isResending = false;
+    int secondsRemaining = 15;
+    Timer? countdownTimer;
 
     showDialog(
       context: context,
@@ -101,6 +105,15 @@ class _AuthScreenState extends State<AuthScreen> {
       builder: (ctx) {
         return StatefulBuilder(
           builder: (context, setModalState) {
+            // Start 15-second timer once
+            countdownTimer ??= Timer.periodic(const Duration(seconds: 1), (timer) {
+              if (secondsRemaining > 0) {
+                setModalState(() => secondsRemaining--);
+              } else {
+                timer.cancel();
+              }
+            });
+
             return AlertDialog(
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
               title: const Row(
@@ -159,19 +172,73 @@ class _AuthScreenState extends State<AuthScreen> {
                       border: OutlineInputBorder(),
                     ),
                   ),
-                  const SizedBox(height: 6),
-                  const Text(
-                    "ℹ Please check your inbox or spam folder for the email from SchemeMate AI.",
-                    style: TextStyle(fontSize: 11, color: Colors.grey),
+                  const SizedBox(height: 4),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        "Didn't receive code?",
+                        style: TextStyle(fontSize: 12, color: Colors.grey),
+                      ),
+                      TextButton.icon(
+                        onPressed: (secondsRemaining == 0 && !isResending)
+                            ? () async {
+                                setModalState(() => isResending = true);
+                                final auth = Provider.of<AuthProvider>(context, listen: false);
+                                final res = await auth.resendOtp(phone, email: email);
+                                setModalState(() {
+                                  isResending = false;
+                                  secondsRemaining = 15;
+                                });
+
+                                countdownTimer?.cancel();
+                                countdownTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+                                  if (secondsRemaining > 0) {
+                                    setModalState(() => secondsRemaining--);
+                                  } else {
+                                    timer.cancel();
+                                  }
+                                });
+
+                                if (res["success"] == true && mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text("📩 Fresh 6-digit OTP sent to $email!"),
+                                      backgroundColor: AppTheme.primaryBlue,
+                                    ),
+                                  );
+                                }
+                              }
+                            : null,
+                        icon: isResending
+                            ? const SizedBox(width: 12, height: 12, child: CircularProgressIndicator(strokeWidth: 2))
+                            : Icon(
+                                Icons.replay_rounded,
+                                size: 16,
+                                color: secondsRemaining == 0 ? AppTheme.primaryBlue : Colors.grey,
+                              ),
+                        label: Text(
+                          secondsRemaining > 0 ? "Resend in ${secondsRemaining}s" : "Resend OTP",
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 13,
+                            color: secondsRemaining == 0 ? AppTheme.primaryBlue : Colors.grey,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
               actions: [
                 TextButton(
-                  onPressed: () => Navigator.pop(ctx),
+                  onPressed: () {
+                    countdownTimer?.cancel();
+                    Navigator.pop(ctx);
+                  },
                   child: const Text("Cancel"),
                 ),
-                  ElevatedButton(
+                ElevatedButton(
                   onPressed: isVerifying
                       ? null
                       : () async {
@@ -192,6 +259,7 @@ class _AuthScreenState extends State<AuthScreen> {
                           setModalState(() => isVerifying = false);
 
                           if (verified && mounted) {
+                            countdownTimer?.cancel();
                             Navigator.pop(ctx);
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(

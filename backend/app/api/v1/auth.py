@@ -31,6 +31,10 @@ class VerifyOTPRequest(BaseModel):
     phone: str
     otp: str
 
+class ResendOTPRequest(BaseModel):
+    phone: str
+    email: Optional[str] = None
+
 @router.post("/register")
 def register(req: RegisterRequest, db: Session = Depends(get_db)):
     clean_phone = req.phone.strip()
@@ -177,6 +181,45 @@ def verify_otp(req: VerifyOTPRequest, db: Session = Depends(get_db)):
             }
         }
     raise HTTPException(status_code=400, detail={"code": "INVALID_OTP", "message": "Invalid or expired 6-digit OTP code."})
+
+@router.post("/resend-otp")
+def resend_otp(req: ResendOTPRequest, db: Session = Depends(get_db)):
+    clean_phone = req.phone.strip()
+    user = db.query(User).filter(User.phone == clean_phone).first()
+    
+    if not user and req.email:
+        clean_email = req.email.strip().lower()
+        user = db.query(User).filter(User.email == clean_email).first()
+
+    if not user:
+        raise HTTPException(
+            status_code=404,
+            detail={"code": "USER_NOT_FOUND", "message": "User not found. Please create an account first."}
+        )
+
+    # Generate fresh 6-digit OTP
+    otp = f"{secrets.randbelow(900000) + 100000}"
+    user.email_otp = otp
+    user.otp_expires_at = datetime.datetime.utcnow() + datetime.timedelta(minutes=15)
+    db.commit()
+
+    # Update cache and dispatch email
+    EmailService.store_otp(user.phone, otp)
+    if user.email:
+        EmailService.store_otp(user.email, otp)
+        EmailService.send_otp_email(to_email=user.email, otp=otp, user_name=user.full_name or "Entrepreneur")
+
+    AuditService.log_action(db, "OTP_RESENT", user_id=user.id, details=f"Email: {user.email}")
+
+    return {
+        "success": True,
+        "message": f"A fresh 6-digit security OTP has been sent to your email ({user.email}).",
+        "data": {
+            "phone": user.phone,
+            "email": user.email,
+            "dev_otp": otp
+        }
+    }
 
 @router.post("/refresh")
 def refresh(req: RefreshRequest):

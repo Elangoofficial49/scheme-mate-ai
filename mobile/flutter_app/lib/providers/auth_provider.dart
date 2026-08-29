@@ -59,6 +59,14 @@ class AuthProvider with ChangeNotifier {
     return res["success"] == true;
   }
 
+  Future<Map<String, dynamic>> resendOtp(String phone, {String? email}) async {
+    final res = await ApiClient.post("/auth/resend-otp", {
+      "phone": phone,
+      "email": email,
+    });
+    return res;
+  }
+
   void logout() {
     _isLoggedIn = false;
     _userId = null;
