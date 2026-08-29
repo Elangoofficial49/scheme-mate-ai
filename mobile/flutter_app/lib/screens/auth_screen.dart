@@ -75,11 +75,9 @@ class _AuthScreenState extends State<AuthScreen> {
       setState(() => _isLoading = false);
 
       if (res["success"] == true && mounted) {
-        final devOtp = res["data"]?["dev_otp"]?.toString();
         _showEmailOTPDialog(
           phone: _phoneController.text.trim(),
           email: _emailController.text.trim(),
-          devOtp: devOtp,
         );
       } else if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -92,13 +90,12 @@ class _AuthScreenState extends State<AuthScreen> {
     }
   }
 
-  void _showEmailOTPDialog({required String phone, required String email, String? devOtp}) {
+  void _showEmailOTPDialog({required String phone, required String email}) {
     final otpController = TextEditingController();
     bool isVerifying = false;
     bool isResending = false;
     int secondsRemaining = 15;
     Timer? countdownTimer;
-    String? currentDevOtp = devOtp;
 
     showDialog(
       context: context,
@@ -159,38 +156,6 @@ class _AuthScreenState extends State<AuthScreen> {
                       ],
                     ),
                   ),
-                  if (currentDevOtp != null) ...[
-                    const SizedBox(height: 8),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: AppTheme.successGreen.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(6),
-                        border: Border.all(color: AppTheme.successGreen.withOpacity(0.3)),
-                      ),
-                      child: Row(
-                        children: [
-                          const Icon(Icons.key, size: 16, color: AppTheme.successGreen),
-                          const SizedBox(width: 6),
-                          Expanded(
-                            child: Text(
-                              "Security OTP: $currentDevOtp",
-                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: AppTheme.successGreen),
-                            ),
-                          ),
-                          TextButton(
-                            onPressed: () {
-                              setModalState(() {
-                                otpController.text = currentDevOtp!;
-                              });
-                            },
-                            style: TextButton.styleFrom(visualDensity: VisualDensity.compact, padding: EdgeInsets.zero),
-                            child: const Text("Fill", style: TextStyle(fontWeight: FontWeight.bold)),
-                          )
-                        ],
-                      ),
-                    ),
-                  ],
                   const SizedBox(height: 16),
                   TextField(
                     controller: otpController,
@@ -222,9 +187,6 @@ class _AuthScreenState extends State<AuthScreen> {
                                 setModalState(() {
                                   isResending = false;
                                   secondsRemaining = 15;
-                                  if (res["data"]?["dev_otp"] != null) {
-                                    currentDevOtp = res["data"]["dev_otp"].toString();
-                                  }
                                 });
 
                                 countdownTimer?.cancel();

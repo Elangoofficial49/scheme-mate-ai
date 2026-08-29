@@ -119,8 +119,7 @@ def register(req: RegisterRequest, db: Session = Depends(get_db)):
             "user_id": target_user.id,
             "phone": target_user.phone,
             "email": target_user.email,
-            "otp_sent": True,
-            "dev_otp": otp
+            "otp_sent": True
         }
     }
 
@@ -223,8 +222,7 @@ def resend_otp(req: ResendOTPRequest, db: Session = Depends(get_db)):
         "message": f"A fresh 6-digit security OTP has been sent to your email ({user.email}).",
         "data": {
             "phone": user.phone,
-            "email": user.email,
-            "dev_otp": otp
+            "email": user.email
         }
     }
 
