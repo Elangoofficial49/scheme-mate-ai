@@ -18,7 +18,6 @@ class _AuthScreenState extends State<AuthScreen> {
   final _passwordController = TextEditingController();
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
-  final _aadhaarController = TextEditingController();
 
   bool _isLoading = false;
 
@@ -51,14 +50,13 @@ class _AuthScreenState extends State<AuthScreen> {
         );
       }
     } else {
-      // Registration Flow
+      // Account Creation Flow
       if (_nameController.text.trim().isEmpty ||
           _emailController.text.trim().isEmpty ||
-          _aadhaarController.text.trim().isEmpty ||
           _phoneController.text.trim().isEmpty ||
           _passwordController.text.trim().isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Please fill all required registration fields.")),
+          const SnackBar(content: Text("Please fill all required fields to create your account.")),
         );
         return;
       }
@@ -68,7 +66,7 @@ class _AuthScreenState extends State<AuthScreen> {
       final res = await auth.register(
         fullName: _nameController.text.trim(),
         email: _emailController.text.trim(),
-        aadhaarNumber: _aadhaarController.text.trim(),
+        aadhaarNumber: "",
         phone: _phoneController.text.trim(),
         password: _passwordController.text.trim(),
       );
@@ -76,14 +74,16 @@ class _AuthScreenState extends State<AuthScreen> {
       setState(() => _isLoading = false);
 
       if (res["success"] == true && mounted) {
+        final devOtp = res["data"]?["dev_otp"]?.toString();
         _showEmailOTPDialog(
           phone: _phoneController.text.trim(),
           email: _emailController.text.trim(),
+          devOtp: devOtp,
         );
       } else if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(res["error"]?["message"] ?? "Registration failed. Phone or Email already registered."),
+            content: Text(res["error"]?["message"] ?? "Account creation failed. Phone or Email already registered."),
             backgroundColor: AppTheme.warningOrange,
           ),
         );
@@ -91,7 +91,7 @@ class _AuthScreenState extends State<AuthScreen> {
     }
   }
 
-  void _showEmailOTPDialog({required String phone, required String email}) {
+  void _showEmailOTPDialog({required String phone, required String email, String? devOtp}) {
     final otpController = TextEditingController();
     bool isVerifying = false;
 
@@ -105,12 +105,12 @@ class _AuthScreenState extends State<AuthScreen> {
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
               title: const Row(
                 children: [
-                  Icon(Icons.mark_email_read_rounded, color: AppTheme.primaryBlue),
+                  Icon(Icons.mark_email_read_rounded, color: AppTheme.primaryBlue, size: 28),
                   SizedBox(width: 10),
                   Expanded(
                     child: Text(
-                      "Security Email OTP Verification",
-                      style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
+                      "Email OTP Verification",
+                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                     ),
                   ),
                 ],
@@ -119,39 +119,50 @@ class _AuthScreenState extends State<AuthScreen> {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    "For enhanced security, a 6-digit verification OTP has been sent to your registered email address:\n",
-                    style: TextStyle(fontSize: 13, color: Colors.grey.shade800),
+                  const Text(
+                    "A 6-digit verification code has been sent to your registered email address:",
+                    style: TextStyle(fontSize: 13, height: 1.4),
                   ),
+                  const SizedBox(height: 10),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                     decoration: BoxDecoration(
                       color: AppTheme.primaryBlue.withOpacity(0.08),
-                      borderRadius: BorderRadius.circular(6),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: AppTheme.primaryBlue.withOpacity(0.2)),
                     ),
                     child: Row(
                       children: [
-                        const Icon(Icons.email, size: 16, color: AppTheme.primaryBlue),
+                        const Icon(Icons.email_outlined, size: 18, color: AppTheme.primaryBlue),
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
                             email,
-                            style: const TextStyle(fontWeight: FontWeight.bold, color: AppTheme.primaryBlue),
+                            style: const TextStyle(fontWeight: FontWeight.bold, color: AppTheme.primaryBlue, fontSize: 14),
                           ),
                         ),
                       ],
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 18),
                   TextField(
                     controller: otpController,
                     keyboardType: TextInputType.number,
                     maxLength: 6,
+                    style: const TextStyle(letterSpacing: 8, fontSize: 20, fontWeight: FontWeight.bold),
+                    textAlign: TextAlign.center,
                     decoration: const InputDecoration(
-                      labelText: "Enter 6-Digit Security OTP",
-                      prefixIcon: Icon(Icons.security),
+                      hintText: "• • • • • •",
+                      labelText: "Enter 6-Digit OTP",
+                      prefixIcon: Icon(Icons.lock_outline),
                       border: OutlineInputBorder(),
                     ),
+                  ),
+                  const SizedBox(height: 6),
+                  const Text(
+                    "ℹ Please check your inbox or spam folder for the email from SchemeMate AI.",
+                    style: TextStyle(fontSize: 11, color: Colors.grey),
                   ),
                 ],
               ),
@@ -164,6 +175,16 @@ class _AuthScreenState extends State<AuthScreen> {
                   onPressed: isVerifying
                       ? null
                       : () async {
+                          if (otpController.text.trim().length != 6) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text("Please enter the full 6-digit OTP code."),
+                                backgroundColor: AppTheme.warningOrange,
+                              ),
+                            );
+                            return;
+                          }
+
                           setModalState(() => isVerifying = true);
                           final auth = Provider.of<AuthProvider>(context, listen: false);
                           bool verified = await auth.verifyOtp(phone, otpController.text.trim());
@@ -173,33 +194,37 @@ class _AuthScreenState extends State<AuthScreen> {
                             Navigator.pop(ctx);
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
-                                content: Text("✅ Account created & Email verified! Redirecting to Login..."),
+                                content: Text("✅ Account created and email verified! Please login."),
                                 backgroundColor: AppTheme.successGreen,
                               ),
                             );
 
-                            // Switch to Login Tab with phone pre-filled
+                            // Redirect to Login Tab with phone pre-filled
                             setState(() {
                               _isLoginTab = true;
                               _phoneController.text = phone;
+                              _passwordController.clear();
                             });
                           } else if (mounted) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
-                                content: Text("Invalid OTP code. Please enter valid 6-digit OTP."),
+                                content: Text("Invalid OTP code. Please check the code sent to your email."),
                                 backgroundColor: AppTheme.warningOrange,
                               ),
                             );
                           }
                         },
-                  style: ElevatedButton.styleFrom(backgroundColor: AppTheme.successGreen),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppTheme.successGreen,
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  ),
                   child: isVerifying
                       ? const SizedBox(
                           width: 20,
                           height: 20,
                           child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
                         )
-                      : const Text("Verify OTP & Complete Registration"),
+                      : const Text("Verify OTP & Activate Account"),
                 ),
               ],
             );
@@ -212,7 +237,10 @@ class _AuthScreenState extends State<AuthScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(_isLoginTab ? "Login" : "Register New Account")),
+      appBar: AppBar(
+        title: Text(_isLoginTab ? "Login to SchemeMate AI" : "Create New Account"),
+        elevation: 2,
+      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24.0),
         child: Column(
@@ -222,13 +250,19 @@ class _AuthScreenState extends State<AuthScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 ChoiceChip(
-                  label: const Text("Login", style: TextStyle(fontSize: 16)),
+                  label: const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                    child: Text("Login", style: TextStyle(fontSize: 16)),
+                  ),
                   selected: _isLoginTab,
                   onSelected: (val) => setState(() => _isLoginTab = true),
                 ),
-                const SizedBox(width: 16),
+                const SizedBox(width: 20),
                 ChoiceChip(
-                  label: const Text("Register", style: TextStyle(fontSize: 16)),
+                  label: const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                    child: Text("Create Account", style: TextStyle(fontSize: 16)),
+                  ),
                   selected: !_isLoginTab,
                   onSelected: (val) => setState(() => _isLoginTab = false),
                 ),
@@ -242,34 +276,22 @@ class _AuthScreenState extends State<AuthScreen> {
                 controller: _nameController,
                 decoration: const InputDecoration(
                   labelText: "Full Name",
+                  hintText: "e.g. Ramesh Kumar",
                   prefixIcon: Icon(Icons.person),
                   border: OutlineInputBorder(),
                 ),
               ),
               const SizedBox(height: 16),
 
-              // Email ID
+              // Email Address
               TextField(
                 controller: _emailController,
                 keyboardType: TextInputType.emailAddress,
                 decoration: const InputDecoration(
                   labelText: "Email Address",
+                  hintText: "e.g. elangoai12@gmail.com",
                   prefixIcon: Icon(Icons.email),
                   border: OutlineInputBorder(),
-                  hintText: "example@gmail.com",
-                ),
-              ),
-              const SizedBox(height: 16),
-
-              // Aadhaar Number
-              TextField(
-                controller: _aadhaarController,
-                keyboardType: TextInputType.number,
-                decoration: const InputDecoration(
-                  labelText: "Aadhaar Number (12 Digits)",
-                  prefixIcon: Icon(Icons.badge_outlined),
-                  border: OutlineInputBorder(),
-                  hintText: "1234 5678 9012",
                 ),
               ),
               const SizedBox(height: 16),
@@ -281,6 +303,7 @@ class _AuthScreenState extends State<AuthScreen> {
               keyboardType: TextInputType.phone,
               decoration: const InputDecoration(
                 labelText: "Phone Number",
+                hintText: "10-digit mobile number",
                 prefixIcon: Icon(Icons.phone),
                 border: OutlineInputBorder(),
               ),
@@ -293,6 +316,7 @@ class _AuthScreenState extends State<AuthScreen> {
               obscureText: true,
               decoration: const InputDecoration(
                 labelText: "Password",
+                hintText: "At least 6 characters",
                 prefixIcon: Icon(Icons.lock),
                 border: OutlineInputBorder(),
               ),
@@ -311,7 +335,7 @@ class _AuthScreenState extends State<AuthScreen> {
                 child: _isLoading
                     ? const CircularProgressIndicator(color: Colors.white)
                     : Text(
-                        _isLoginTab ? "Login" : "Send Email OTP & Register",
+                        _isLoginTab ? "Login" : "Create Account & Send Email OTP",
                         style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                       ),
               ),
@@ -321,7 +345,7 @@ class _AuthScreenState extends State<AuthScreen> {
             if (_isLoginTab)
               TextButton(
                 onPressed: () {
-                  // Demo bypass for quick presentation
+                  // Demo quick login
                   _phoneController.text = "9876543210";
                   _passwordController.text = "123456";
                   _submit();
