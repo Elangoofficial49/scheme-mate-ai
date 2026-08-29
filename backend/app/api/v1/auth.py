@@ -18,7 +18,7 @@ class RegisterRequest(BaseModel):
     phone: str = Field(..., example="9876543210")
     password: str = Field(..., min_length=6)
     aadhaar_number: Optional[str] = None
-    role: str = "USER"  # Default role
+    role: str = "USER"
 
 class LoginRequest(BaseModel):
     phone: str
@@ -40,78 +40,85 @@ def register(req: RegisterRequest, db: Session = Depends(get_db)):
     clean_phone = req.phone.strip()
     clean_email = str(req.email).strip().lower()
     
-    existing_phone = db.query(User).filter(User.phone == clean_phone).first()
-    if existing_phone:
-        # If user registered earlier but didn't verify, allow resending OTP and updating
-        if not existing_phone.is_verified:
-            otp = f"{secrets.randbelow(900000) + 100000}"
-            existing_phone.email = clean_email
-            existing_phone.full_name = req.full_name
-            existing_phone.hashed_password = get_password_hash(req.password)
-            existing_phone.email_otp = otp
-            existing_phone.otp_expires_at = datetime.datetime.utcnow() + datetime.timedelta(minutes=15)
-            db.commit()
-            
-            # Store in EmailService memory as well
-            EmailService.store_otp(clean_phone, otp)
-            EmailService.store_otp(clean_email, otp)
-            EmailService.send_otp_email(to_email=clean_email, otp=otp, user_name=req.full_name)
-            
-            return {
-                "success": True,
-                "message": f"Security OTP sent to your registered email address ({clean_email})",
-                "data": {
-                    "user_id": existing_phone.id,
-                    "phone": existing_phone.phone,
-                    "email": existing_phone.email,
-                    "otp_sent": True,
-                    "dev_otp": otp
-                }
-            }
-        raise HTTPException(
-            status_code=400,
-            detail={"code": "USER_EXISTS", "message": "Phone number already registered. Please login."}
-        )
-    
-    existing_email = db.query(User).filter(User.email == clean_email).first()
-    if existing_email and existing_email.is_verified:
-        raise HTTPException(
-            status_code=400,
-            detail={"code": "EMAIL_EXISTS", "message": "Email address already registered. Please login."}
-        )
-    
-    # Generate ONE single 6-digit OTP
+    # 1. Search for any existing user by phone OR email
+    existing_user = db.query(User).filter(
+        (User.phone == clean_phone) | (User.email == clean_email)
+    ).first()
+
     otp = f"{secrets.randbelow(900000) + 100000}"
     hashed_pwd = get_password_hash(req.password)
     
-    new_user = User(
-        phone=clean_phone,
-        email=clean_email,
-        aadhaar_number=req.aadhaar_number,
-        hashed_password=hashed_pwd,
-        full_name=req.full_name,
-        is_verified=False,
-        email_otp=otp,
-        otp_expires_at=datetime.datetime.utcnow() + datetime.timedelta(minutes=15)
-    )
-    db.add(new_user)
-    db.commit()
-    db.refresh(new_user)
+    if existing_user:
+        if existing_user.is_verified:
+            if existing_user.phone == clean_phone:
+                raise HTTPException(
+                    status_code=400,
+                    detail={"code": "USER_EXISTS", "message": "Phone number is already registered. Please login."}
+                )
+            else:
+                raise HTTPException(
+                    status_code=400,
+                    detail={"code": "EMAIL_EXISTS", "message": "Email address is already registered. Please login."}
+                )
+        
+        # User exists but is not verified yet: safely update details and send fresh OTP
+        existing_user.phone = clean_phone
+        existing_user.email = clean_email
+        existing_user.full_name = req.full_name
+        existing_user.hashed_password = hashed_pwd
+        existing_user.email_otp = otp
+        existing_user.otp_expires_at = datetime.datetime.utcnow() + datetime.timedelta(minutes=15)
+        db.commit()
+        db.refresh(existing_user)
+        target_user = existing_user
+    else:
+        # Create brand new user
+        target_user = User(
+            phone=clean_phone,
+            email=clean_email,
+            aadhaar_number=req.aadhaar_number,
+            hashed_password=hashed_pwd,
+            full_name=req.full_name,
+            is_verified=False,
+            email_otp=otp,
+            otp_expires_at=datetime.datetime.utcnow() + datetime.timedelta(minutes=15)
+        )
+        try:
+            db.add(target_user)
+            db.commit()
+            db.refresh(target_user)
+        except Exception:
+            db.rollback()
+            conflict_user = db.query(User).filter((User.phone == clean_phone) | (User.email == clean_email)).first()
+            if conflict_user and not conflict_user.is_verified:
+                conflict_user.phone = clean_phone
+                conflict_user.email = clean_email
+                conflict_user.full_name = req.full_name
+                conflict_user.hashed_password = hashed_pwd
+                conflict_user.email_otp = otp
+                conflict_user.otp_expires_at = datetime.datetime.utcnow() + datetime.timedelta(minutes=15)
+                db.commit()
+                target_user = conflict_user
+            else:
+                raise HTTPException(
+                    status_code=400,
+                    detail={"code": "REGISTRATION_ERROR", "message": "Account already exists with this phone or email. Please login."}
+                )
 
-    # Store exact same OTP in EmailService memory
+    # Store exact same OTP in EmailService memory cache and send email
     EmailService.store_otp(clean_phone, otp)
     EmailService.store_otp(clean_email, otp)
     EmailService.send_otp_email(to_email=clean_email, otp=otp, user_name=req.full_name)
 
-    AuditService.log_action(db, "USER_REGISTER_INITIATED", user_id=new_user.id, details=f"Email: {clean_email}, Phone: {clean_phone}")
+    AuditService.log_action(db, "USER_REGISTER_INITIATED", user_id=target_user.id, details=f"Email: {clean_email}, Phone: {clean_phone}")
 
     return {
         "success": True,
         "message": f"Security OTP sent to your registered email address ({clean_email})",
         "data": {
-            "user_id": new_user.id,
-            "phone": new_user.phone,
-            "email": new_user.email,
+            "user_id": target_user.id,
+            "phone": target_user.phone,
+            "email": target_user.email,
             "otp_sent": True,
             "dev_otp": otp
         }
