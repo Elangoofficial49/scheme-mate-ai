@@ -49,7 +49,7 @@ def init_db():
         # Seed data if schemes table empty
         count = db.query(Scheme).count()
         if count == 0:
-            seed_path = os.path.join(os.path.dirname(__file__), "../../../data/seed_schemes.json")
+            seed_path = os.path.join(os.path.dirname(__file__), "../../data/seed_schemes.json")
             if os.path.exists(seed_path):
                 with open(seed_path, "r", encoding="utf-8") as f:
                     data = json.load(f)
