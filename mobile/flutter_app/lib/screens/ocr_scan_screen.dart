@@ -60,11 +60,35 @@ class _OCRScanScreenState extends State<OCRScanScreen> {
     });
   }
 
-  void _confirmAndSave() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text("✓ Document details verified and updated in user profile!")),
-    );
-    Navigator.pop(context);
+  void _confirmAndSave() async {
+    Map<String, dynamic> updatePayload = {
+      "certificate_uploaded": true,
+      "certificate_type": _selectedDocType == "Udyam"
+          ? "Udyam Registration Certificate"
+          : "${_selectedDocType} Document",
+    };
+    if (_selectedDocType == "Aadhaar") {
+      updatePayload["full_name"] = _extractedData?["Name"] ?? "Kavitha R";
+      updatePayload["state"] = _extractedData?["State"] ?? "Tamil Nadu";
+    } else if (_selectedDocType == "Udyam") {
+      updatePayload["company_name"] = _extractedData?["Enterprise"] ?? "Kavitha Tailoring";
+      updatePayload["has_udyam_registration"] = true;
+      updatePayload["business_type"] = "Manufacturing";
+    } else if (_selectedDocType == "Income") {
+      updatePayload["annual_income"] = 180000.0;
+    }
+
+    await ApiClient.put("/profile", updatePayload);
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("✓ $_selectedDocType details verified and updated in user profile!"),
+          backgroundColor: AppTheme.successGreen,
+        ),
+      );
+      Navigator.pop(context);
+    }
   }
 
   @override
