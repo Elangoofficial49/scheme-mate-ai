@@ -5,6 +5,7 @@ from pydantic import BaseModel, EmailStr, Field
 from typing import Optional
 from sqlalchemy.orm import Session
 from app.core.database import get_db
+from app.core.config import settings
 from app.models.user import User
 from app.core.security import get_password_hash, verify_password, create_access_token, create_refresh_token, decode_refresh_token
 from app.services.audit_service import AuditService
@@ -123,8 +124,7 @@ def register(req: RegisterRequest, db: Session = Depends(get_db)):
             "phone": target_user.phone,
             "email": target_user.email,
             "otp_sent": True,
-            "email_delivered": email_result.get("delivered", False),
-            "dev_otp": otp if (not email_result.get("delivered") or settings.DEBUG) else None
+            "email_delivered": email_result.get("delivered", False)
         }
     }
 
@@ -238,8 +238,7 @@ def resend_otp(req: ResendOTPRequest, db: Session = Depends(get_db)):
         "data": {
             "phone": user.phone,
             "email": user.email,
-            "email_delivered": email_result.get("delivered", False),
-            "dev_otp": otp if (not email_result.get("delivered") or settings.DEBUG) else None
+            "email_delivered": email_result.get("delivered", False)
         }
     }
 

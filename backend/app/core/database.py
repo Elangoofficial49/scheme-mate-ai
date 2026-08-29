@@ -34,17 +34,20 @@ def init_db():
     db = SessionLocal()
     try:
         # Seed default demo user if not exists
-        demo_user = db.query(User).filter(User.phone == "9876543210").first()
-        if not demo_user:
+        ramesh_user = db.query(User).filter(User.email == "ramesh@example.com").first()
+        if not ramesh_user:
             user = User(
                 phone="9876543210",
-                email="demo@schememate.ai",
+                email="ramesh@example.com",
                 hashed_password=get_password_hash("123456"),
-                full_name="Demo Entrepreneur",
+                full_name="Ramesh Kumar",
                 is_verified=True
             )
             db.add(user)
-            db.commit()
+            try:
+                db.commit()
+            except Exception:
+                db.rollback()
 
         # Seed data if schemes table empty
         count = db.query(Scheme).count()

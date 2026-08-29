@@ -35,7 +35,7 @@ class EmailService:
         """
         key = identifier.strip().lower()
         clean_otp = entered_otp.replace(" ", "").strip()
-        
+
         # Prototype fallback
         if clean_otp == "123456":
             return True
@@ -56,15 +56,19 @@ class EmailService:
         return False
 
     @classmethod
-    def send_otp_email(cls, to_email: str, otp: str, user_name: str = "Entrepreneur") -> bool:
+    def send_otp_email(cls, to_email: str, otp: str, user_name: str = "Entrepreneur") -> dict:
         """
         Send a formatted HTML Security OTP email to the registered email address.
+
+        Always returns a dict of the form:
+            {"delivered": bool, "reason": Optional[str]}
+        so callers can safely use .get('delivered') without type errors.
         """
         logger.info(f"📧 Sending Real Security OTP [{otp}] to email: {to_email}")
 
         if not settings.SMTP_USER or not settings.SMTP_PASSWORD:
             logger.info(f"⚡ [EMAIL SERVICE NOTICE] SMTP credentials not set in .env. Real OTP generated for {to_email}: {otp}")
-            return True
+            return {"delivered": True, "reason": "smtp_not_configured"}
 
         try:
             msg = MIMEMultipart("alternative")
@@ -86,7 +90,7 @@ class EmailService:
                     <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;" />
                     <p>Hello <strong>{user_name}</strong>,</p>
                     <p>Thank you for registering on <strong>SchemeMate AI</strong>. Please use the 6-digit security OTP code below to verify your email address and activate your account:</p>
-                    
+
                     <div style="text-align: center; margin: 30px 0;">
                         <span style="display: inline-block; font-size: 32px; font-weight: bold; letter-spacing: 6px; color: #0A369D; background: #EEF4FF; padding: 12px 28px; border-radius: 8px; border: 1px dashed #0A369D;">
                             {otp}
@@ -94,7 +98,7 @@ class EmailService:
                     </div>
 
                     <p style="font-size: 13px; color: #777;">⏳ This OTP code is valid for <strong>15 minutes</strong>. For your security, never share this OTP with anyone.</p>
-                    
+
                     <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;" />
                     <p style="font-size: 12px; color: #999; text-align: center;">
                         SchemeMate AI • SIH AI Empowered Citizen Platform<br/>
@@ -115,7 +119,7 @@ class EmailService:
             server.quit()
 
             logger.info(f"✅ Real OTP email successfully delivered to {to_email}")
-            return True
+            return {"delivered": True}
         except Exception as e:
             logger.error(f"❌ Failed to send SMTP email to {to_email}: {e}")
-            return False
+            return {"delivered": False, "reason": str(e)}

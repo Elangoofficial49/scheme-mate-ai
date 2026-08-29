@@ -75,15 +75,9 @@ class _AuthScreenState extends State<AuthScreen> {
       setState(() => _isLoading = false);
 
       if (res["success"] == true && mounted) {
-        final data = res["data"] as Map<String, dynamic>?;
-        final devOtp = data?["dev_otp"]?.toString();
-        final emailDelivered = data?["email_delivered"] == true;
-
         _showEmailOTPDialog(
           phone: _phoneController.text.trim(),
           email: _emailController.text.trim(),
-          initialDevOtp: devOtp,
-          emailDelivered: emailDelivered,
         );
       } else if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -99,11 +93,8 @@ class _AuthScreenState extends State<AuthScreen> {
   void _showEmailOTPDialog({
     required String phone,
     required String email,
-    String? initialDevOtp,
-    bool emailDelivered = false,
   }) {
     final otpController = TextEditingController();
-    String? currentDevOtp = initialDevOtp;
     bool isVerifying = false;
     bool isResending = false;
     int secondsRemaining = 15;
@@ -143,11 +134,9 @@ class _AuthScreenState extends State<AuthScreen> {
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      emailDelivered
-                          ? "A 6-digit verification code has been dispatched to your email inbox:"
-                          : "Verification code generated for your email address:",
-                      style: const TextStyle(fontSize: 13, height: 1.4),
+                    const Text(
+                      "A 6-digit verification code has been sent to your registered email address:",
+                      style: TextStyle(fontSize: 13, height: 1.4),
                     ),
                     const SizedBox(height: 10),
                     Container(
@@ -171,61 +160,6 @@ class _AuthScreenState extends State<AuthScreen> {
                         ],
                       ),
                     ),
-                    if (currentDevOtp != null && currentDevOtp!.isNotEmpty) ...[
-                      const SizedBox(height: 12),
-                      Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFFFF9E6),
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: const Color(0xFFFFD54F), width: 1.5),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Row(
-                              children: [
-                                Icon(Icons.shield_outlined, color: Colors.brown, size: 16),
-                                SizedBox(width: 6),
-                                Text(
-                                  "Security OTP Code (Direct Preview)",
-                                  style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.brown),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 6),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  currentDevOtp!,
-                                  style: const TextStyle(
-                                    fontSize: 22,
-                                    fontWeight: FontWeight.bold,
-                                    letterSpacing: 4,
-                                    color: AppTheme.primaryBlue,
-                                  ),
-                                ),
-                                ElevatedButton.icon(
-                                  onPressed: () {
-                                    setModalState(() {
-                                      otpController.text = currentDevOtp!;
-                                    });
-                                  },
-                                  icon: const Icon(Icons.paste_rounded, size: 14),
-                                  label: const Text("Auto-Fill"),
-                                  style: ElevatedButton.styleFrom(
-                                    visualDensity: VisualDensity.compact,
-                                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
                     const SizedBox(height: 16),
                     TextField(
                       controller: otpController,
@@ -254,13 +188,9 @@ class _AuthScreenState extends State<AuthScreen> {
                                   setModalState(() => isResending = true);
                                   final auth = Provider.of<AuthProvider>(context, listen: false);
                                   final res = await auth.resendOtp(phone, email: email);
-                                  final resDevOtp = res["data"]?["dev_otp"]?.toString();
                                   setModalState(() {
                                     isResending = false;
                                     secondsRemaining = 15;
-                                    if (resDevOtp != null) {
-                                      currentDevOtp = resDevOtp;
-                                    }
                                   });
 
                                   countdownTimer?.cancel();
