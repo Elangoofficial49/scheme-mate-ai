@@ -26,15 +26,15 @@ class _AuthScreenState extends State<AuthScreen> {
     final auth = Provider.of<AuthProvider>(context, listen: false);
 
     if (_isLoginTab) {
-      if (_phoneController.text.trim().isEmpty || _passwordController.text.trim().isEmpty) {
+      if (_emailController.text.trim().isEmpty || _passwordController.text.trim().isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Please enter phone number and password.")),
+          const SnackBar(content: Text("Please enter your registered email address and password.")),
         );
         return;
       }
 
       setState(() => _isLoading = true);
-      bool success = await auth.login(_phoneController.text.trim(), _passwordController.text.trim());
+      bool success = await auth.login(_emailController.text.trim(), _passwordController.text.trim());
       setState(() => _isLoading = false);
 
       if (success && mounted) {
@@ -45,7 +45,7 @@ class _AuthScreenState extends State<AuthScreen> {
       } else if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text("Authentication failed. Invalid phone number or password."),
+            content: Text("Authentication failed. Invalid email address or password."),
             backgroundColor: AppTheme.warningOrange,
           ),
         );
@@ -266,10 +266,10 @@ class _AuthScreenState extends State<AuthScreen> {
                               ),
                             );
 
-                            // Redirect to Login Tab with phone pre-filled
+                            // Redirect to Login Tab with registered email pre-filled
                             setState(() {
                               _isLoginTab = true;
-                              _phoneController.text = phone;
+                              _emailController.text = email;
                               _passwordController.clear();
                             });
                           } else if (mounted) {
@@ -337,14 +337,27 @@ class _AuthScreenState extends State<AuthScreen> {
             ),
             const SizedBox(height: 24),
 
-            if (!_isLoginTab) ...[
+            if (_isLoginTab) ...[
+              // Registered Email Address for Login
+              TextField(
+                controller: _emailController,
+                keyboardType: TextInputType.emailAddress,
+                decoration: const InputDecoration(
+                  labelText: "Registered Email Address",
+                  hintText: "e.g. name@example.com",
+                  prefixIcon: Icon(Icons.email_outlined),
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              const SizedBox(height: 16),
+            ] else ...[
               // Full Name
               TextField(
                 controller: _nameController,
                 decoration: const InputDecoration(
                   labelText: "Full Name",
                   hintText: "e.g. Ramesh Kumar",
-                  prefixIcon: Icon(Icons.person),
+                  prefixIcon: Icon(Icons.person_outline),
                   border: OutlineInputBorder(),
                 ),
               ),
@@ -357,35 +370,35 @@ class _AuthScreenState extends State<AuthScreen> {
                 decoration: const InputDecoration(
                   labelText: "Email Address",
                   hintText: "e.g. elangoai12@gmail.com",
-                  prefixIcon: Icon(Icons.email),
+                  prefixIcon: Icon(Icons.email_outlined),
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              const SizedBox(height: 16),
+
+              // Phone Number
+              TextField(
+                controller: _phoneController,
+                keyboardType: TextInputType.phone,
+                decoration: const InputDecoration(
+                  labelText: "Phone Number",
+                  hintText: "10-digit mobile number",
+                  prefixIcon: Icon(Icons.phone_outlined),
                   border: OutlineInputBorder(),
                 ),
               ),
               const SizedBox(height: 16),
             ],
 
-            // Phone Number
-            TextField(
-              controller: _phoneController,
-              keyboardType: TextInputType.phone,
-              decoration: const InputDecoration(
-                labelText: "Phone Number",
-                hintText: "10-digit mobile number",
-                prefixIcon: Icon(Icons.phone),
-                border: OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 16),
-
             // Password
             TextField(
               controller: _passwordController,
               obscureText: true,
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 labelText: "Password",
-                hintText: "At least 6 characters",
-                prefixIcon: Icon(Icons.lock),
-                border: OutlineInputBorder(),
+                hintText: _isLoginTab ? "Enter your password" : "At least 6 characters",
+                prefixIcon: const Icon(Icons.lock_outline),
+                border: const OutlineInputBorder(),
               ),
             ),
             const SizedBox(height: 28),
@@ -413,11 +426,11 @@ class _AuthScreenState extends State<AuthScreen> {
               TextButton(
                 onPressed: () {
                   // Demo quick login
-                  _phoneController.text = "9876543210";
+                  _emailController.text = "ramesh@example.com";
                   _passwordController.text = "123456";
                   _submit();
                 },
-                child: const Text("Demo One-Click Login (9876543210)"),
+                child: const Text("Demo One-Click Login (ramesh@example.com)"),
               )
           ],
         ),
