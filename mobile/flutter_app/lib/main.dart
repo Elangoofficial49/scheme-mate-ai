@@ -6,6 +6,7 @@ import 'core/i18n/app_localizations.dart';
 import 'core/theme/app_theme.dart';
 import 'providers/auth_provider.dart';
 import 'providers/scheme_provider.dart';
+import 'screens/auth_screen.dart';
 import 'screens/splash_screen.dart';
 
 void main() {
@@ -37,7 +38,7 @@ class SchemeMateApp extends StatelessWidget {
           GlobalWidgetsLocalizations.delegate,
           GlobalCupertinoLocalizations.delegate,
         ],
-        home: const SplashScreen(),
+        home: const AuthScreen(),
       ),
     );
   }

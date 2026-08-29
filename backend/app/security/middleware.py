@@ -54,11 +54,19 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         self.requests[client_ip] = timestamps
         return await call_next(request)
 
+def _add_cors_headers(response: JSONResponse, request: Request) -> JSONResponse:
+    origin = request.headers.get("origin", "*")
+    response.headers["Access-Control-Allow-Origin"] = origin
+    response.headers["Access-Control-Allow-Credentials"] = "true"
+    response.headers["Access-Control-Allow-Methods"] = "*"
+    response.headers["Access-Control-Allow-Headers"] = "*"
+    return response
+
 async def global_exception_handler(request: Request, exc: Exception):
     logger.error(f"Unhandled server exception: {exc}", exc_info=True)
     
     if isinstance(exc, HTTPException):
-        return JSONResponse(
+        res = JSONResponse(
             status_code=exc.status_code,
             content={
                 "success": False,
@@ -68,14 +76,16 @@ async def global_exception_handler(request: Request, exc: Exception):
                 }
             }
         )
+        return _add_cors_headers(res, request)
         
-    return JSONResponse(
+    res = JSONResponse(
         status_code=500,
         content={
             "success": False,
             "error": {
                 "code": "INTERNAL_SERVER_ERROR",
-                "message": "An internal server error occurred. Technical details have been logged securely."
+                "message": f"An internal server error occurred: {str(exc)}"
             }
         }
     )
+    return _add_cors_headers(res, request)
