@@ -68,10 +68,12 @@ class EmailService:
 
         try:
             msg = MIMEMultipart("alternative")
-            msg["Subject"] = f"🔐 Your SchemeMate AI Security OTP: {otp}"
+            msg["Subject"] = f"🔐 Your SchemeMate AI Verification OTP: {otp}"
             msg["From"] = f"SchemeMate AI <{settings.SMTP_FROM_EMAIL}>"
             msg["To"] = to_email
+            msg["Reply-To"] = settings.SMTP_FROM_EMAIL
 
+            plain_text = f"Hello {user_name},\n\nYour SchemeMate AI security verification OTP is: {otp}\n\nThis OTP is valid for 15 minutes. For your security, do not share this OTP with anyone.\n\nSchemeMate AI Team"
             html_content = f"""
             <!DOCTYPE html>
             <html>
@@ -102,6 +104,7 @@ class EmailService:
             </body>
             </html>
             """
+            msg.attach(MIMEText(plain_text, "plain"))
             msg.attach(MIMEText(html_content, "html"))
 
             server = smtplib.SMTP(settings.SMTP_HOST, settings.SMTP_PORT, timeout=10)
