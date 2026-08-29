@@ -33,21 +33,29 @@ class VerifyOTPRequest(BaseModel):
 
 @router.post("/register")
 def register(req: RegisterRequest, db: Session = Depends(get_db)):
-    existing_phone = db.query(User).filter(User.phone == req.phone).first()
+    clean_phone = req.phone.strip()
+    clean_email = str(req.email).strip().lower()
+    
+    existing_phone = db.query(User).filter(User.phone == clean_phone).first()
     if existing_phone:
         # If user registered earlier but didn't verify, allow resending OTP and updating
         if not existing_phone.is_verified:
             otp = f"{secrets.randbelow(900000) + 100000}"
-            existing_phone.email = req.email
+            existing_phone.email = clean_email
             existing_phone.full_name = req.full_name
             existing_phone.hashed_password = get_password_hash(req.password)
             existing_phone.email_otp = otp
             existing_phone.otp_expires_at = datetime.datetime.utcnow() + datetime.timedelta(minutes=15)
             db.commit()
-            EmailService.send_otp_email(to_email=req.email, otp=otp, user_name=req.full_name)
+            
+            # Store in EmailService memory as well
+            EmailService.store_otp(clean_phone, otp)
+            EmailService.store_otp(clean_email, otp)
+            EmailService.send_otp_email(to_email=clean_email, otp=otp, user_name=req.full_name)
+            
             return {
                 "success": True,
-                "message": f"Security OTP sent to your registered email address ({req.email})",
+                "message": f"Security OTP sent to your registered email address ({clean_email})",
                 "data": {
                     "user_id": existing_phone.id,
                     "phone": existing_phone.phone,
@@ -61,20 +69,20 @@ def register(req: RegisterRequest, db: Session = Depends(get_db)):
             detail={"code": "USER_EXISTS", "message": "Phone number already registered. Please login."}
         )
     
-    existing_email = db.query(User).filter(User.email == req.email).first()
+    existing_email = db.query(User).filter(User.email == clean_email).first()
     if existing_email and existing_email.is_verified:
         raise HTTPException(
             status_code=400,
             detail={"code": "EMAIL_EXISTS", "message": "Email address already registered. Please login."}
         )
     
-    # Generate 6-digit OTP
+    # Generate ONE single 6-digit OTP
     otp = f"{secrets.randbelow(900000) + 100000}"
     hashed_pwd = get_password_hash(req.password)
     
     new_user = User(
-        phone=req.phone,
-        email=req.email,
+        phone=clean_phone,
+        email=clean_email,
         aadhaar_number=req.aadhaar_number,
         hashed_password=hashed_pwd,
         full_name=req.full_name,
@@ -86,16 +94,16 @@ def register(req: RegisterRequest, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(new_user)
 
-    # Send real email to recipient
-    EmailService.generate_and_store_otp(req.phone)
-    EmailService.generate_and_store_otp(req.email)
-    EmailService.send_otp_email(to_email=req.email, otp=otp, user_name=req.full_name)
+    # Store exact same OTP in EmailService memory
+    EmailService.store_otp(clean_phone, otp)
+    EmailService.store_otp(clean_email, otp)
+    EmailService.send_otp_email(to_email=clean_email, otp=otp, user_name=req.full_name)
 
-    AuditService.log_action(db, "USER_REGISTER_INITIATED", user_id=new_user.id, details=f"Email: {req.email}, Phone: {req.phone}")
+    AuditService.log_action(db, "USER_REGISTER_INITIATED", user_id=new_user.id, details=f"Email: {clean_email}, Phone: {clean_phone}")
 
     return {
         "success": True,
-        "message": f"Security OTP sent to your registered email address ({req.email})",
+        "message": f"Security OTP sent to your registered email address ({clean_email})",
         "data": {
             "user_id": new_user.id,
             "phone": new_user.phone,
@@ -107,10 +115,11 @@ def register(req: RegisterRequest, db: Session = Depends(get_db)):
 
 @router.post("/login")
 def login(req: LoginRequest, db: Session = Depends(get_db)):
-    user = db.query(User).filter(User.phone == req.phone).first()
+    clean_phone = req.phone.strip()
+    user = db.query(User).filter((User.phone == clean_phone) | (User.email == clean_phone.lower())).first()
     if not user or not verify_password(req.password, user.hashed_password):
         AuditService.log_security_event(
-            db, "FAILED_LOGIN", severity="MEDIUM", description=f"Failed login attempt for phone: {req.phone}"
+            db, "FAILED_LOGIN", severity="MEDIUM", description=f"Failed login attempt for phone: {clean_phone}"
         )
         raise HTTPException(
             status_code=401,
@@ -138,15 +147,18 @@ def login(req: LoginRequest, db: Session = Depends(get_db)):
 
 @router.post("/verify-otp")
 def verify_otp(req: VerifyOTPRequest, db: Session = Depends(get_db)):
-    entered_otp = req.otp.strip()
+    entered_otp = req.otp.replace(" ", "").strip()
+    clean_phone = req.phone.strip()
     
-    # 1. Check user in DB
-    user = db.query(User).filter((User.phone == req.phone) | (User.email == req.phone)).first()
+    # 1. Query user in DB
+    user = db.query(User).filter((User.phone == clean_phone) | (User.email == clean_phone.lower())).first()
     
     is_valid = False
-    if user and user.email_otp and user.email_otp == entered_otp:
+    if user and user.email_otp and user.email_otp.strip() == entered_otp:
         is_valid = True
-    elif EmailService.verify_otp(req.phone, entered_otp):
+    elif EmailService.verify_otp(clean_phone, entered_otp):
+        is_valid = True
+    elif user and user.email and EmailService.verify_otp(user.email, entered_otp):
         is_valid = True
     elif entered_otp == "123456":
         is_valid = True
@@ -161,7 +173,7 @@ def verify_otp(req: VerifyOTPRequest, db: Session = Depends(get_db)):
             "success": True,
             "message": "Email security OTP verified successfully! Account created. Redirecting to login...",
             "data": {
-                "phone": req.phone
+                "phone": clean_phone
             }
         }
     raise HTTPException(status_code=400, detail={"code": "INVALID_OTP", "message": "Invalid or expired 6-digit OTP code."})

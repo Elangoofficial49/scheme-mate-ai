@@ -171,11 +171,12 @@ class _AuthScreenState extends State<AuthScreen> {
                   onPressed: () => Navigator.pop(ctx),
                   child: const Text("Cancel"),
                 ),
-                ElevatedButton(
+                  ElevatedButton(
                   onPressed: isVerifying
                       ? null
                       : () async {
-                          if (otpController.text.trim().length != 6) {
+                          final cleanEnteredOtp = otpController.text.replaceAll(" ", "").trim();
+                          if (cleanEnteredOtp.length != 6) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
                                 content: Text("Please enter the full 6-digit OTP code."),
@@ -187,7 +188,7 @@ class _AuthScreenState extends State<AuthScreen> {
 
                           setModalState(() => isVerifying = true);
                           final auth = Provider.of<AuthProvider>(context, listen: false);
-                          bool verified = await auth.verifyOtp(phone, otpController.text.trim());
+                          bool verified = await auth.verifyOtp(phone, cleanEnteredOtp);
                           setModalState(() => isVerifying = false);
 
                           if (verified && mounted) {

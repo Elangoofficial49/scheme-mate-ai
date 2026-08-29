@@ -8,28 +8,36 @@ from app.core.config import settings
 from app.core.logging import logger
 
 class EmailService:
-    # In-memory OTP store: { identifier (email/phone): (otp, expiry_timestamp) }
+    # In-memory OTP store: { identifier: (otp, expiry_timestamp) }
     _otp_store: Dict[str, Tuple[str, float]] = {}
 
     @classmethod
-    def generate_and_store_otp(cls, identifier: str, expiry_minutes: int = 10) -> str:
+    def store_otp(cls, identifier: str, otp: str, expiry_minutes: int = 15):
+        """
+        Store an exact 6-digit OTP for an identifier (phone or email).
+        """
+        expiry_time = time.time() + (expiry_minutes * 60)
+        cls._otp_store[identifier.strip().lower()] = (otp.strip(), expiry_time)
+
+    @classmethod
+    def generate_and_store_otp(cls, identifier: str, expiry_minutes: int = 15) -> str:
         """
         Generate a dynamic, cryptographically secure 6-digit OTP and store with expiry.
         """
         otp = f"{secrets.randbelow(900000) + 100000}"
-        expiry_time = time.time() + (expiry_minutes * 60)
-        cls._otp_store[identifier.strip().lower()] = (otp, expiry_time)
+        cls.store_otp(identifier, otp, expiry_minutes)
         return otp
 
     @classmethod
     def verify_otp(cls, identifier: str, entered_otp: str) -> bool:
         """
-        Verify the OTP against stored dynamic value and check for expiration.
+        Verify the OTP against stored value and check for expiration.
         """
         key = identifier.strip().lower()
+        clean_otp = entered_otp.replace(" ", "").strip()
         
-        # Prototype fallback for quick demo testing
-        if entered_otp == "123456":
+        # Prototype fallback
+        if clean_otp == "123456":
             return True
 
         if key not in cls._otp_store:
@@ -38,12 +46,10 @@ class EmailService:
         stored_otp, expiry_time = cls._otp_store[key]
 
         if time.time() > expiry_time:
-            # Expired
             cls._otp_store.pop(key, None)
             return False
 
-        if stored_otp == entered_otp.strip():
-            # Valid OTP: remove after successful use
+        if stored_otp == clean_otp:
             cls._otp_store.pop(key, None)
             return True
 
@@ -56,7 +62,6 @@ class EmailService:
         """
         logger.info(f"📧 Sending Real Security OTP [{otp}] to email: {to_email}")
 
-        # If SMTP credentials are not yet configured in .env, log OTP clearly
         if not settings.SMTP_USER or not settings.SMTP_PASSWORD:
             logger.info(f"⚡ [EMAIL SERVICE NOTICE] SMTP credentials not set in .env. Real OTP generated for {to_email}: {otp}")
             return True
@@ -86,7 +91,7 @@ class EmailService:
                         </span>
                     </div>
 
-                    <p style="font-size: 13px; color: #777;">⏳ This OTP code is valid for <strong>10 minutes</strong>. For your security, never share this OTP with anyone.</p>
+                    <p style="font-size: 13px; color: #777;">⏳ This OTP code is valid for <strong>15 minutes</strong>. For your security, never share this OTP with anyone.</p>
                     
                     <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;" />
                     <p style="font-size: 12px; color: #999; text-align: center;">
@@ -99,7 +104,6 @@ class EmailService:
             """
             msg.attach(MIMEText(html_content, "html"))
 
-            # Send via SMTP
             server = smtplib.SMTP(settings.SMTP_HOST, settings.SMTP_PORT, timeout=10)
             if settings.SMTP_USE_TLS:
                 server.starttls()
@@ -112,4 +116,3 @@ class EmailService:
         except Exception as e:
             logger.error(f"❌ Failed to send SMTP email to {to_email}: {e}")
             return False
-
