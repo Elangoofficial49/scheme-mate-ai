@@ -3,7 +3,7 @@ import secrets
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-from typing import Dict, Tuple, Optional
+from typing import Dict, Tuple, Optional, Any
 from app.core.config import settings
 from app.core.logging import logger
 
@@ -56,15 +56,20 @@ class EmailService:
         return False
 
     @classmethod
-    def send_otp_email(cls, to_email: str, otp: str, user_name: str = "Entrepreneur") -> bool:
+    def send_otp_email(cls, to_email: str, otp: str, user_name: str = "Entrepreneur") -> Dict[str, Any]:
         """
         Send a formatted HTML Security OTP email to the registered email address.
         """
-        logger.info(f"📧 Sending Real Security OTP [{otp}] to email: {to_email}")
+        logger.info(f"📧 Processing Security OTP [{otp}] for email: {to_email}")
 
         if not settings.SMTP_USER or not settings.SMTP_PASSWORD:
-            logger.info(f"⚡ [EMAIL SERVICE NOTICE] SMTP credentials not set in .env. Real OTP generated for {to_email}: {otp}")
-            return True
+            logger.info(f"⚡ [EMAIL SERVICE NOTICE] SMTP credentials not set in .env. OTP generated for {to_email}: {otp}")
+            return {
+                "delivered": False,
+                "reason": "SMTP_NOT_CONFIGURED",
+                "message": "SMTP credentials not configured in .env. Real OTP simulated for development.",
+                "otp": otp
+            }
 
         try:
             msg = MIMEMultipart("alternative")
@@ -115,7 +120,17 @@ class EmailService:
             server.quit()
 
             logger.info(f"✅ Real OTP email successfully delivered to {to_email}")
-            return True
+            return {
+                "delivered": True,
+                "reason": "DELIVERED",
+                "message": f"Real OTP email successfully delivered to {to_email}",
+                "otp": otp
+            }
         except Exception as e:
             logger.error(f"❌ Failed to send SMTP email to {to_email}: {e}")
-            return False
+            return {
+                "delivered": False,
+                "reason": f"SMTP_ERROR: {str(e)}",
+                "message": f"Failed to send SMTP email: {str(e)}",
+                "otp": otp
+            }

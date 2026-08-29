@@ -75,9 +75,15 @@ class _AuthScreenState extends State<AuthScreen> {
       setState(() => _isLoading = false);
 
       if (res["success"] == true && mounted) {
+        final data = res["data"] as Map<String, dynamic>?;
+        final devOtp = data?["dev_otp"]?.toString();
+        final emailDelivered = data?["email_delivered"] == true;
+
         _showEmailOTPDialog(
           phone: _phoneController.text.trim(),
           email: _emailController.text.trim(),
+          initialDevOtp: devOtp,
+          emailDelivered: emailDelivered,
         );
       } else if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -90,8 +96,14 @@ class _AuthScreenState extends State<AuthScreen> {
     }
   }
 
-  void _showEmailOTPDialog({required String phone, required String email}) {
+  void _showEmailOTPDialog({
+    required String phone,
+    required String email,
+    String? initialDevOtp,
+    bool emailDelivered = false,
+  }) {
     final otpController = TextEditingController();
+    String? currentDevOtp = initialDevOtp;
     bool isVerifying = false;
     bool isResending = false;
     int secondsRemaining = 15;
@@ -126,107 +138,170 @@ class _AuthScreenState extends State<AuthScreen> {
                   ),
                 ],
               ),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    "A 6-digit verification code has been sent to your registered email address:",
-                    style: TextStyle(fontSize: 13, height: 1.4),
-                  ),
-                  const SizedBox(height: 10),
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                    decoration: BoxDecoration(
-                      color: AppTheme.primaryBlue.withOpacity(0.08),
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: AppTheme.primaryBlue.withOpacity(0.2)),
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      emailDelivered
+                          ? "A 6-digit verification code has been dispatched to your email inbox:"
+                          : "Verification code generated for your email address:",
+                      style: const TextStyle(fontSize: 13, height: 1.4),
                     ),
-                    child: Row(
+                    const SizedBox(height: 10),
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                      decoration: BoxDecoration(
+                        color: AppTheme.primaryBlue.withOpacity(0.08),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: AppTheme.primaryBlue.withOpacity(0.2)),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.email_outlined, size: 18, color: AppTheme.primaryBlue),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              email,
+                              style: const TextStyle(fontWeight: FontWeight.bold, color: AppTheme.primaryBlue, fontSize: 14),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    if (currentDevOtp != null && currentDevOtp!.isNotEmpty) ...[
+                      const SizedBox(height: 12),
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFFF9E6),
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: const Color(0xFFFFD54F), width: 1.5),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Row(
+                              children: [
+                                Icon(Icons.shield_outlined, color: Colors.brown, size: 16),
+                                SizedBox(width: 6),
+                                Text(
+                                  "Security OTP Code (Direct Preview)",
+                                  style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.brown),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 6),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  currentDevOtp!,
+                                  style: const TextStyle(
+                                    fontSize: 22,
+                                    fontWeight: FontWeight.bold,
+                                    letterSpacing: 4,
+                                    color: AppTheme.primaryBlue,
+                                  ),
+                                ),
+                                ElevatedButton.icon(
+                                  onPressed: () {
+                                    setModalState(() {
+                                      otpController.text = currentDevOtp!;
+                                    });
+                                  },
+                                  icon: const Icon(Icons.paste_rounded, size: 14),
+                                  label: const Text("Auto-Fill"),
+                                  style: ElevatedButton.styleFrom(
+                                    visualDensity: VisualDensity.compact,
+                                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                    const SizedBox(height: 16),
+                    TextField(
+                      controller: otpController,
+                      keyboardType: TextInputType.number,
+                      maxLength: 6,
+                      style: const TextStyle(letterSpacing: 8, fontSize: 20, fontWeight: FontWeight.bold),
+                      textAlign: TextAlign.center,
+                      decoration: const InputDecoration(
+                        hintText: "• • • • • •",
+                        labelText: "Enter 6-Digit OTP",
+                        prefixIcon: Icon(Icons.lock_outline),
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Icon(Icons.email_outlined, size: 18, color: AppTheme.primaryBlue),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            email,
-                            style: const TextStyle(fontWeight: FontWeight.bold, color: AppTheme.primaryBlue, fontSize: 14),
+                        const Text(
+                          "Didn't receive code?",
+                          style: TextStyle(fontSize: 12, color: Colors.grey),
+                        ),
+                        TextButton.icon(
+                          onPressed: (secondsRemaining == 0 && !isResending)
+                              ? () async {
+                                  setModalState(() => isResending = true);
+                                  final auth = Provider.of<AuthProvider>(context, listen: false);
+                                  final res = await auth.resendOtp(phone, email: email);
+                                  final resDevOtp = res["data"]?["dev_otp"]?.toString();
+                                  setModalState(() {
+                                    isResending = false;
+                                    secondsRemaining = 15;
+                                    if (resDevOtp != null) {
+                                      currentDevOtp = resDevOtp;
+                                    }
+                                  });
+
+                                  countdownTimer?.cancel();
+                                  countdownTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+                                    if (secondsRemaining > 0) {
+                                      setModalState(() => secondsRemaining--);
+                                    } else {
+                                      timer.cancel();
+                                    }
+                                  });
+
+                                  if (res["success"] == true && mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text("📩 Fresh 6-digit OTP dispatched to $email!"),
+                                        backgroundColor: AppTheme.primaryBlue,
+                                      ),
+                                    );
+                                  }
+                                }
+                              : null,
+                          icon: isResending
+                              ? const SizedBox(width: 12, height: 12, child: CircularProgressIndicator(strokeWidth: 2))
+                              : Icon(
+                                  Icons.replay_rounded,
+                                  size: 16,
+                                  color: secondsRemaining == 0 ? AppTheme.primaryBlue : Colors.grey,
+                                ),
+                          label: Text(
+                            secondsRemaining > 0 ? "Resend in ${secondsRemaining}s" : "Resend OTP",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 13,
+                              color: secondsRemaining == 0 ? AppTheme.primaryBlue : Colors.grey,
+                            ),
                           ),
                         ),
                       ],
                     ),
-                  ),
-                  const SizedBox(height: 16),
-                  TextField(
-                    controller: otpController,
-                    keyboardType: TextInputType.number,
-                    maxLength: 6,
-                    style: const TextStyle(letterSpacing: 8, fontSize: 20, fontWeight: FontWeight.bold),
-                    textAlign: TextAlign.center,
-                    decoration: const InputDecoration(
-                      hintText: "• • • • • •",
-                      labelText: "Enter 6-Digit OTP",
-                      prefixIcon: Icon(Icons.lock_outline),
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text(
-                        "Didn't receive code?",
-                        style: TextStyle(fontSize: 12, color: Colors.grey),
-                      ),
-                      TextButton.icon(
-                        onPressed: (secondsRemaining == 0 && !isResending)
-                            ? () async {
-                                setModalState(() => isResending = true);
-                                final auth = Provider.of<AuthProvider>(context, listen: false);
-                                final res = await auth.resendOtp(phone, email: email);
-                                setModalState(() {
-                                  isResending = false;
-                                  secondsRemaining = 15;
-                                });
-
-                                countdownTimer?.cancel();
-                                countdownTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
-                                  if (secondsRemaining > 0) {
-                                    setModalState(() => secondsRemaining--);
-                                  } else {
-                                    timer.cancel();
-                                  }
-                                });
-
-                                if (res["success"] == true && mounted) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text("📩 Fresh 6-digit OTP sent to $email!"),
-                                      backgroundColor: AppTheme.primaryBlue,
-                                    ),
-                                  );
-                                }
-                              }
-                            : null,
-                        icon: isResending
-                            ? const SizedBox(width: 12, height: 12, child: CircularProgressIndicator(strokeWidth: 2))
-                            : Icon(
-                                Icons.replay_rounded,
-                                size: 16,
-                                color: secondsRemaining == 0 ? AppTheme.primaryBlue : Colors.grey,
-                              ),
-                        label: Text(
-                          secondsRemaining > 0 ? "Resend in ${secondsRemaining}s" : "Resend OTP",
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 13,
-                            color: secondsRemaining == 0 ? AppTheme.primaryBlue : Colors.grey,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
+                  ],
+                ),
               ),
               actions: [
                 TextButton(

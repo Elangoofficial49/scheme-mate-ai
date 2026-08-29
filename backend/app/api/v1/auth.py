@@ -108,18 +108,22 @@ def register(req: RegisterRequest, db: Session = Depends(get_db)):
     # Store exact same OTP in EmailService memory cache and send email
     EmailService.store_otp(clean_phone, otp)
     EmailService.store_otp(clean_email, otp)
-    EmailService.send_otp_email(to_email=clean_email, otp=otp, user_name=req.full_name)
+    email_result = EmailService.send_otp_email(to_email=clean_email, otp=otp, user_name=req.full_name)
 
-    AuditService.log_action(db, "USER_REGISTER_INITIATED", user_id=target_user.id, details=f"Email: {clean_email}, Phone: {clean_phone}")
+    AuditService.log_action(db, "USER_REGISTER_INITIATED", user_id=target_user.id, details=f"Email: {clean_email}, Phone: {clean_phone}, Delivered: {email_result.get('delivered')}")
+
+    success_msg = f"Security OTP sent to your registered email address ({clean_email})" if email_result.get("delivered") else f"Security OTP generated for {clean_email}"
 
     return {
         "success": True,
-        "message": f"Security OTP sent to your registered email address ({clean_email})",
+        "message": success_msg,
         "data": {
             "user_id": target_user.id,
             "phone": target_user.phone,
             "email": target_user.email,
-            "otp_sent": True
+            "otp_sent": True,
+            "email_delivered": email_result.get("delivered", False),
+            "dev_otp": otp if (not email_result.get("delivered") or settings.DEBUG) else None
         }
     }
 
@@ -211,18 +215,23 @@ def resend_otp(req: ResendOTPRequest, db: Session = Depends(get_db)):
 
     # Update cache and dispatch email
     EmailService.store_otp(user.phone, otp)
+    email_result = {"delivered": False}
     if user.email:
         EmailService.store_otp(user.email, otp)
-        EmailService.send_otp_email(to_email=user.email, otp=otp, user_name=user.full_name or "Entrepreneur")
+        email_result = EmailService.send_otp_email(to_email=user.email, otp=otp, user_name=user.full_name or "Entrepreneur")
 
-    AuditService.log_action(db, "OTP_RESENT", user_id=user.id, details=f"Email: {user.email}")
+    AuditService.log_action(db, "OTP_RESENT", user_id=user.id, details=f"Email: {user.email}, Delivered: {email_result.get('delivered')}")
+
+    success_msg = f"A fresh 6-digit security OTP has been sent to your email ({user.email})." if email_result.get("delivered") else f"A fresh 6-digit security OTP has been generated for {user.email}."
 
     return {
         "success": True,
-        "message": f"A fresh 6-digit security OTP has been sent to your email ({user.email}).",
+        "message": success_msg,
         "data": {
             "phone": user.phone,
-            "email": user.email
+            "email": user.email,
+            "email_delivered": email_result.get("delivered", False),
+            "dev_otp": otp if (not email_result.get("delivered") or settings.DEBUG) else None
         }
     }
 
