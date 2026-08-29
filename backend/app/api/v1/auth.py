@@ -21,7 +21,8 @@ class RegisterRequest(BaseModel):
     role: str = "USER"
 
 class LoginRequest(BaseModel):
-    phone: str
+    email: Optional[str] = None
+    phone: Optional[str] = None
     password: str
 
 class RefreshRequest(BaseModel):
@@ -129,18 +130,24 @@ def register(req: RegisterRequest, db: Session = Depends(get_db)):
 
 @router.post("/login")
 def login(req: LoginRequest, db: Session = Depends(get_db)):
-    clean_phone = req.phone.strip()
-    user = db.query(User).filter((User.phone == clean_phone) | (User.email == clean_phone.lower())).first()
+    identifier = (req.email or req.phone or "").strip()
+    if not identifier:
+        raise HTTPException(
+            status_code=400,
+            detail={"code": "INVALID_INPUT", "message": "Email is required"}
+        )
+
+    user = db.query(User).filter((User.email == identifier.lower()) | (User.phone == identifier)).first()
     if not user or not verify_password(req.password, user.hashed_password):
         AuditService.log_security_event(
-            db, "FAILED_LOGIN", severity="MEDIUM", description=f"Failed login attempt for phone: {clean_phone}"
+            db, "FAILED_LOGIN", severity="MEDIUM", description=f"Failed login attempt for: {identifier}"
         )
         raise HTTPException(
             status_code=401,
-            detail={"code": "INVALID_CREDENTIALS", "message": "Invalid phone number or password"}
+            detail={"code": "INVALID_CREDENTIALS", "message": "Invalid email address or password"}
         )
 
-    roles = ["ADMIN", "USER"] if user.phone == "9999999999" else ["USER"]
+    roles = ["ADMIN", "USER"] if (user.phone == "9999999999" or user.email == "admin@schememate.ai") else ["USER"]
     access_token = create_access_token(user.id, roles=roles)
     refresh_token = create_refresh_token(user.id)
 
@@ -151,6 +158,7 @@ def login(req: LoginRequest, db: Session = Depends(get_db)):
         "message": "Login successful",
         "data": {
             "user_id": user.id,
+            "email": user.email,
             "phone": user.phone,
             "full_name": user.full_name,
             "access_token": access_token,
