@@ -60,10 +60,27 @@ class DeterministicEligibilityEngine:
         if allowed_categories:
             if not user_category:
                 missing_information.append("Category / Social Community")
-            elif user_category not in allowed_categories and "General" not in allowed_categories:
-                failed_rules.append(f"Targeted to communities: {', '.join(allowed_categories)} (Your category: {user_category})")
             else:
-                matched_rules.append(f"Social category eligible ({user_category})")
+                user_cat_clean = str(user_category).strip()
+                allowed_clean = [str(c).strip().lower() for c in allowed_categories]
+                
+                # Check eligibility
+                is_eligible = False
+                if "general" in allowed_clean or "all" in allowed_clean:
+                    is_eligible = True
+                elif any(ac in user_cat_clean.lower() or user_cat_clean.lower() in ac for ac in allowed_clean):
+                    is_eligible = True
+                elif ("obc" in allowed_clean) and any(k in user_cat_clean.lower() for k in ["bc", "mbc", "backward", "ebc", "sebc"]):
+                    is_eligible = True
+                elif ("sc" in allowed_clean or "st" in allowed_clean) and any(k in user_cat_clean.lower() for k in ["scheduled", "dalit", "adivasi", "tribe"]):
+                    is_eligible = True
+                elif ("minority" in allowed_clean) and any(k in user_cat_clean.lower() for k in ["muslim", "christian", "sikh", "jain", "buddhist", "parsi"]):
+                    is_eligible = True
+
+                if not is_eligible:
+                    failed_rules.append(f"Targeted to communities: {', '.join(allowed_categories)} (Your category: {user_category})")
+                else:
+                    matched_rules.append(f"Social category eligible ({user_category})")
 
         # 4. Gender requirements
         eligible_gender = scheme_rules.get("eligible_gender")

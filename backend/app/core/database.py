@@ -28,6 +28,14 @@ def get_db() -> Generator:
 
 def init_db():
     Base.metadata.create_all(bind=engine)
+    try:
+        from sqlalchemy import text
+        with engine.connect() as conn:
+            conn.execute(text("ALTER TABLE entrepreneur_profiles ADD COLUMN certificate_number VARCHAR"))
+            conn.commit()
+    except Exception:
+        pass
+
     from app.models.scheme import Scheme
     from app.models.user import User
     from app.core.security import get_password_hash

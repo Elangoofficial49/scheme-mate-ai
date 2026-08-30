@@ -23,7 +23,7 @@ class ApiClient {
       final response = await http.get(
         Uri.parse("$baseUrl$endpoint"),
         headers: _headers(),
-      ).timeout(const Duration(seconds: 10));
+      ).timeout(const Duration(seconds: 35));
       return _processResponse(response);
     } catch (e) {
       return {"success": false, "error": {"message": "Network error or server offline: $e"}};
@@ -36,7 +36,7 @@ class ApiClient {
         Uri.parse("$baseUrl$endpoint"),
         headers: _headers(),
         body: json.encode(body),
-      ).timeout(const Duration(seconds: 10));
+      ).timeout(const Duration(seconds: 35));
       return _processResponse(response);
     } catch (e) {
       return {"success": false, "error": {"message": "Network error or server offline: $e"}};
@@ -49,7 +49,7 @@ class ApiClient {
         Uri.parse("$baseUrl$endpoint"),
         headers: _headers(),
         body: json.encode(body),
-      ).timeout(const Duration(seconds: 10));
+      ).timeout(const Duration(seconds: 35));
       return _processResponse(response);
     } catch (e) {
       return {"success": false, "error": {"message": "Network error or server offline: $e"}};

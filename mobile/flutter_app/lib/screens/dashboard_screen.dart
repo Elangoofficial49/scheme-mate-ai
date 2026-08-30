@@ -42,8 +42,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
 
     if (mounted) {
-      await Provider.of<SchemeProvider>(context, listen: false).fetchRecommendations();
+      final schemeProv = Provider.of<SchemeProvider>(context, listen: false);
+      await schemeProv.fetchRecommendations();
       setState(() => _isLoadingProfile = false);
+      schemeProv.fetchGeminiSuggestions();
     }
   }
 
@@ -56,7 +58,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
     if ((_userProfile!["category"] ?? "").toString().isNotEmpty) score += 15;
     if ((_userProfile!["source_of_income"] ?? "").toString().isNotEmpty) score += 10;
     if (_userProfile!["annual_income"] != null) score += 10;
-    if (_userProfile!["certificate_uploaded"] == true) score += 5;
+    final hasCert = (_userProfile!["certificate_uploaded"] == true) ||
+        ((_userProfile!["certificate_number"] ?? "").toString().trim().isNotEmpty);
+    if (hasCert) score += 5;
     return score.clamp(0, 100);
   }
 
@@ -73,8 +77,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final incomeSource = _userProfile?["source_of_income"] ?? "Self-Employed";
     final annualIncome = _userProfile?["annual_income"] ?? 150000;
     final stateName = _userProfile?["state"] ?? "Tamil Nadu";
-    final isCertUploaded = _userProfile?["certificate_uploaded"] == true;
-    final certType = _userProfile?["certificate_type"] ?? "Income Certificate";
+    final certNumber = _userProfile?["certificate_number"];
+    final isCertUploaded = (_userProfile?["certificate_uploaded"] == true) ||
+        ((certNumber ?? "").toString().trim().isNotEmpty);
+    final certType = _userProfile?["certificate_type"] ?? "Certificate";
 
     return Scaffold(
       appBar: AppBar(
@@ -222,10 +228,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               size: 16,
                               color: isCertUploaded ? AppTheme.successGreen : AppTheme.warningOrange,
                             ),
-                            label: Text(isCertUploaded ? "Verified: $certType" : "No Certificate Attached"),
+                            label: Text(isCertUploaded
+                                ? "Verified: $certType${(certNumber != null && certNumber.toString().trim().isNotEmpty) ? ' (#$certNumber)' : ''}"
+                                : "No Certificate Linked"),
                             backgroundColor: isCertUploaded
-                                ? AppTheme.successGreen.withOpacity(0.12)
-                                : AppTheme.warningOrange.withOpacity(0.12),
+                                ? AppTheme.successGreen.withValues(alpha: 0.12)
+                                : AppTheme.warningOrange.withValues(alpha: 0.12),
                           ),
                         ],
                       ),
@@ -351,10 +359,64 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     );
                   },
                 ),
-            ],
+                            // Gemini AI Suggestions Section
+                const SizedBox(height: 20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text("Gemini AI Suggestions", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                    IconButton(
+                      icon: const Icon(Icons.refresh),
+                      tooltip: "Refresh Gemini Suggestions",
+                      onPressed: () async {
+                        await schemeProv.fetchGeminiSuggestions();
+                      },
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                if (schemeProv.isLoadingGemini)
+                  const Center(child: Padding(padding: EdgeInsets.all(30), child: CircularProgressIndicator()))
+                else if (schemeProv.geminiSuggestions.isEmpty)
+                  const Center(child: Padding(padding: EdgeInsets.all(20), child: Text("No Gemini suggestions available.")))
+                else
+                  ListView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: schemeProv.geminiSuggestions.length,
+                    itemBuilder: (context, index) {
+                      final item = schemeProv.geminiSuggestions[index];
+                      return Card(
+                        margin: const EdgeInsets.only(bottom: 14),
+                        child: Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(item["scheme_name"] ?? "", style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold)),
+                              const SizedBox(height: 6),
+                              Text(item["ministry"] ?? "", style: TextStyle(color: Colors.grey.shade700, fontSize: 13)),
+                              const SizedBox(height: 6),
+                              Text(item["key_benefits"] ?? ""),
+                              const SizedBox(height: 4),
+                              Text(item["eligibility_summary"] ?? ""),
+                              const SizedBox(height: 6),
+                              Wrap(
+                                spacing: 6,
+                                children: (item["why_matches"] as List<dynamic>? ?? []).map((w) => Chip(label: Text(w.toString()))).toList(),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ),
           ),
-        ),
-      ),
-    );
+        );
   }
 }
+
+

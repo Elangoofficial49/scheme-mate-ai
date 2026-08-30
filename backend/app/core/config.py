@@ -1,6 +1,12 @@
 import os
 from typing import List, Optional
 from pydantic_settings import BaseSettings
+from dotenv import load_dotenv
+
+# Explicitly load .env from backend and project root
+load_dotenv()
+load_dotenv(os.path.join(os.path.dirname(__file__), "../../../.env"))
+load_dotenv(os.path.join(os.path.dirname(__file__), "../../.env"))
 
 class Settings(BaseSettings):
     PROJECT_NAME: str = "SchemeMate AI"
@@ -29,9 +35,21 @@ class Settings(BaseSettings):
     REDIS_URL: str = "redis://localhost:6379/0"
     
     # AI Providers
-    AI_PROVIDER: str = "local"  # "openai", "gemini", "local"
+    AI_PROVIDER: str = "gemini"  # "gemini", "openai", "local"
     AI_API_KEY: Optional[str] = None
+    GEMINI_API_KEY: Optional[str] = None
+    GEMINI_MODEL: str = "gemini-3.6-flash"
     EMBEDDING_MODEL: str = "all-MiniLM-L6-v2"
+
+    @property
+    def effective_gemini_api_key(self) -> Optional[str]:
+        return (
+            self.GEMINI_API_KEY or
+            self.AI_API_KEY or
+            os.getenv("GEMINI_API_KEY") or
+            os.getenv("GOOGLE_API_KEY") or
+            os.getenv("AI_API_KEY")
+        )
     
     # OCR Provider
     OCR_PROVIDER: str = "local_regex"  # "tesseract", "paddleocr", "local_regex"

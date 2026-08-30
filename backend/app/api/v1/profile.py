@@ -23,6 +23,7 @@ class ProfileUpdateRequest(BaseModel):
     source_of_income: Optional[str] = None
     certificate_uploaded: Optional[bool] = None
     certificate_type: Optional[str] = None
+    certificate_number: Optional[str] = None
     occupation: Optional[str] = None
     business_type: Optional[str] = None
     business_stage: Optional[str] = None
@@ -65,6 +66,7 @@ def get_profile(payload: dict = Depends(get_current_user_token), db: Session = D
             "source_of_income": profile.source_of_income,
             "certificate_uploaded": profile.certificate_uploaded or False,
             "certificate_type": profile.certificate_type,
+            "certificate_number": getattr(profile, "certificate_number", None),
             "occupation": profile.occupation,
             "business_type": profile.business_type,
             "business_stage": profile.business_stage,
