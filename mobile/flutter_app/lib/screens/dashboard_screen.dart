@@ -6,7 +6,7 @@ import '../providers/auth_provider.dart';
 import '../providers/scheme_provider.dart';
 import 'business_profile_form_screen.dart';
 import 'ocr_scan_screen.dart';
-import 'scheme_detail_screen.dart';
+import 'scheme_requirements_screen.dart';
 import 'admin_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
@@ -222,19 +222,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             label: Text("Income: ₹$annualIncome/yr ($incomeSource)"),
                             backgroundColor: Colors.grey.shade100,
                           ),
-                          Chip(
-                            avatar: Icon(
-                              isCertUploaded ? Icons.verified : Icons.error_outline,
-                              size: 16,
-                              color: isCertUploaded ? AppTheme.successGreen : AppTheme.warningOrange,
+                          if (isCertUploaded)
+                            Chip(
+                              avatar: const Icon(
+                                Icons.verified,
+                                size: 16,
+                                color: AppTheme.successGreen,
+                              ),
+                              label: Text(
+                                "Verified: $certType${(certNumber != null && certNumber.toString().trim().isNotEmpty) ? ' (#$certNumber)' : ''}",
+                              ),
+                              backgroundColor: AppTheme.successGreen.withValues(alpha: 0.12),
                             ),
-                            label: Text(isCertUploaded
-                                ? "Verified: $certType${(certNumber != null && certNumber.toString().trim().isNotEmpty) ? ' (#$certNumber)' : ''}"
-                                : "No Certificate Linked"),
-                            backgroundColor: isCertUploaded
-                                ? AppTheme.successGreen.withValues(alpha: 0.12)
-                                : AppTheme.warningOrange.withValues(alpha: 0.12),
-                          ),
                         ],
                       ),
                       const SizedBox(height: 16),
@@ -263,160 +262,122 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ),
               const SizedBox(height: 20),
 
-              // Matched Schemes Section Header
+              // Suggested Schemes Section - powered by Gemini AI
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   const Text("Suggested Schemes for You", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
                   IconButton(
                     icon: const Icon(Icons.refresh),
-                    tooltip: "Refresh Scheme Matches",
-                    onPressed: () => _loadDashboardData(),
-                  )
+                    tooltip: "Refresh Suggestions",
+                    onPressed: () async {
+                      await schemeProv.fetchGeminiSuggestions();
+                    },
+                  ),
                 ],
               ),
               const SizedBox(height: 10),
 
-              if (_isLoadingProfile || schemeProv.isLoading)
+              if (schemeProv.isLoadingGemini || _isLoadingProfile)
                 const Center(child: Padding(padding: EdgeInsets.all(30), child: CircularProgressIndicator()))
-              else if (schemeProv.recommendations.isEmpty)
+              else if (schemeProv.geminiSuggestions.isEmpty)
                 const Center(
                   child: Padding(
                     padding: EdgeInsets.all(20.0),
-                    child: Text("No matched schemes available right now."),
+                    child: Text("No suggestions available. Complete your profile for personalized recommendations."),
                   ),
                 )
               else
                 ListView.builder(
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
-                  itemCount: schemeProv.recommendations.length,
+                  itemCount: schemeProv.geminiSuggestions.length,
                   itemBuilder: (context, index) {
-                    final item = schemeProv.recommendations[index];
+                    final item = schemeProv.geminiSuggestions[index];
+                    final List<dynamic> whyMatches = item["why_matches"] as List<dynamic>? ?? [];
                     return Card(
                       margin: const EdgeInsets.only(bottom: 14),
-                      child: InkWell(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => SchemeDetailScreen(match: item),
+                      elevation: 2,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              item["scheme_name"] ?? "",
+                              style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
                             ),
-                          );
-                        },
-                        child: Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Expanded(
-                                    child: Text(
-                                      item.schemeName,
-                                      style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
-                                    ),
-                                  ),
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                                    decoration: BoxDecoration(
-                                      color: item.matchScore >= 80 ? AppTheme.successGreen : AppTheme.warningOrange,
-                                      borderRadius: BorderRadius.circular(20),
-                                    ),
-                                    child: Text(
-                                      item.matchLabel,
-                                      style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
-                                    ),
-                                  )
-                                ],
+                            const SizedBox(height: 4),
+                            Text(
+                              item["ministry"] ?? "",
+                              style: TextStyle(color: Colors.grey.shade700, fontSize: 13),
+                            ),
+                            if ((item["key_benefits"] ?? "").toString().isNotEmpty) ...[
+                              const SizedBox(height: 8),
+                              Text(
+                                item["key_benefits"].toString(),
+                                style: const TextStyle(fontSize: 13, color: Colors.black87),
                               ),
-                              const SizedBox(height: 6),
-                              Text(item.ministry, style: TextStyle(color: Colors.grey.shade700, fontSize: 13)),
-                              const SizedBox(height: 12),
-                              if (item.whyMatches.isNotEmpty) ...[
-                                Text(item.whyMatches.first, style: const TextStyle(fontSize: 13, color: AppTheme.successGreen)),
-                              ],
-                              if (item.missingInformation.isNotEmpty) ...[
-                                const SizedBox(height: 4),
-                                Text(
-                                  "⚠ Missing: ${item.missingInformation.join(', ')}",
-                                  style: const TextStyle(fontSize: 13, color: AppTheme.warningOrange),
-                                ),
-                              ],
-                              const SizedBox(height: 14),
-                              Row(
-                                children: [
-                                  Text("Verified: ${item.lastVerified}", style: const TextStyle(fontSize: 11, color: Colors.grey)),
-                                  const Spacer(),
-                                  const Text("View Details ->", style: TextStyle(color: AppTheme.primaryBlue, fontWeight: FontWeight.bold)),
-                                ],
-                              )
                             ],
-                          ),
+                            if ((item["eligibility_summary"] ?? "").toString().isNotEmpty) ...[
+                              const SizedBox(height: 4),
+                              Text(
+                                item["eligibility_summary"].toString(),
+                                style: TextStyle(fontSize: 13, color: Colors.grey.shade700),
+                              ),
+                            ],
+                            if (whyMatches.isNotEmpty) ...[
+                              const SizedBox(height: 10),
+                              Wrap(
+                                spacing: 6,
+                                runSpacing: 4,
+                                children: whyMatches.map((w) => Chip(
+                                  label: Text(
+                                    w.toString(),
+                                    style: const TextStyle(fontSize: 11),
+                                  ),
+                                  padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 0),
+                                  backgroundColor: AppTheme.successGreen.withOpacity(0.1),
+                                  side: BorderSide(color: AppTheme.successGreen.withOpacity(0.3)),
+                                  labelStyle: const TextStyle(color: AppTheme.successGreen, fontWeight: FontWeight.w600),
+                                )).toList(),
+                              ),
+                            ],
+                            const SizedBox(height: 14),
+                            const Divider(height: 1),
+                            const SizedBox(height: 10),
+                            SizedBox(
+                              width: double.infinity,
+                              child: ElevatedButton.icon(
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => SchemeRequirementsScreen(scheme: item),
+                                    ),
+                                  );
+                                },
+                                icon: const Icon(Icons.assignment_outlined, size: 18),
+                                label: const Text("View Required Details & Apply"),
+                                style: ElevatedButton.styleFrom(
+                                  padding: const EdgeInsets.symmetric(vertical: 10),
+                                  backgroundColor: AppTheme.primaryBlue,
+                                  foregroundColor: Colors.white,
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     );
                   },
                 ),
-                            // Gemini AI Suggestions Section
-                const SizedBox(height: 20),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text("Gemini AI Suggestions", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                    IconButton(
-                      icon: const Icon(Icons.refresh),
-                      tooltip: "Refresh Gemini Suggestions",
-                      onPressed: () async {
-                        await schemeProv.fetchGeminiSuggestions();
-                      },
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 10),
-                if (schemeProv.isLoadingGemini)
-                  const Center(child: Padding(padding: EdgeInsets.all(30), child: CircularProgressIndicator()))
-                else if (schemeProv.geminiSuggestions.isEmpty)
-                  const Center(child: Padding(padding: EdgeInsets.all(20), child: Text("No Gemini suggestions available.")))
-                else
-                  ListView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: schemeProv.geminiSuggestions.length,
-                    itemBuilder: (context, index) {
-                      final item = schemeProv.geminiSuggestions[index];
-                      return Card(
-                        margin: const EdgeInsets.only(bottom: 14),
-                        child: Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(item["scheme_name"] ?? "", style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold)),
-                              const SizedBox(height: 6),
-                              Text(item["ministry"] ?? "", style: TextStyle(color: Colors.grey.shade700, fontSize: 13)),
-                              const SizedBox(height: 6),
-                              Text(item["key_benefits"] ?? ""),
-                              const SizedBox(height: 4),
-                              Text(item["eligibility_summary"] ?? ""),
-                              const SizedBox(height: 6),
-                              Wrap(
-                                spacing: 6,
-                                children: (item["why_matches"] as List<dynamic>? ?? []).map((w) => Chip(label: Text(w.toString()))).toList(),
-                              ),
-                            ],
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                ],
-              ),
-            ),
+            ],
           ),
-        );
+        ),
+      ),
+    );
   }
 }
-
-

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import '../core/theme/app_theme.dart';
 import '../models/match_result_model.dart';
 import 'action_plan_screen.dart';
-import 'ocr_scan_screen.dart';
 
 class SchemeDetailScreen extends StatelessWidget {
   final MatchResultModel match;
@@ -96,36 +95,25 @@ class SchemeDetailScreen extends StatelessWidget {
                 );
               }),
             const SizedBox(height: 24),
-            Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton.icon(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => const OCRScanScreen()),
-                      );
-                    },
-                    icon: const Icon(Icons.document_scanner),
-                    label: const Text("Scan Document"),
-                  ),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ActionPlanScreen(match: match),
+                    ),
+                  );
+                },
+                icon: const Icon(Icons.list_alt),
+                label: const Text("Action Plan"),
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  backgroundColor: AppTheme.primaryBlue,
+                  foregroundColor: Colors.white,
                 ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: ElevatedButton.icon(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => ActionPlanScreen(match: match),
-                        ),
-                      );
-                    },
-                    icon: const Icon(Icons.list_alt),
-                    label: const Text("Action Plan"),
-                  ),
-                ),
-              ],
+              ),
             )
           ],
         ),
