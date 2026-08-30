@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../core/i18n/app_localizations.dart';
 import '../core/network/api_client.dart';
 import '../core/theme/app_theme.dart';
 import '../providers/auth_provider.dart';
+import '../providers/locale_provider.dart';
 import '../providers/scheme_provider.dart';
 import 'business_profile_form_screen.dart';
 import 'ocr_scan_screen.dart';
@@ -31,7 +33,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Future<void> _loadDashboardData() async {
     setState(() => _isLoadingProfile = true);
     
-    // Fetch profile and scheme recommendations in parallel
     final profileRes = await ApiClient.get("/profile");
     if (profileRes["success"] == true && profileRes["data"] != null) {
       if (mounted) {
@@ -51,7 +52,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   int _calculateProfileCompletion() {
     if (_userProfile == null) return 50;
-    int score = 20; // Base score for registration
+    int score = 20;
     if ((_userProfile!["company_name"] ?? "").toString().isNotEmpty) score += 15;
     if ((_userProfile!["business_description"] ?? "").toString().isNotEmpty) score += 15;
     if (_userProfile!["age"] != null) score += 10;
@@ -68,6 +69,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Widget build(BuildContext context) {
     final auth = Provider.of<AuthProvider>(context);
     final schemeProv = Provider.of<SchemeProvider>(context);
+    final localeProv = Provider.of<LocaleProvider>(context);
+    final currentLang = localeProv.languageCode;
     final completionPct = _calculateProfileCompletion();
 
     final companyName = _userProfile?["company_name"] ?? "Sri Lakshmi Textiles";
@@ -84,11 +87,54 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("SchemeMate AI"),
+        title: Text(context.tr("app_title")),
         actions: [
+          PopupMenuButton<String>(
+            icon: const Icon(Icons.language_rounded),
+            tooltip: context.tr("change_language"),
+            onSelected: (code) => localeProv.setLocale(code),
+            itemBuilder: (context) => [
+              PopupMenuItem(
+                value: 'en',
+                child: Row(
+                  children: [
+                    const Text("🇬🇧 English"),
+                    if (currentLang == 'en') ...[
+                      const Spacer(),
+                      const Icon(Icons.check, color: AppTheme.primaryBlue, size: 18),
+                    ],
+                  ],
+                ),
+              ),
+              PopupMenuItem(
+                value: 'ta',
+                child: Row(
+                  children: [
+                    const Text("🇮🇳 தமிழ் (Tamil)"),
+                    if (currentLang == 'ta') ...[
+                      const Spacer(),
+                      const Icon(Icons.check, color: AppTheme.primaryBlue, size: 18),
+                    ],
+                  ],
+                ),
+              ),
+              PopupMenuItem(
+                value: 'hi',
+                child: Row(
+                  children: [
+                    const Text("🇮🇳 हिन्दी (Hindi)"),
+                    if (currentLang == 'hi') ...[
+                      const Spacer(),
+                      const Icon(Icons.check, color: AppTheme.primaryBlue, size: 18),
+                    ],
+                  ],
+                ),
+              ),
+            ],
+          ),
           IconButton(
             icon: const Icon(Icons.edit_note_rounded),
-            tooltip: "Edit Business Profile",
+            tooltip: context.tr("edit_form"),
             onPressed: () {
               Navigator.push(
                 context,
@@ -132,13 +178,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   padding: const EdgeInsets.all(10),
                   margin: const EdgeInsets.only(bottom: 16),
                   color: Colors.amber.shade800,
-                  child: const Row(
+                  child: Row(
                     children: [
-                      Icon(Icons.wifi_off, color: Colors.white),
-                      SizedBox(width: 10),
-                      Text(
-                        "Offline Mode Active - Showing Cached Schemes",
-                        style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                      const Icon(Icons.wifi_off, color: Colors.white),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          context.tr("offline_mode_active"),
+                          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                        ),
                       ),
                     ],
                   ),
@@ -161,7 +209,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  "Hello, ${auth.fullName ?? 'Entrepreneur'} 👋",
+                                  context.tr("hello_user", {"name": auth.fullName ?? 'Entrepreneur'}),
                                   style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                                 ),
                                 const SizedBox(height: 4),
@@ -184,7 +232,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               ).then((_) => _loadDashboardData());
                             },
                             icon: const Icon(Icons.edit, size: 16),
-                            label: const Text("Edit Form"),
+                            label: Text(context.tr("edit_form")),
                             style: OutlinedButton.styleFrom(
                               visualDensity: VisualDensity.compact,
                               foregroundColor: AppTheme.primaryBlue,
@@ -194,7 +242,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       ),
                       const SizedBox(height: 10),
                       Text(
-                        "📝 Details: $businessDesc",
+                        "${context.tr('details_prefix')}$businessDesc",
                         style: TextStyle(color: Colors.grey.shade800, fontSize: 14),
                       ),
                       const Divider(height: 24),
@@ -204,7 +252,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         children: [
                           Chip(
                             avatar: const Icon(Icons.cake, size: 16),
-                            label: Text("Age: $age yrs"),
+                            label: Text(context.tr("age_chip", {"age": "$age"})),
                             backgroundColor: Colors.grey.shade100,
                           ),
                           Chip(
@@ -214,12 +262,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           ),
                           Chip(
                             avatar: const Icon(Icons.groups, size: 16),
-                            label: Text("Category: $category"),
+                            label: Text(context.tr("category_chip", {"category": category})),
                             backgroundColor: Colors.grey.shade100,
                           ),
                           Chip(
                             avatar: const Icon(Icons.account_balance_wallet, size: 16),
-                            label: Text("Income: ₹$annualIncome/yr ($incomeSource)"),
+                            label: Text(context.tr("income_chip", {"income": "$annualIncome", "source": incomeSource})),
                             backgroundColor: Colors.grey.shade100,
                           ),
                           if (isCertUploaded)
@@ -230,7 +278,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 color: AppTheme.successGreen,
                               ),
                               label: Text(
-                                "Verified: $certType${(certNumber != null && certNumber.toString().trim().isNotEmpty) ? ' (#$certNumber)' : ''}",
+                                (certNumber != null && certNumber.toString().trim().isNotEmpty)
+                                    ? context.tr("verified_chip", {"type": certType, "number": "$certNumber"})
+                                    : context.tr("verified_chip_no_num", {"type": certType}),
                               ),
                               backgroundColor: AppTheme.successGreen.withValues(alpha: 0.12),
                             ),
@@ -239,7 +289,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       const SizedBox(height: 16),
                       Row(
                         children: [
-                          const Text("Profile Completion: ", style: TextStyle(fontWeight: FontWeight.bold)),
+                          Text(context.tr("profile_completion"), style: const TextStyle(fontWeight: FontWeight.bold)),
                           Text(
                             "$completionPct%",
                             style: const TextStyle(color: AppTheme.successGreen, fontWeight: FontWeight.bold),
@@ -266,10 +316,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text("Suggested Schemes for You", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                  Expanded(
+                    child: Text(
+                      context.tr("suggested_schemes"),
+                      style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    ),
+                  ),
                   IconButton(
                     icon: const Icon(Icons.refresh),
-                    tooltip: "Refresh Suggestions",
+                    tooltip: context.tr("refresh_suggestions"),
                     onPressed: () async {
                       await schemeProv.fetchGeminiSuggestions();
                     },
@@ -281,10 +336,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
               if (schemeProv.isLoadingGemini || _isLoadingProfile)
                 const Center(child: Padding(padding: EdgeInsets.all(30), child: CircularProgressIndicator()))
               else if (schemeProv.geminiSuggestions.isEmpty)
-                const Center(
+                Center(
                   child: Padding(
-                    padding: EdgeInsets.all(20.0),
-                    child: Text("No suggestions available. Complete your profile for personalized recommendations."),
+                    padding: const EdgeInsets.all(20.0),
+                    child: Text(context.tr("no_suggestions")),
                   ),
                 )
               else
@@ -359,7 +414,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                   );
                                 },
                                 icon: const Icon(Icons.assignment_outlined, size: 18),
-                                label: const Text("View Required Details & Apply"),
+                                label: Text(context.tr("view_required_details_btn")),
                                 style: ElevatedButton.styleFrom(
                                   padding: const EdgeInsets.symmetric(vertical: 10),
                                   backgroundColor: AppTheme.primaryBlue,

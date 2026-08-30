@@ -12,7 +12,7 @@ class AppLocalizations {
 
   static const LocalizationsDelegate<AppLocalizations> delegate = _AppLocalizationsDelegate();
 
-  late Map<String, String> _localizedStrings;
+  Map<String, String> _localizedStrings = {};
 
   Future<bool> load() async {
     String jsonString;
@@ -47,6 +47,17 @@ class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> 
   }
 
   @override
-  bool shouldReload(_AppLocalizationsDelegate old) => false;
+  bool shouldReload(_AppLocalizationsDelegate old) => true;
 }
 
+extension LocalizationExtension on BuildContext {
+  String tr(String key, [Map<String, String>? args]) {
+    String val = AppLocalizations.of(this)?.translate(key) ?? key;
+    if (args != null) {
+      args.forEach((k, v) {
+        val = val.replaceAll('{$k}', v);
+      });
+    }
+    return val;
+  }
+}

@@ -1,7 +1,10 @@
 // ignore: avoid_web_libraries_in_flutter
 import 'dart:html' as html;
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../core/i18n/app_localizations.dart';
 import '../core/theme/app_theme.dart';
+import '../providers/locale_provider.dart';
 
 class SchemeRequirementsScreen extends StatelessWidget {
   final Map<String, dynamic> scheme;
@@ -15,8 +18,8 @@ class SchemeRequirementsScreen extends StatelessWidget {
 
     if (portalUrl.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("No official portal URL available for this scheme."),
+        SnackBar(
+          content: Text(context.tr("no_portal_url")),
           backgroundColor: Colors.orange,
         ),
       );
@@ -27,6 +30,9 @@ class SchemeRequirementsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final localeProv = Provider.of<LocaleProvider>(context);
+    final currentLang = localeProv.languageCode;
+
     final String schemeName = scheme['scheme_name'] ?? '';
     final String ministry = scheme['ministry'] ?? '';
     final String benefits = (scheme['key_benefits'] ?? scheme['benefits'] ?? '').toString();
@@ -42,9 +48,54 @@ class SchemeRequirementsScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Required Details"),
+        title: Text(context.tr("required_details_title")),
         backgroundColor: AppTheme.primaryBlue,
         foregroundColor: Colors.white,
+        actions: [
+          PopupMenuButton<String>(
+            icon: const Icon(Icons.language_rounded),
+            tooltip: context.tr("change_language"),
+            onSelected: (code) => localeProv.setLocale(code),
+            itemBuilder: (context) => [
+              PopupMenuItem(
+                value: 'en',
+                child: Row(
+                  children: [
+                    const Text("🇬🇧 English"),
+                    if (currentLang == 'en') ...[
+                      const Spacer(),
+                      const Icon(Icons.check, color: AppTheme.primaryBlue, size: 18),
+                    ],
+                  ],
+                ),
+              ),
+              PopupMenuItem(
+                value: 'ta',
+                child: Row(
+                  children: [
+                    const Text("🇮🇳 தமிழ் (Tamil)"),
+                    if (currentLang == 'ta') ...[
+                      const Spacer(),
+                      const Icon(Icons.check, color: AppTheme.primaryBlue, size: 18),
+                    ],
+                  ],
+                ),
+              ),
+              PopupMenuItem(
+                value: 'hi',
+                child: Row(
+                  children: [
+                    const Text("🇮🇳 हिन्दी (Hindi)"),
+                    if (currentLang == 'hi') ...[
+                      const Spacer(),
+                      const Icon(Icons.check, color: AppTheme.primaryBlue, size: 18),
+                    ],
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -93,9 +144,9 @@ class SchemeRequirementsScreen extends StatelessWidget {
 
             // Why it matches you
             if (whyMatches.isNotEmpty) ...[
-              const Text(
-                "Why This Scheme Matches You",
-                style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
+              Text(
+                context.tr("why_matches_heading"),
+                style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 10),
               ...whyMatches.map((w) => Padding(
@@ -122,13 +173,13 @@ class SchemeRequirementsScreen extends StatelessWidget {
             ],
 
             // Required certificates & documents
-            const Text(
-              "Required Certificates & Documents",
-              style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
+            Text(
+              context.tr("required_certificates_heading"),
+              style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 4),
             Text(
-              "Prepare these before applying:",
+              context.tr("prepare_before_applying"),
               style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
             ),
             const SizedBox(height: 12),
@@ -141,9 +192,9 @@ class SchemeRequirementsScreen extends StatelessWidget {
                   borderRadius: BorderRadius.circular(10),
                   border: Border.all(color: Colors.grey.shade200),
                 ),
-                child: const Text(
-                  "Standard KYC documents required:\n• Aadhaar Card\n• PAN Card\n• Bank Passbook / Account Details\n• Passport size photograph",
-                  style: TextStyle(fontSize: 14),
+                child: Text(
+                  context.tr("standard_kyc_note"),
+                  style: const TextStyle(fontSize: 14),
                 ),
               )
             else
@@ -206,7 +257,7 @@ class SchemeRequirementsScreen extends StatelessWidget {
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Text(
-                          mandatory ? "Required" : "Optional",
+                          mandatory ? context.tr("badge_required") : context.tr("badge_optional"),
                           style: TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.bold,
@@ -227,9 +278,9 @@ class SchemeRequirementsScreen extends StatelessWidget {
               child: ElevatedButton.icon(
                 onPressed: () => _applyForScheme(context),
                 icon: const Icon(Icons.launch_rounded),
-                label: const Text(
-                  "Apply for This Scheme Online",
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                label: Text(
+                  context.tr("apply_online_btn"),
+                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),
@@ -240,10 +291,10 @@ class SchemeRequirementsScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 12),
-            const Center(
+            Center(
               child: Text(
-                "You will be redirected to the official government portal",
-                style: TextStyle(fontSize: 12, color: Colors.grey),
+                context.tr("redirect_notice"),
+                style: const TextStyle(fontSize: 12, color: Colors.grey),
               ),
             ),
             const SizedBox(height: 20),

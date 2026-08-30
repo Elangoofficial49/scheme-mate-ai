@@ -1,8 +1,11 @@
 // ignore: avoid_web_libraries_in_flutter
 import 'dart:html' as html;
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../core/i18n/app_localizations.dart';
 import '../core/theme/app_theme.dart';
 import '../models/match_result_model.dart';
+import '../providers/locale_provider.dart';
 
 class ActionPlanScreen extends StatelessWidget {
   final MatchResultModel match;
@@ -11,8 +14,8 @@ class ActionPlanScreen extends StatelessWidget {
   void _launchUrl(BuildContext context, String urlString) {
     if (urlString.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("No official portal URL available for this scheme."),
+        SnackBar(
+          content: Text(context.tr("no_portal_url")),
           backgroundColor: Colors.orange,
         ),
       );
@@ -24,30 +27,33 @@ class ActionPlanScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final localeProv = Provider.of<LocaleProvider>(context);
+    final currentLang = localeProv.languageCode;
+
     final List<Map<String, String>> steps = [
       {
-        "title": "Check Eligibility Criteria",
-        "desc": "Verify age, income, and business type alignment with scheme rules.",
+        "title": context.tr("step_1_title"),
+        "desc": context.tr("step_1_desc"),
         "status": "Completed"
       },
       {
-        "title": "Prepare Required Document Checklist",
-        "desc": "Gather Aadhaar, PAN, and Udyam Registration Certificate.",
+        "title": context.tr("step_2_title"),
+        "desc": context.tr("step_2_desc"),
         "status": "In Progress"
       },
       {
-        "title": "Complete Missing Requirements",
-        "desc": "Scan and confirm document extraction using OCR assistant.",
+        "title": context.tr("step_3_title"),
+        "desc": context.tr("step_3_desc"),
         "status": "Pending"
       },
       {
-        "title": "Open Official Application Portal",
-        "desc": "Navigate safely to verified portal URL.",
+        "title": context.tr("step_4_title"),
+        "desc": context.tr("step_4_desc"),
         "status": "Pending"
       },
       {
-        "title": "Submit Application & Track Status",
-        "desc": "Submit on official portal and log reference number.",
+        "title": context.tr("step_5_title"),
+        "desc": context.tr("step_5_desc"),
         "status": "Pending"
       }
     ];
@@ -57,19 +63,66 @@ class ActionPlanScreen extends StatelessWidget {
         : match.officialSourceUrl;
 
     return Scaffold(
-      appBar: AppBar(title: const Text("Application Action Plan")),
+      appBar: AppBar(
+        title: Text(context.tr("action_plan_title")),
+        actions: [
+          PopupMenuButton<String>(
+            icon: const Icon(Icons.language_rounded),
+            tooltip: context.tr("change_language"),
+            onSelected: (code) => localeProv.setLocale(code),
+            itemBuilder: (context) => [
+              PopupMenuItem(
+                value: 'en',
+                child: Row(
+                  children: [
+                    const Text("🇬🇧 English"),
+                    if (currentLang == 'en') ...[
+                      const Spacer(),
+                      const Icon(Icons.check, color: AppTheme.primaryBlue, size: 18),
+                    ],
+                  ],
+                ),
+              ),
+              PopupMenuItem(
+                value: 'ta',
+                child: Row(
+                  children: [
+                    const Text("🇮🇳 தமிழ் (Tamil)"),
+                    if (currentLang == 'ta') ...[
+                      const Spacer(),
+                      const Icon(Icons.check, color: AppTheme.primaryBlue, size: 18),
+                    ],
+                  ],
+                ),
+              ),
+              PopupMenuItem(
+                value: 'hi',
+                child: Row(
+                  children: [
+                    const Text("🇮🇳 हिन्दी (Hindi)"),
+                    if (currentLang == 'hi') ...[
+                      const Spacer(),
+                      const Icon(Icons.check, color: AppTheme.primaryBlue, size: 18),
+                    ],
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              "Action Plan for ${match.schemeName}",
+              context.tr("action_plan_for", {"scheme": match.schemeName}),
               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 6),
             Text(
-              "Administered by ${match.ministry}",
+              context.tr("administered_by", {"ministry": match.ministry}),
               style: const TextStyle(fontSize: 13, color: Colors.grey),
             ),
             if (portalUrl.isNotEmpty) ...[
@@ -154,7 +207,7 @@ class ActionPlanScreen extends StatelessWidget {
               child: ElevatedButton.icon(
                 onPressed: () => _launchUrl(context, portalUrl),
                 icon: const Icon(Icons.open_in_new),
-                label: const Text("Open Verified Official Application Portal"),
+                label: Text(context.tr("open_verified_portal_btn")),
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 14),
                   backgroundColor: AppTheme.primaryBlue,

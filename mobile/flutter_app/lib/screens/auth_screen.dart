@@ -1,19 +1,22 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../core/i18n/app_localizations.dart';
 import '../core/theme/app_theme.dart';
 import '../providers/auth_provider.dart';
+import '../providers/locale_provider.dart';
 import 'business_profile_form_screen.dart';
 
 class AuthScreen extends StatefulWidget {
-  const AuthScreen({Key? key}) : super(key: key);
+  final bool startInCreateAccountTab;
+  const AuthScreen({Key? key, this.startInCreateAccountTab = false}) : super(key: key);
 
   @override
   State<AuthScreen> createState() => _AuthScreenState();
 }
 
 class _AuthScreenState extends State<AuthScreen> {
-  bool _isLoginTab = true;
+  late bool _isLoginTab;
 
   final _phoneController = TextEditingController();
   final _passwordController = TextEditingController();
@@ -21,6 +24,12 @@ class _AuthScreenState extends State<AuthScreen> {
   final _emailController = TextEditingController();
 
   bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _isLoginTab = !widget.startInCreateAccountTab;
+  }
 
   void _submit() async {
     final auth = Provider.of<AuthProvider>(context, listen: false);
@@ -106,7 +115,6 @@ class _AuthScreenState extends State<AuthScreen> {
       builder: (ctx) {
         return StatefulBuilder(
           builder: (context, setModalState) {
-            // Start 15-second timer once
             countdownTimer ??= Timer.periodic(const Duration(seconds: 1), (timer) {
               if (secondsRemaining > 0) {
                 setModalState(() => secondsRemaining--);
@@ -117,14 +125,14 @@ class _AuthScreenState extends State<AuthScreen> {
 
             return AlertDialog(
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-              title: const Row(
+              title: Row(
                 children: [
-                  Icon(Icons.mark_email_read_rounded, color: AppTheme.primaryBlue, size: 28),
-                  SizedBox(width: 10),
+                  const Icon(Icons.mark_email_read_rounded, color: AppTheme.primaryBlue, size: 26),
+                  const SizedBox(width: 10),
                   Expanded(
                     child: Text(
-                      "Email OTP Verification",
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      context.tr("otp_title"),
+                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                     ),
                   ),
                 ],
@@ -134,30 +142,20 @@ class _AuthScreenState extends State<AuthScreen> {
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      "A 6-digit verification code has been sent to your registered email address:",
-                      style: TextStyle(fontSize: 13, height: 1.4),
+                    Text(
+                      context.tr("otp_subtitle"),
+                      style: const TextStyle(fontSize: 14, color: Colors.black87),
                     ),
-                    const SizedBox(height: 10),
+                    const SizedBox(height: 4),
                     Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                       decoration: BoxDecoration(
                         color: AppTheme.primaryBlue.withOpacity(0.08),
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: AppTheme.primaryBlue.withOpacity(0.2)),
+                        borderRadius: BorderRadius.circular(6),
                       ),
-                      child: Row(
-                        children: [
-                          const Icon(Icons.email_outlined, size: 18, color: AppTheme.primaryBlue),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: Text(
-                              email,
-                              style: const TextStyle(fontWeight: FontWeight.bold, color: AppTheme.primaryBlue, fontSize: 14),
-                            ),
-                          ),
-                        ],
+                      child: Text(
+                        email,
+                        style: const TextStyle(fontWeight: FontWeight.bold, color: AppTheme.primaryBlue, fontSize: 13),
                       ),
                     ),
                     const SizedBox(height: 16),
@@ -165,25 +163,22 @@ class _AuthScreenState extends State<AuthScreen> {
                       controller: otpController,
                       keyboardType: TextInputType.number,
                       maxLength: 6,
-                      style: const TextStyle(letterSpacing: 8, fontSize: 20, fontWeight: FontWeight.bold),
                       textAlign: TextAlign.center,
-                      decoration: const InputDecoration(
+                      style: const TextStyle(fontSize: 22, letterSpacing: 8, fontWeight: FontWeight.bold),
+                      decoration: InputDecoration(
                         hintText: "• • • • • •",
-                        labelText: "Enter 6-Digit OTP",
-                        prefixIcon: Icon(Icons.lock_outline),
-                        border: OutlineInputBorder(),
+                        hintStyle: const TextStyle(letterSpacing: 4),
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                        counterText: "",
+                        contentPadding: const EdgeInsets.symmetric(vertical: 12),
                       ),
                     ),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: 12),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text(
-                          "Didn't receive code?",
-                          style: TextStyle(fontSize: 12, color: Colors.grey),
-                        ),
                         TextButton.icon(
-                          onPressed: (secondsRemaining == 0 && !isResending)
+                          onPressed: secondsRemaining == 0 && !isResending
                               ? () async {
                                   setModalState(() => isResending = true);
                                   final auth = Provider.of<AuthProvider>(context, listen: false);
@@ -220,7 +215,9 @@ class _AuthScreenState extends State<AuthScreen> {
                                   color: secondsRemaining == 0 ? AppTheme.primaryBlue : Colors.grey,
                                 ),
                           label: Text(
-                            secondsRemaining > 0 ? "Resend in ${secondsRemaining}s" : "Resend OTP",
+                            secondsRemaining > 0
+                                ? context.tr("resend_in", {"seconds": "$secondsRemaining"})
+                                : context.tr("resend_otp"),
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 13,
@@ -239,7 +236,7 @@ class _AuthScreenState extends State<AuthScreen> {
                     countdownTimer?.cancel();
                     Navigator.pop(ctx);
                   },
-                  child: const Text("Cancel"),
+                  child: Text(context.tr("cancel")),
                 ),
                 ElevatedButton(
                   onPressed: isVerifying
@@ -249,7 +246,7 @@ class _AuthScreenState extends State<AuthScreen> {
                           if (cleanEnteredOtp.length != 6) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
-                                content: Text("Please enter the full 6-digit OTP code."),
+                                content: Text("Please enter the complete 6-digit OTP code."),
                                 backgroundColor: AppTheme.warningOrange,
                               ),
                             );
@@ -258,20 +255,20 @@ class _AuthScreenState extends State<AuthScreen> {
 
                           setModalState(() => isVerifying = true);
                           final auth = Provider.of<AuthProvider>(context, listen: false);
-                          bool verified = await auth.verifyOtp(phone, cleanEnteredOtp);
+                          final bool success = await auth.verifyOtp(phone, cleanEnteredOtp);
                           setModalState(() => isVerifying = false);
 
-                          if (verified && mounted) {
+                          if (success && mounted) {
                             countdownTimer?.cancel();
                             Navigator.pop(ctx);
+
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
-                                content: Text("✅ Account created and email verified! Please login."),
+                                content: Text("Account verified successfully! You can now log in."),
                                 backgroundColor: AppTheme.successGreen,
                               ),
                             );
 
-                            // Redirect to Login Tab with registered email pre-filled
                             setState(() {
                               _isLoginTab = true;
                               _emailController.text = email;
@@ -296,7 +293,7 @@ class _AuthScreenState extends State<AuthScreen> {
                           height: 20,
                           child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
                         )
-                      : const Text("Verify OTP & Activate Account"),
+                      : Text(context.tr("verify_otp_btn")),
                 ),
               ],
             );
@@ -308,10 +305,58 @@ class _AuthScreenState extends State<AuthScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final localeProv = Provider.of<LocaleProvider>(context);
+    final currentLang = localeProv.languageCode;
+
     return Scaffold(
       appBar: AppBar(
-        title: Text(_isLoginTab ? "Login to SchemeMate AI" : "Create New Account"),
+        title: Text(_isLoginTab ? context.tr("login_title") : context.tr("create_account_title")),
         elevation: 2,
+        actions: [
+          PopupMenuButton<String>(
+            icon: const Icon(Icons.language_rounded),
+            tooltip: context.tr("change_language"),
+            onSelected: (code) => localeProv.setLocale(code),
+            itemBuilder: (context) => [
+              PopupMenuItem(
+                value: 'en',
+                child: Row(
+                  children: [
+                    const Text("🇬🇧 English"),
+                    if (currentLang == 'en') ...[
+                      const Spacer(),
+                      const Icon(Icons.check, color: AppTheme.primaryBlue, size: 18),
+                    ],
+                  ],
+                ),
+              ),
+              PopupMenuItem(
+                value: 'ta',
+                child: Row(
+                  children: [
+                    const Text("🇮🇳 தமிழ் (Tamil)"),
+                    if (currentLang == 'ta') ...[
+                      const Spacer(),
+                      const Icon(Icons.check, color: AppTheme.primaryBlue, size: 18),
+                    ],
+                  ],
+                ),
+              ),
+              PopupMenuItem(
+                value: 'hi',
+                child: Row(
+                  children: [
+                    const Text("🇮🇳 हिन्दी (Hindi)"),
+                    if (currentLang == 'hi') ...[
+                      const Spacer(),
+                      const Icon(Icons.check, color: AppTheme.primaryBlue, size: 18),
+                    ],
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24.0),
@@ -322,18 +367,18 @@ class _AuthScreenState extends State<AuthScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 ChoiceChip(
-                  label: const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                    child: Text("Login", style: TextStyle(fontSize: 16)),
+                  label: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                    child: Text(context.tr("tab_login"), style: const TextStyle(fontSize: 16)),
                   ),
                   selected: _isLoginTab,
                   onSelected: (val) => setState(() => _isLoginTab = true),
                 ),
                 const SizedBox(width: 20),
                 ChoiceChip(
-                  label: const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                    child: Text("Create Account", style: TextStyle(fontSize: 16)),
+                  label: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                    child: Text(context.tr("tab_create_account"), style: const TextStyle(fontSize: 16)),
                   ),
                   selected: !_isLoginTab,
                   onSelected: (val) => setState(() => _isLoginTab = false),
@@ -347,11 +392,11 @@ class _AuthScreenState extends State<AuthScreen> {
               TextField(
                 controller: _emailController,
                 keyboardType: TextInputType.emailAddress,
-                decoration: const InputDecoration(
-                  labelText: "Registered Email Address",
-                  hintText: "e.g. name@example.com",
-                  prefixIcon: Icon(Icons.email_outlined),
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  labelText: context.tr("registered_email"),
+                  hintText: context.tr("email_hint"),
+                  prefixIcon: const Icon(Icons.email_outlined),
+                  border: const OutlineInputBorder(),
                 ),
               ),
               const SizedBox(height: 16),
@@ -359,11 +404,11 @@ class _AuthScreenState extends State<AuthScreen> {
               // Full Name
               TextField(
                 controller: _nameController,
-                decoration: const InputDecoration(
-                  labelText: "Full Name",
-                  hintText: "e.g. Ramesh Kumar",
-                  prefixIcon: Icon(Icons.person_outline),
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  labelText: context.tr("full_name"),
+                  hintText: context.tr("full_name_hint"),
+                  prefixIcon: const Icon(Icons.person_outline),
+                  border: const OutlineInputBorder(),
                 ),
               ),
               const SizedBox(height: 16),
@@ -372,11 +417,11 @@ class _AuthScreenState extends State<AuthScreen> {
               TextField(
                 controller: _emailController,
                 keyboardType: TextInputType.emailAddress,
-                decoration: const InputDecoration(
-                  labelText: "Email Address",
-                  hintText: "e.g. elangoai12@gmail.com",
-                  prefixIcon: Icon(Icons.email_outlined),
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  labelText: context.tr("registered_email"),
+                  hintText: context.tr("email_hint"),
+                  prefixIcon: const Icon(Icons.email_outlined),
+                  border: const OutlineInputBorder(),
                 ),
               ),
               const SizedBox(height: 16),
@@ -385,11 +430,11 @@ class _AuthScreenState extends State<AuthScreen> {
               TextField(
                 controller: _phoneController,
                 keyboardType: TextInputType.phone,
-                decoration: const InputDecoration(
-                  labelText: "Phone Number",
-                  hintText: "10-digit mobile number",
-                  prefixIcon: Icon(Icons.phone_outlined),
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  labelText: context.tr("phone_number"),
+                  hintText: context.tr("phone_hint"),
+                  prefixIcon: const Icon(Icons.phone_outlined),
+                  border: const OutlineInputBorder(),
                 ),
               ),
               const SizedBox(height: 16),
@@ -400,8 +445,8 @@ class _AuthScreenState extends State<AuthScreen> {
               controller: _passwordController,
               obscureText: true,
               decoration: InputDecoration(
-                labelText: "Password",
-                hintText: _isLoginTab ? "Enter your password" : "At least 6 characters",
+                labelText: context.tr("password"),
+                hintText: _isLoginTab ? context.tr("password_hint") : context.tr("password_min_hint"),
                 prefixIcon: const Icon(Icons.lock_outline),
                 border: const OutlineInputBorder(),
               ),
@@ -420,7 +465,7 @@ class _AuthScreenState extends State<AuthScreen> {
                 child: _isLoading
                     ? const CircularProgressIndicator(color: Colors.white)
                     : Text(
-                        _isLoginTab ? "Login" : "Create Account & Send Email OTP",
+                        _isLoginTab ? context.tr("btn_login_submit") : context.tr("btn_register_submit"),
                         style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                       ),
               ),
@@ -430,12 +475,11 @@ class _AuthScreenState extends State<AuthScreen> {
             if (_isLoginTab)
               TextButton(
                 onPressed: () {
-                  // Demo quick login
                   _emailController.text = "ramesh@example.com";
                   _passwordController.text = "123456";
                   _submit();
                 },
-                child: const Text("Demo One-Click Login (ramesh@example.com)"),
+                child: Text(context.tr("btn_demo_login")),
               )
           ],
         ),

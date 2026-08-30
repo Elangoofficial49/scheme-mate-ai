@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../core/network/api_client.dart';
 import '../core/theme/app_theme.dart';
+import '../providers/locale_provider.dart';
 import 'dashboard_screen.dart';
 
 class BusinessProfileFormScreen extends StatefulWidget {
@@ -310,6 +312,56 @@ class _BusinessProfileFormScreenState extends State<BusinessProfileFormScreen> {
       appBar: AppBar(
         title: const Text("Entrepreneur Business Profile"),
         elevation: 2,
+        actions: [
+          Consumer<LocaleProvider>(
+            builder: (context, localeProv, _) {
+              final currentLang = localeProv.languageCode;
+              return PopupMenuButton<String>(
+                icon: const Icon(Icons.language_rounded),
+                tooltip: "Change Language / மொழியை மாற்றுக",
+                onSelected: (code) => localeProv.setLocale(code),
+                itemBuilder: (context) => [
+                  PopupMenuItem(
+                    value: 'en',
+                    child: Row(
+                      children: [
+                        const Text("🇬🇧 English"),
+                        if (currentLang == 'en') ...[
+                          const Spacer(),
+                          const Icon(Icons.check, color: AppTheme.primaryBlue, size: 18),
+                        ],
+                      ],
+                    ),
+                  ),
+                  PopupMenuItem(
+                    value: 'ta',
+                    child: Row(
+                      children: [
+                        const Text("🇮🇳 தமிழ் (Tamil)"),
+                        if (currentLang == 'ta') ...[
+                          const Spacer(),
+                          const Icon(Icons.check, color: AppTheme.primaryBlue, size: 18),
+                        ],
+                      ],
+                    ),
+                  ),
+                  PopupMenuItem(
+                    value: 'hi',
+                    child: Row(
+                      children: [
+                        const Text("🇮🇳 हिन्दी (Hindi)"),
+                        if (currentLang == 'hi') ...[
+                          const Spacer(),
+                          const Icon(Icons.check, color: AppTheme.primaryBlue, size: 18),
+                        ],
+                      ],
+                    ),
+                  ),
+                ],
+              );
+            },
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20.0),

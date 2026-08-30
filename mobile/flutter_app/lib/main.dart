@@ -5,9 +5,9 @@ import 'package:provider/provider.dart';
 import 'core/i18n/app_localizations.dart';
 import 'core/theme/app_theme.dart';
 import 'providers/auth_provider.dart';
+import 'providers/locale_provider.dart';
 import 'providers/scheme_provider.dart';
-import 'screens/auth_screen.dart';
-import 'screens/splash_screen.dart';
+import 'screens/home_screen.dart';
 
 void main() {
   runApp(const SchemeMateApp());
@@ -20,27 +20,32 @@ class SchemeMateApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
+        ChangeNotifierProvider(create: (_) => LocaleProvider()),
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => SchemeProvider()),
       ],
-      child: MaterialApp(
-        title: 'SchemeMate AI',
-        debugShowCheckedModeBanner: false,
-        theme: AppTheme.lightTheme,
-        supportedLocales: const [
-          Locale('en', ''),
-          Locale('ta', ''),
-          Locale('hi', ''),
-        ],
-        localizationsDelegates: const [
-          AppLocalizations.delegate,
-          GlobalMaterialLocalizations.delegate,
-          GlobalWidgetsLocalizations.delegate,
-          GlobalCupertinoLocalizations.delegate,
-        ],
-        home: const AuthScreen(),
+      child: Consumer<LocaleProvider>(
+        builder: (context, localeProv, _) {
+          return MaterialApp(
+            title: 'SchemeMate AI',
+            debugShowCheckedModeBanner: false,
+            theme: AppTheme.lightTheme,
+            locale: localeProv.currentLocale,
+            supportedLocales: const [
+              Locale('en', ''),
+              Locale('ta', ''),
+              Locale('hi', ''),
+            ],
+            localizationsDelegates: const [
+              AppLocalizations.delegate,
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            home: const HomeScreen(),
+          );
+        },
       ),
     );
   }
 }
-
