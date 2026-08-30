@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../core/i18n/app_localizations.dart';
 import '../core/network/api_client.dart';
 import '../core/theme/app_theme.dart';
 import '../providers/locale_provider.dart';
@@ -310,7 +311,7 @@ class _BusinessProfileFormScreenState extends State<BusinessProfileFormScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Entrepreneur Business Profile"),
+        title: Text(context.tr("profile_form_title")),
         elevation: 2,
         actions: [
           Consumer<LocaleProvider>(
@@ -377,14 +378,14 @@ class _BusinessProfileFormScreenState extends State<BusinessProfileFormScreen> {
                   borderRadius: BorderRadius.circular(10),
                   border: Border.all(color: AppTheme.primaryBlue.withOpacity(0.3)),
                 ),
-                child: const Row(
+                child: Row(
                   children: [
-                    Icon(Icons.info_outline, color: AppTheme.primaryBlue),
-                    SizedBox(width: 12),
+                    const Icon(Icons.info_outline, color: AppTheme.primaryBlue),
+                    const SizedBox(width: 12),
                     Expanded(
                       child: Text(
-                        "Enter your business details below. Our AI Rule Engine will match eligible government schemes & subsidies tailored for you.",
-                        style: TextStyle(fontSize: 13, height: 1.3),
+                        context.tr("profile_banner_info"),
+                        style: const TextStyle(fontSize: 13, height: 1.3),
                       ),
                     ),
                   ],
@@ -393,29 +394,29 @@ class _BusinessProfileFormScreenState extends State<BusinessProfileFormScreen> {
               const SizedBox(height: 24),
 
               // 1. Company Name
-              const Text("1. Company / Enterprise Name", style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+              Text(context.tr("field_company_name"), style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
               const SizedBox(height: 6),
               TextFormField(
                 controller: _companyNameController,
-                decoration: const InputDecoration(
-                  hintText: "e.g. Sri Lakshmi Textiles",
-                  prefixIcon: Icon(Icons.business),
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  hintText: context.tr("hint_company_name"),
+                  prefixIcon: const Icon(Icons.business),
+                  border: const OutlineInputBorder(),
                 ),
                 validator: (val) => val == null || val.isEmpty ? "Please enter company name" : null,
               ),
               const SizedBox(height: 18),
 
               // 2. Proposed Business Description
-              const Text("2. Details of Proposed Business", style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+              Text(context.tr("field_business_desc"), style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
               const SizedBox(height: 6),
               TextFormField(
                 controller: _businessDescController,
                 maxLines: 2,
-                decoration: const InputDecoration(
-                  hintText: "e.g. Garment manufacturing, stitching unit & retail sales",
-                  prefixIcon: Icon(Icons.description),
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  hintText: context.tr("hint_business_desc"),
+                  prefixIcon: const Icon(Icons.description),
+                  border: const OutlineInputBorder(),
                 ),
                 validator: (val) => val == null || val.isEmpty ? "Please enter business description" : null,
               ),
@@ -429,7 +430,7 @@ class _BusinessProfileFormScreenState extends State<BusinessProfileFormScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text("3. Business Type", style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+                        Text(context.tr("field_business_type"), style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
                         const SizedBox(height: 6),
                         DropdownButtonFormField<String>(
                           value: _selectedBusinessType,
@@ -458,7 +459,7 @@ class _BusinessProfileFormScreenState extends State<BusinessProfileFormScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text("4. State", style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+                        Text(context.tr("field_state"), style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
                         const SizedBox(height: 6),
                         DropdownButtonFormField<String>(
                           value: _selectedState,
@@ -488,12 +489,11 @@ class _BusinessProfileFormScreenState extends State<BusinessProfileFormScreen> {
                 const SizedBox(height: 10),
                 TextFormField(
                   controller: _customBusinessTypeController,
-                  decoration: const InputDecoration(
-                    labelText: "Enter Business Type / Domain",
-                    hintText: "e.g. Drone Services, Organic Bio-Fertilizers, Eco Packaging",
-                    prefixIcon: Icon(Icons.edit_note),
-                    border: OutlineInputBorder(),
-                    helperText: "Specify your exact business domain for industry-specific subsidies.",
+                  decoration: InputDecoration(
+                    labelText: context.tr("field_custom_business_type"),
+                    hintText: context.tr("hint_custom_business_type"),
+                    prefixIcon: const Icon(Icons.edit_note),
+                    border: const OutlineInputBorder(),
                   ),
                   validator: (val) {
                     if (_selectedBusinessType == "Other (Specify manually)" && (val == null || val.trim().isEmpty)) {
@@ -507,12 +507,11 @@ class _BusinessProfileFormScreenState extends State<BusinessProfileFormScreen> {
                 const SizedBox(height: 10),
                 TextFormField(
                   controller: _customStateController,
-                  decoration: const InputDecoration(
-                    labelText: "Enter State / Region / UT",
-                    hintText: "e.g. Goa, Ladakh, Telangana, Special Economic Zone",
-                    prefixIcon: Icon(Icons.location_city),
-                    border: OutlineInputBorder(),
-                    helperText: "Specify your state or territory for state-level subsidy schemes.",
+                  decoration: InputDecoration(
+                    labelText: context.tr("field_custom_state"),
+                    hintText: context.tr("hint_custom_state"),
+                    prefixIcon: const Icon(Icons.location_city),
+                    border: const OutlineInputBorder(),
                   ),
                   validator: (val) {
                     if (_selectedState == "Other (Specify manually)" && (val == null || val.trim().isEmpty)) {
@@ -531,15 +530,15 @@ class _BusinessProfileFormScreenState extends State<BusinessProfileFormScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text("5. Entrepreneur Age", style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+                        Text(context.tr("field_age"), style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
                         const SizedBox(height: 6),
                         TextFormField(
                           controller: _ageController,
                           keyboardType: TextInputType.number,
-                          decoration: const InputDecoration(
-                            hintText: "Age",
-                            prefixIcon: Icon(Icons.cake),
-                            border: OutlineInputBorder(),
+                          decoration: InputDecoration(
+                            hintText: context.tr("hint_age"),
+                            prefixIcon: const Icon(Icons.cake),
+                            border: const OutlineInputBorder(),
                           ),
                           validator: (val) => val == null || val.isEmpty ? "Enter age" : null,
                         ),
@@ -551,15 +550,15 @@ class _BusinessProfileFormScreenState extends State<BusinessProfileFormScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text("6. Annual Income (₹)", style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+                        Text(context.tr("field_annual_income"), style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
                         const SizedBox(height: 6),
                         TextFormField(
                           controller: _annualIncomeController,
                           keyboardType: TextInputType.number,
-                          decoration: const InputDecoration(
-                            hintText: "Annual Income",
-                            prefixIcon: Icon(Icons.currency_rupee),
-                            border: OutlineInputBorder(),
+                          decoration: InputDecoration(
+                            hintText: context.tr("hint_annual_income"),
+                            prefixIcon: const Icon(Icons.currency_rupee),
+                            border: const OutlineInputBorder(),
                           ),
                           validator: (val) => val == null || val.isEmpty ? "Enter income" : null,
                         ),
@@ -571,7 +570,7 @@ class _BusinessProfileFormScreenState extends State<BusinessProfileFormScreen> {
               const SizedBox(height: 18),
 
               // 5. Source of Income
-              const Text("7. Primary Source of Income", style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+              Text(context.tr("field_income_source"), style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
               const SizedBox(height: 6),
               DropdownButtonFormField<String>(
                 value: _selectedIncomeSource,
@@ -587,7 +586,7 @@ class _BusinessProfileFormScreenState extends State<BusinessProfileFormScreen> {
               const SizedBox(height: 18),
 
               // 6. Community / Category / Caste
-              const Text("8. Community / Social Category / Caste", style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+              Text(context.tr("field_category_caste"), style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
               const SizedBox(height: 6),
               DropdownButtonFormField<String>(
                 value: _selectedCategory,
@@ -608,12 +607,11 @@ class _BusinessProfileFormScreenState extends State<BusinessProfileFormScreen> {
                 const SizedBox(height: 10),
                 TextFormField(
                   controller: _customCasteController,
-                  decoration: const InputDecoration(
-                    labelText: "Enter Caste / Community Name",
-                    hintText: "e.g. Yadava, Thevar, Vanniyar, Vankar, Meena, etc.",
-                    prefixIcon: Icon(Icons.edit_note),
-                    border: OutlineInputBorder(),
-                    helperText: "Specify your caste or sub-caste for targeted government schemes.",
+                  decoration: InputDecoration(
+                    labelText: context.tr("field_custom_caste"),
+                    hintText: context.tr("hint_custom_caste"),
+                    prefixIcon: const Icon(Icons.edit_note),
+                    border: const OutlineInputBorder(),
                   ),
                   validator: (val) {
                     if (_selectedCategory == "Other (Specify manually)" && (val == null || val.trim().isEmpty)) {
@@ -626,12 +624,12 @@ class _BusinessProfileFormScreenState extends State<BusinessProfileFormScreen> {
               const SizedBox(height: 22),
 
               // 7. Certificate Details / Number Section
-              const Text("9. Enter Required Certificate / Registration Number (Optional)",
-                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+              Text(context.tr("field_certificate_section"),
+                  style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
               const SizedBox(height: 6),
-              const Text(
-                "Enter your official certificate or registration number to verify eligibility for targeted subsidies and schemes.",
-                style: TextStyle(fontSize: 13, color: Colors.black54),
+              Text(
+                context.tr("certificate_section_desc"),
+                style: const TextStyle(fontSize: 13, color: Colors.black54),
               ),
               const SizedBox(height: 12),
               Container(
@@ -649,7 +647,7 @@ class _BusinessProfileFormScreenState extends State<BusinessProfileFormScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text("Select Certificate Type", style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+                    Text(context.tr("select_cert_type"), style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
                     const SizedBox(height: 6),
                     DropdownButtonFormField<String>(
                       value: _selectedCertificateType,
@@ -700,7 +698,7 @@ class _BusinessProfileFormScreenState extends State<BusinessProfileFormScreen> {
                             const SizedBox(width: 8),
                             Expanded(
                               child: Text(
-                                "Certificate Linked: ${_certificateNumberController.text.trim()}",
+                                "${context.tr('cert_linked')}${_certificateNumberController.text.trim()}",
                                 style: const TextStyle(
                                   fontSize: 12,
                                   color: AppTheme.successGreen,
@@ -728,9 +726,9 @@ class _BusinessProfileFormScreenState extends State<BusinessProfileFormScreen> {
                   ),
                   child: _isLoading
                       ? const CircularProgressIndicator(color: Colors.white)
-                      : const Text(
-                          "Save Profile & Get Scheme Suggestions ->",
-                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      : Text(
+                          context.tr("btn_save_profile"),
+                          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                         ),
                 ),
               ),
