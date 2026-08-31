@@ -147,9 +147,9 @@ class HomeScreen extends StatelessWidget {
                       child: OutlinedButton.icon(
                         onPressed: () => LanguageSelectorSheet.show(context),
                         icon: const Icon(Icons.language_rounded, size: 18),
-                        label: const Text(
-                          "🌐 View All 23 Official Indian Languages ->",
-                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                        label: Text(
+                          "🌐 ${context.tr('view_all_languages')}",
+                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
                         ),
                         style: OutlinedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 12),

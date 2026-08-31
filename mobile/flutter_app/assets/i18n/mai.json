@@ -105,5 +105,6 @@
   "field_custom_state": "Enter State / Region / UT",
   "hint_custom_state": "e.g. Goa, Ladakh, Telangana, Special Economic Zone",
   "field_custom_caste": "Enter Caste / Community Name",
-  "hint_custom_caste": "e.g. Yadava, Thevar, Vanniyar, Vankar, Meena, etc."
+  "hint_custom_caste": "e.g. Yadava, Thevar, Vanniyar, Vankar, Meena, etc.",
+  "view_all_languages": "सबही 23 टा आधिकारिक भारतीय भाषा देखू ->"
 }
