@@ -35,6 +35,8 @@ class SchemeMateApp extends StatelessWidget {
             supportedLocales: AppLanguages.supportedCodes.map((code) => Locale(code, '')).toList(),
             localizationsDelegates: const [
               AppLocalizations.delegate,
+              FallbackMaterialLocalizationsDelegate(),
+              FallbackCupertinoLocalizationsDelegate(),
               GlobalMaterialLocalizations.delegate,
               GlobalWidgetsLocalizations.delegate,
               GlobalCupertinoLocalizations.delegate,
