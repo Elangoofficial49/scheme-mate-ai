@@ -6,6 +6,7 @@ import '../core/theme/app_theme.dart';
 import '../providers/auth_provider.dart';
 import '../providers/locale_provider.dart';
 import '../providers/scheme_provider.dart';
+import '../widgets/language_selector_sheet.dart';
 import 'business_profile_form_screen.dart';
 import 'ocr_scan_screen.dart';
 import 'scheme_requirements_screen.dart';
@@ -89,48 +90,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
       appBar: AppBar(
         title: Text(context.tr("app_title")),
         actions: [
-          PopupMenuButton<String>(
+          IconButton(
             icon: const Icon(Icons.language_rounded),
             tooltip: context.tr("change_language"),
-            onSelected: (code) => localeProv.setLocale(code),
-            itemBuilder: (context) => [
-              PopupMenuItem(
-                value: 'en',
-                child: Row(
-                  children: [
-                    const Text("🇬🇧 English"),
-                    if (currentLang == 'en') ...[
-                      const Spacer(),
-                      const Icon(Icons.check, color: AppTheme.primaryBlue, size: 18),
-                    ],
-                  ],
-                ),
-              ),
-              PopupMenuItem(
-                value: 'ta',
-                child: Row(
-                  children: [
-                    const Text("🇮🇳 தமிழ் (Tamil)"),
-                    if (currentLang == 'ta') ...[
-                      const Spacer(),
-                      const Icon(Icons.check, color: AppTheme.primaryBlue, size: 18),
-                    ],
-                  ],
-                ),
-              ),
-              PopupMenuItem(
-                value: 'hi',
-                child: Row(
-                  children: [
-                    const Text("🇮🇳 हिन्दी (Hindi)"),
-                    if (currentLang == 'hi') ...[
-                      const Spacer(),
-                      const Icon(Icons.check, color: AppTheme.primaryBlue, size: 18),
-                    ],
-                  ],
-                ),
-              ),
-            ],
+            onPressed: () => LanguageSelectorSheet.show(context),
           ),
           IconButton(
             icon: const Icon(Icons.edit_note_rounded),

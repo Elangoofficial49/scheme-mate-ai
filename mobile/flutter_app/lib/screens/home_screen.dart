@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../core/i18n/app_languages.dart';
 import '../core/i18n/app_localizations.dart';
 import '../core/theme/app_theme.dart';
 import '../providers/locale_provider.dart';
+import '../widgets/language_selector_sheet.dart';
 import 'auth_screen.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -11,56 +13,38 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final localeProv = Provider.of<LocaleProvider>(context);
-    final currentLang = localeProv.languageCode;
+    final currentLangCode = localeProv.languageCode;
+    final currentLang = AppLanguages.getByCode(currentLangCode);
+
+    // Featured popular languages on home card
+    final featuredCodes = ['en', 'hi', 'ta', 'te', 'kn', 'ml', 'mr', 'bn', 'gu', 'pa'];
+    final featuredLangs = AppLanguages.supportedLanguages
+        .where((l) => featuredCodes.contains(l.code))
+        .toList();
 
     return Scaffold(
       appBar: AppBar(
         title: Text(context.tr("home_title")),
         elevation: 2,
         actions: [
-          PopupMenuButton<String>(
-            icon: const Icon(Icons.language_rounded),
-            tooltip: context.tr("change_language"),
-            onSelected: (code) => localeProv.setLocale(code),
-            itemBuilder: (context) => [
-              PopupMenuItem(
-                value: 'en',
-                child: Row(
-                  children: [
-                    const Text("🇬🇧 English"),
-                    if (currentLang == 'en') ...[
-                      const Spacer(),
-                      const Icon(Icons.check, color: AppTheme.primaryBlue, size: 18),
-                    ],
-                  ],
+          TextButton.icon(
+            onPressed: () => LanguageSelectorSheet.show(context),
+            icon: Text(currentLang.flag, style: const TextStyle(fontSize: 18)),
+            label: Row(
+              children: [
+                Text(
+                  currentLang.nativeName,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                  ),
                 ),
-              ),
-              PopupMenuItem(
-                value: 'ta',
-                child: Row(
-                  children: [
-                    const Text("🇮🇳 தமிழ் (Tamil)"),
-                    if (currentLang == 'ta') ...[
-                      const Spacer(),
-                      const Icon(Icons.check, color: AppTheme.primaryBlue, size: 18),
-                    ],
-                  ],
-                ),
-              ),
-              PopupMenuItem(
-                value: 'hi',
-                child: Row(
-                  children: [
-                    const Text("🇮🇳 हिन्दी (Hindi)"),
-                    if (currentLang == 'hi') ...[
-                      const Spacer(),
-                      const Icon(Icons.check, color: AppTheme.primaryBlue, size: 18),
-                    ],
-                  ],
-                ),
-              ),
-            ],
+                const Icon(Icons.arrow_drop_down, color: Colors.white),
+              ],
+            ),
           ),
+          const SizedBox(width: 8),
         ],
       ),
       body: SingleChildScrollView(
@@ -143,35 +127,37 @@ class HomeScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 16),
 
-                    // Language Option Tiles
-                    _buildLanguageTile(
-                      context: context,
-                      localeProv: localeProv,
-                      code: "en",
-                      flag: "🇬🇧",
-                      title: "English",
-                      nativeTitle: "English",
-                      isSelected: currentLang == "en",
-                    ),
-                    const SizedBox(height: 10),
-                    _buildLanguageTile(
-                      context: context,
-                      localeProv: localeProv,
-                      code: "ta",
-                      flag: "🇮🇳",
-                      title: "தமிழ்",
-                      nativeTitle: "Tamil",
-                      isSelected: currentLang == "ta",
-                    ),
-                    const SizedBox(height: 10),
-                    _buildLanguageTile(
-                      context: context,
-                      localeProv: localeProv,
-                      code: "hi",
-                      flag: "🇮🇳",
-                      title: "हिन्दी",
-                      nativeTitle: "Hindi",
-                      isSelected: currentLang == "hi",
+                    // Featured Language Option Tiles
+                    ...featuredLangs.map((lang) {
+                      final bool isSelected = lang.code == currentLangCode;
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 8.0),
+                        child: _buildLanguageTile(
+                          context: context,
+                          localeProv: localeProv,
+                          lang: lang,
+                          isSelected: isSelected,
+                        ),
+                      );
+                    }).toList(),
+
+                    const SizedBox(height: 8),
+                    SizedBox(
+                      width: double.infinity,
+                      child: OutlinedButton.icon(
+                        onPressed: () => LanguageSelectorSheet.show(context),
+                        icon: const Icon(Icons.language_rounded, size: 18),
+                        label: const Text(
+                          "🌐 View All 23 Official Indian Languages ->",
+                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                        ),
+                        style: OutlinedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          foregroundColor: AppTheme.primaryBlue,
+                          side: const BorderSide(color: AppTheme.primaryBlue),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                        ),
+                      ),
                     ),
                   ],
                 ),
@@ -263,18 +249,15 @@ class HomeScreen extends StatelessWidget {
   Widget _buildLanguageTile({
     required BuildContext context,
     required LocaleProvider localeProv,
-    required String code,
-    required String flag,
-    required String title,
-    required String nativeTitle,
+    required AppLanguage lang,
     required bool isSelected,
   }) {
     return InkWell(
-      onTap: () => localeProv.setLocale(code),
+      onTap: () => localeProv.setLocale(lang.code),
       borderRadius: BorderRadius.circular(10),
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        duration: const Duration(milliseconds: 180),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
           color: isSelected ? AppTheme.primaryBlue.withOpacity(0.08) : Colors.grey.shade50,
           border: Border.all(
@@ -285,30 +268,30 @@ class HomeScreen extends StatelessWidget {
         ),
         child: Row(
           children: [
-            Text(flag, style: const TextStyle(fontSize: 22)),
+            Text(lang.flag, style: const TextStyle(fontSize: 20)),
             const SizedBox(width: 14),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  title,
+                  lang.nativeName,
                   style: TextStyle(
-                    fontSize: 16,
+                    fontSize: 15,
                     fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
                     color: isSelected ? AppTheme.primaryBlue : Colors.black87,
                   ),
                 ),
                 Text(
-                  nativeTitle,
+                  lang.name,
                   style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
                 ),
               ],
             ),
             const Spacer(),
             if (isSelected)
-              const Icon(Icons.check_circle_rounded, color: AppTheme.primaryBlue, size: 22)
+              const Icon(Icons.check_circle_rounded, color: AppTheme.primaryBlue, size: 20)
             else
-              Icon(Icons.radio_button_unchecked_rounded, color: Colors.grey.shade400, size: 22),
+              Icon(Icons.radio_button_unchecked_rounded, color: Colors.grey.shade400, size: 20),
           ],
         ),
       ),

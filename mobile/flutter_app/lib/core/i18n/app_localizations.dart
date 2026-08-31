@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'app_languages.dart';
 
 class AppLocalizations {
   final Locale locale;
@@ -15,14 +16,29 @@ class AppLocalizations {
   Map<String, String> _localizedStrings = {};
 
   Future<bool> load() async {
-    String jsonString;
+    Map<String, String> baseStrings = {};
+
+    // 1. Load English default strings as base fallback
     try {
-      jsonString = await rootBundle.loadString('assets/i18n/${locale.languageCode}.json');
-    } catch (_) {
-      jsonString = await rootBundle.loadString('assets/i18n/en.json');
+      String enJson = await rootBundle.loadString('assets/i18n/en.json');
+      Map<String, dynamic> enMap = json.decode(enJson);
+      baseStrings = enMap.map((key, value) => MapEntry(key, value.toString()));
+    } catch (_) {}
+
+    // 2. Load requested language JSON if available and merge
+    if (locale.languageCode != 'en') {
+      try {
+        String langJson = await rootBundle.loadString('assets/i18n/${locale.languageCode}.json');
+        Map<String, dynamic> langMap = json.decode(langJson);
+        langMap.forEach((key, value) {
+          if (value != null && value.toString().isNotEmpty) {
+            baseStrings[key] = value.toString();
+          }
+        });
+      } catch (_) {}
     }
-    Map<String, dynamic> jsonMap = json.decode(jsonString);
-    _localizedStrings = jsonMap.map((key, value) => MapEntry(key, value.toString()));
+
+    _localizedStrings = baseStrings;
     return true;
   }
 
@@ -36,7 +52,7 @@ class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> 
 
   @override
   bool isSupported(Locale locale) {
-    return ['en', 'ta', 'hi'].contains(locale.languageCode);
+    return AppLanguages.supportedCodes.contains(locale.languageCode);
   }
 
   @override

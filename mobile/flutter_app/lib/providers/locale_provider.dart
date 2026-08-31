@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../core/i18n/app_languages.dart';
 import '../core/offline_db/offline_cache.dart';
 
 class LocaleProvider with ChangeNotifier {
@@ -13,14 +14,14 @@ class LocaleProvider with ChangeNotifier {
 
   Future<void> _loadSavedLocale() async {
     final savedCode = await OfflineCache.getLanguage();
-    if (['en', 'ta', 'hi'].contains(savedCode)) {
+    if (AppLanguages.supportedCodes.contains(savedCode)) {
       _currentLocale = Locale(savedCode, '');
       notifyListeners();
     }
   }
 
   Future<void> setLocale(String languageCode) async {
-    if (!['en', 'ta', 'hi'].contains(languageCode)) return;
+    if (!AppLanguages.supportedCodes.contains(languageCode)) return;
     if (_currentLocale.languageCode == languageCode) return;
 
     _currentLocale = Locale(languageCode, '');

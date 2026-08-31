@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 
+import 'core/i18n/app_languages.dart';
 import 'core/i18n/app_localizations.dart';
 import 'core/theme/app_theme.dart';
 import 'providers/auth_provider.dart';
@@ -31,11 +32,7 @@ class SchemeMateApp extends StatelessWidget {
             debugShowCheckedModeBanner: false,
             theme: AppTheme.lightTheme,
             locale: localeProv.currentLocale,
-            supportedLocales: const [
-              Locale('en', ''),
-              Locale('ta', ''),
-              Locale('hi', ''),
-            ],
+            supportedLocales: AppLanguages.supportedCodes.map((code) => Locale(code, '')).toList(),
             localizationsDelegates: const [
               AppLocalizations.delegate,
               GlobalMaterialLocalizations.delegate,
