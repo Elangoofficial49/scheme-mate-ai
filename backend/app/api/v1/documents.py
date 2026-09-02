@@ -60,7 +60,7 @@ async def upload_document(
     except Exception:
         text_content = ""
         
-    ocr_result = OCRService.process_document_ocr(document_type, text_content)
+    ocr_result = OCRService.process_document_ocr(document_type, text_content, contents)
 
     extraction = DocumentExtraction(
         document_id=doc.id,
