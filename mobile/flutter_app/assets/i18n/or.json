@@ -95,7 +95,7 @@
   "hint_annual_income": "Annual Income",
   "field_income_source": "7. ପ୍ରାଥମିକ ଆୟର ଉତ୍ସ",
   "field_category_caste": "8. ସାମାଜିକ ବର୍ଗ / ଜାତି",
-  "field_certificate_section": "9. ପ୍ରମାଣପତ୍ର / ପଞ୍ଜୀକରଣ ନମ୍ବର ଦିଅନ୍ତୁ (ବିକଳ୍ପ)",
+  "field_certificate_section": "9. ଆବଶ୍ୟକ ପ୍ରମାଣପତ୍ର / ପଞ୍ଜୀକରଣ ନମ୍ବର ଦିଅନ୍ତୁ (ବାଧ୍ୟତାମୂଳକ)",
   "certificate_section_desc": "Enter your official certificate or registration number to verify eligibility for targeted subsidies and schemes.",
   "select_cert_type": "Select Certificate Type",
   "cert_linked": "Certificate Linked: ",

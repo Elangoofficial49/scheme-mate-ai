@@ -95,7 +95,7 @@
   "hint_annual_income": "વાર્ષિક આવક",
   "field_income_source": "7. આવકનો મુખ્ય સ્ત્રોત",
   "field_category_caste": "8. સામાજિક વર્ગ / જાતિ",
-  "field_certificate_section": "9. પ્રમાણપત્ર / નોંધણી નંબર દાખલ કરો (વૈકલ્પિક)",
+  "field_certificate_section": "9. જરૂરી પ્રમાણપત્ર / નોંધણી નંબર દાખલ કરો (ફરજિયાત)",
   "certificate_section_desc": "સબસીડી અને યોજનાઓની પાત્રતા ચકાસવા માટે તમારો પ્રમાણપત્ર નંબર આપો.",
   "select_cert_type": "પ્રમાણપત્રનો પ્રકાર પસંદ કરો",
   "cert_linked": "જોડાયેલ પ્રમાણપત્ર: ",

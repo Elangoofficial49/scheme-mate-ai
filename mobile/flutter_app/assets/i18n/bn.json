@@ -95,7 +95,7 @@
   "hint_annual_income": "বার্ষিক আয়",
   "field_income_source": "7. আয়ের প্রধান উৎস",
   "field_category_caste": "8. সামাজিক শ্রেণী / জাতি",
-  "field_certificate_section": "9. প্রয়োজনীয় সার্টিফিকেট / রেজিস্ট্রেশন নম্বর দিন (ঐচ্ছিক)",
+  "field_certificate_section": "9. প্রয়োজনীয় সার্টিফিকেট / রেজিস্ট্রেশন নম্বর লিখুন (বাধ্যতামূলক)",
   "certificate_section_desc": "যোগ্যতা যাচাই করার জন্য আপনার সার্টিফিকেট নম্বর প্রদান করুন।",
   "select_cert_type": "সার্টিফিকেটের ধরন বেছে নিন",
   "cert_linked": "সংযুক্ত সার্টিফিকেট: ",

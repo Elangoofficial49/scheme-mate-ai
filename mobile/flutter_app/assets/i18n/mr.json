@@ -95,7 +95,7 @@
   "hint_annual_income": "वार्षिक उत्पन्न",
   "field_income_source": "7. उत्पन्नाचा मुख्य मार्ग",
   "field_category_caste": "8. सामाजिक वर्ग / जात",
-  "field_certificate_section": "9. प्रमाणपत्र / नोंदणी क्रमांक टाका (पर्यायी)",
+  "field_certificate_section": "9. आवश्यक प्रमाणपत्र / नोंदणी क्रमांक टाका (अनिवार्य)",
   "certificate_section_desc": "सबसिडी आणि योजनांच्या पात्रतेसाठी तुमचा प्रमाणपत्र क्रमांक टाका.",
   "select_cert_type": "प्रमाणपत्राचा प्रकार निवडा",
   "cert_linked": "जोडलेले प्रमाणपत्र: ",

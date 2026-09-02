@@ -95,7 +95,7 @@
   "hint_annual_income": "Annual Income",
   "field_income_source": "7. আয়ৰ মূল উৎস",
   "field_category_caste": "8. সামাজিক শ্ৰেণী / জাতি",
-  "field_certificate_section": "9. প্ৰমাণপ্ৰত্ৰ / পঞ্জীয়ন নম্বৰ দিয়ক (ঐচ্ছিক)",
+  "field_certificate_section": "9. প্ৰয়োজনীয় প্ৰমাণপ্ৰত্ৰ / পঞ্জীয়ন নম্বৰ দিয়ক (বাধ্যতামূলক)",
   "certificate_section_desc": "Enter your official certificate or registration number to verify eligibility for targeted subsidies and schemes.",
   "select_cert_type": "Select Certificate Type",
   "cert_linked": "Certificate Linked: ",

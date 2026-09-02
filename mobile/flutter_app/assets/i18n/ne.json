@@ -95,7 +95,7 @@
   "hint_annual_income": "Annual Income",
   "field_income_source": "7. आम्दानीको मुख्य स्रोत",
   "field_category_caste": "8. सामाजिक वर्ग / जात",
-  "field_certificate_section": "9. प्रमाणपत्र / दर्ता नम्बर राख्नुहोस् (ऐच्छिक)",
+  "field_certificate_section": "9. आवश्यक प्रमाणपत्र / दर्ता नम्बर राख्नुहोस् (अनिवार्य)",
   "certificate_section_desc": "Enter your official certificate or registration number to verify eligibility for targeted subsidies and schemes.",
   "select_cert_type": "Select Certificate Type",
   "cert_linked": "Certificate Linked: ",

@@ -95,7 +95,7 @@
   "hint_annual_income": "Annual Income",
   "field_income_source": "7. آمدنی ہند ذریعہ",
   "field_category_caste": "8. ذات یا زمرہ",
-  "field_certificate_section": "9. سرٹیفکیٹ نمبر بھریو (اختیاری)",
+  "field_certificate_section": "9. ضروری سرٹیفکیٹ نمبر بھریو (لازمی)",
   "certificate_section_desc": "Enter your official certificate or registration number to verify eligibility for targeted subsidies and schemes.",
   "select_cert_type": "Select Certificate Type",
   "cert_linked": "Certificate Linked: ",

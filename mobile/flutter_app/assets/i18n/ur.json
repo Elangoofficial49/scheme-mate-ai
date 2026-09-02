@@ -95,7 +95,7 @@
   "hint_annual_income": "Annual Income",
   "field_income_source": "7. آمدنی کا بنیادی ذریعہ",
   "field_category_caste": "8. سماجی زمرہ / ذات",
-  "field_certificate_section": "9. سرٹیفکیٹ / رجسٹریشن نمبر درج کریں (اختیاری)",
+  "field_certificate_section": "9. ضروری سرٹیفکیٹ / رجسٹریشن نمبر درج کریں (لازمی)",
   "certificate_section_desc": "Enter your official certificate or registration number to verify eligibility for targeted subsidies and schemes.",
   "select_cert_type": "Select Certificate Type",
   "cert_linked": "Certificate Linked: ",
