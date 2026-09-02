@@ -526,13 +526,22 @@ class _BusinessProfileFormScreenState extends State<BusinessProfileFormScreen> {
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
+      body: Center(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 24.0),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 850),
+            child: Card(
+              elevation: 4,
+              shadowColor: Colors.black12,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              child: Padding(
+                padding: const EdgeInsets.all(28.0),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
               Container(
                 padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
@@ -979,6 +988,10 @@ class _BusinessProfileFormScreenState extends State<BusinessProfileFormScreen> {
           ),
         ),
       ),
+    ),
+  ),
+),
+),
     );
   }
 }
