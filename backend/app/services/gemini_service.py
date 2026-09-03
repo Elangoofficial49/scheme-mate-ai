@@ -5,6 +5,7 @@ from typing import Dict, Any, List, Optional
 import httpx
 from app.core.config import settings
 from app.services.matching_engine import AIMatchingEngine
+from app.services.translation_service import SchemeTranslator
 
 logger = logging.getLogger(__name__)
 
@@ -274,6 +275,7 @@ class GeminiSchemeAdvisorService:
             res["last_date_to_apply"] = s.get("last_date_to_apply") or "31 Dec 2026 (Open Year-Round)"
             res["category"] = "Government Scheme"
             
+            res = SchemeTranslator.translate_scheme_dict(res, preferred_language)
             analyzed_schemes.append(res)
 
         analyzed_schemes.sort(key=lambda x: x.get("match_score", 0), reverse=True)

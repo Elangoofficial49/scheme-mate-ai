@@ -8,6 +8,7 @@ from app.models.scheme import Scheme
 from app.services.matching_engine import AIMatchingEngine
 from app.services.rag_engine import RAGEngine
 from app.services.gemini_service import GeminiSchemeAdvisorService
+from app.services.translation_service import SchemeTranslator
 from app.security.rbac import get_current_user_token
 from app.services.audit_service import AuditService
 
@@ -21,8 +22,15 @@ class GeminiSuggestionsRequest(BaseModel):
     custom_profile: Optional[dict] = None
     preferred_language: Optional[str] = "en"
 
+class AnalyzeRequest(BaseModel):
+    preferred_language: Optional[str] = "en"
+
 @router.post("/analyze")
-def analyze_scheme_matching(payload: dict = Depends(get_current_user_token), db: Session = Depends(get_db)):
+def analyze_scheme_matching(
+    req: Optional[AnalyzeRequest] = None,
+    payload: dict = Depends(get_current_user_token),
+    db: Session = Depends(get_db)
+):
     user_id = payload.get("sub")
     profile_orm = db.query(EntrepreneurProfile).filter(EntrepreneurProfile.user_id == user_id).first()
     
@@ -45,6 +53,7 @@ def analyze_scheme_matching(payload: dict = Depends(get_current_user_token), db:
             "education_level": profile_orm.education_level
         }
 
+    target_lang = req.preferred_language if req and req.preferred_language else "en"
     schemes_orm = db.query(Scheme).filter(Scheme.status == "Active").all()
     results = []
     for s in schemes_orm:
@@ -63,6 +72,7 @@ def analyze_scheme_matching(payload: dict = Depends(get_current_user_token), db:
             "required_documents": s.required_documents
         }
         res = AIMatchingEngine.analyze_scheme_match(profile_dict, s_dict)
+        res = SchemeTranslator.translate_scheme_dict(res, target_lang)
         results.append(res)
 
     results.sort(key=lambda x: x["match_score"], reverse=True)

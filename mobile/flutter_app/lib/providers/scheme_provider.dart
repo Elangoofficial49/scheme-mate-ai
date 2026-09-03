@@ -26,11 +26,13 @@ class SchemeProvider with ChangeNotifier {
   String? get geminiProvider => _geminiProvider;
   List<Map<String, dynamic>> get geminiSuggestions => _geminiSuggestions;
 
-  Future<void> fetchRecommendations() async {
+  Future<void> fetchRecommendations({String? preferredLanguage}) async {
     _isLoading = true;
     notifyListeners();
 
-    final res = await ApiClient.post("/matching/analyze", {});
+    final res = await ApiClient.post("/matching/analyze", {
+      if (preferredLanguage != null) "preferred_language": preferredLanguage,
+    });
 
     if (res["success"] == true && res["data"] != null) {
       _isOffline = false;

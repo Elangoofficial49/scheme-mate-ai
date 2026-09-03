@@ -48,7 +48,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       final localeProv = Provider.of<LocaleProvider>(context, listen: false);
       
       Future.wait([
-        schemeProv.fetchRecommendations(),
+        schemeProv.fetchRecommendations(preferredLanguage: localeProv.languageCode),
         schemeProv.fetchGeminiSuggestions(preferredLanguage: localeProv.languageCode),
       ]).then((_) {
         if (mounted) setState(() => _isLoadingProfile = false);
@@ -98,7 +98,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
           IconButton(
             icon: const Icon(Icons.language_rounded),
             tooltip: context.tr("change_language"),
-            onPressed: () => LanguageSelectorSheet.show(context),
+            onPressed: () async {
+              await LanguageSelectorSheet.show(context);
+              _loadDashboardData();
+            },
           ),
           IconButton(
             icon: const Icon(Icons.edit_note_rounded),
