@@ -71,6 +71,85 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return score.clamp(0, 100);
   }
 
+  String _localizeText(String input, String langCode) {
+    if (input.isEmpty || langCode == 'en') return input;
+    String res = input;
+    if (langCode == 'ta') {
+      res = res
+        .replaceAll("Ministry of Finance", "நிதி அமைச்சகம்")
+        .replaceAll("Ministry of Micro, Small and Medium Enterprises", "குறு, சிறு மற்றும் நடுத்தர தொழில் அமைச்சகம் (MSME)")
+        .replaceAll("Ministry of Housing and Urban Affairs", "வீட்டுவசதி மற்றும் நகர்ப்புற விவகாரங்கள் அமைச்சகம்")
+        .replaceAll("Minimum age criterion met", "குறைந்தபட்ச வயது வரம்பு பூர்த்தியானது")
+        .replaceAll("Business sector eligible", "தொழில் துறை தகுதியானது")
+        .replaceAll("Scheme operates in your region", "உங்கள் பிராந்தியத்தில் இத்திட்டம் செயல்படுகிறது")
+        .replaceAll("State eligibility matched", "மாநில தகுதி பொருந்தியது")
+        .replaceAll("Matches your funding requirement", "உங்கள் நிதியுதவி தேவைகளுடன் பொருந்துகிறது")
+        .replaceAll("Loan from Rs. 50,001 up to Rs. 5,00,000 without requirement of collateral security.", "பிணைய உத்தரவாதம் இன்றி ரூ. 50,001 முதல் ரூ. 5,00,000 வரை கடன் உதவி.")
+        .replaceAll("Suitable for Existing micro-enterprises seeking growth capital in All India", "அனைத்து இந்தியாவிலும் வளர்ச்சி நிதி தேடும் குறு நிறுவனங்களுக்கு ஏற்றது.")
+        .replaceAll("(Open Year-Round)", "(ஆண்டு முழுவதும் திறந்திருக்கும்)");
+    } else if (langCode == 'hi') {
+      res = res
+        .replaceAll("Ministry of Finance", "वित्त मंत्रालय")
+        .replaceAll("Ministry of Micro, Small and Medium Enterprises", "सूक्ष्म, लघु एवं मध्यम उद्यम मंत्रालय (MSME)")
+        .replaceAll("Ministry of Housing and Urban Affairs", "आवास और शहरी कार्य मंत्रालय")
+        .replaceAll("Minimum age criterion met", "न्यूनतम आयु मानदंड पूरा हुआ")
+        .replaceAll("Business sector eligible", "व्यवसाय क्षेत्र पात्र है")
+        .replaceAll("Scheme operates in your region", "यह योजना आपके क्षेत्र में संचालित है")
+        .replaceAll("State eligibility matched", "राज्य की पात्रता मेल खाती है")
+        .replaceAll("Matches your funding requirement", "आपकी फंडिंग आवश्यकता से मेल खाता है")
+        .replaceAll("(Open Year-Round)", "(वर्ष भर खुला)");
+    } else if (langCode == 'te') {
+      res = res
+        .replaceAll("Ministry of Finance", "ఆర్థిక మంత్రిత్వ శాఖ")
+        .replaceAll("Ministry of Micro, Small and Medium Enterprises", "సూక్ష్మ, చిన్న మరియు మధ్య తరహా పరిశ్రమల మంత్రిత్వ శాఖ")
+        .replaceAll("Minimum age criterion met", "కనీస వయస్సు నిబంధన పూర్తయింది")
+        .replaceAll("Business sector eligible", "వ్యాపార రంగం అర్హత పొందింది")
+        .replaceAll("Scheme operates in your region", "మీ ప్రాంతంలో ఈ పథకం అందుబాటులో ఉంది")
+        .replaceAll("(Open Year-Round)", "(ఏడాది పొడవునా తెరిచి ఉంటుంది)");
+    } else if (langCode == 'kn') {
+      res = res
+        .replaceAll("Ministry of Finance", "ಹಣಕಾಸು ಸಚಿವಾಲಯ")
+        .replaceAll("Ministry of Micro, Small and Medium Enterprises", "ಸೂಕ್ಷ್ಮ, ಸಣ್ಣ ಮತ್ತು ಮಧ್ಯಮ ಉದ್ಯಮಗಳ ಸಚಿವಾಲಯ")
+        .replaceAll("Minimum age criterion met", "ಕನಿಷ್ಠ ವಯಸ್ಸಿನ ಮಾನದಂಡ ಪೂರೈಸಲಾಗಿದೆ")
+        .replaceAll("Business sector eligible", "ವ್ಯಾಪಾರ ಕ್ಷೇತ್ರವು ಅರ್ಹವಾಗಿದೆ")
+        .replaceAll("Scheme operates in your region", "ನಿಮ್ಮ ಪ್ರದೇಶದಲ್ಲಿ ಈ ಯೋಜನೆ ಲಭ್ಯವಿದೆ")
+        .replaceAll("(Open Year-Round)", "(ವರ್ಷಪೂರ್ತಿ ಲಭ್ಯವಿದೆ)");
+    } else if (langCode == 'ml') {
+      res = res
+        .replaceAll("Ministry of Finance", "ധനകാര്യ മന്ത്രാലയം")
+        .replaceAll("Ministry of Micro, Small and Medium Enterprises", "മൈക്രോ, സ്മോൾ ആൻഡ് മീഡിയം എന്റർപ്രൈസസ് മന്ത്രാലയം")
+        .replaceAll("Minimum age criterion met", "കുറഞ്ഞ പ്രായപരിധി യോഗ്യത നേടി")
+        .replaceAll("Business sector eligible", "ബിസിനസ്സ് മേഖല യോഗ്യമാണ്")
+        .replaceAll("Scheme operates in your region", "നിങ്ങളുടെ പ്രദേശത്ത് ഈ പദ്ധതി ലഭ്യമാണ്")
+        .replaceAll("(Open Year-Round)", "(വർഷം മുഴുവൻ ലഭ്യമാണ്)");
+    } else if (langCode == 'mr') {
+      res = res
+        .replaceAll("Ministry of Finance", "वित्त मंत्रालय")
+        .replaceAll("Ministry of Micro, Small and Medium Enterprises", "सूक्ष्म, लघु आणि मध्यम उद्यम मंत्रालय")
+        .replaceAll("Minimum age criterion met", "किमान वयोमर्यादा पूर्ण")
+        .replaceAll("Business sector eligible", "व्यवसाय क्षेत्र पात्र आहे")
+        .replaceAll("Scheme operates in your region", "तुमच्या क्षेत्रात योजना कार्यरत आहे")
+        .replaceAll("(Open Year-Round)", "(वर्षभर उघडे)");
+    } else if (langCode == 'bn') {
+      res = res
+        .replaceAll("Ministry of Finance", "অর্থ মন্ত্রণালয়")
+        .replaceAll("Ministry of Micro, Small and Medium Enterprises", "ক্ষুদ্র, ছোট ও মাঝারি শিল্প মন্ত্রণালয়")
+        .replaceAll("Minimum age criterion met", "নূন্যতম বয়স মাপকাঠি পূরণ হয়েছে")
+        .replaceAll("Business sector eligible", "ব্যবসা খাত যোগ্য")
+        .replaceAll("Scheme operates in your region", "আপনার অঞ্চলে এই প্রকল্প চালু আছে")
+        .replaceAll("(Open Year-Round)", "(সারা বছর খোলা)");
+    } else if (langCode == 'gu') {
+      res = res
+        .replaceAll("Ministry of Finance", "નાણાં મંત્રાલય")
+        .replaceAll("Ministry of Micro, Small and Medium Enterprises", "સૂક્ષ્મ, લઘુ અને મધ્યમ ઉદ્યોગ મંત્રાલય")
+        .replaceAll("Minimum age criterion met", "ન્યૂનતમ વય માનદંડ પૂર્ણ")
+        .replaceAll("Business sector eligible", "વ્યવસાય ક્ષેત્ર પાત્ર છે")
+        .replaceAll("Scheme operates in your region", "આ યોજના તમારા વિસ્તારમાં કાર્યરત છે")
+        .replaceAll("(Open Year-Round)", "(આખું વર્ષ ખુલ્લું)");
+    }
+    return res;
+  }
+
   @override
   Widget build(BuildContext context) {
     final auth = Provider.of<AuthProvider>(context);
@@ -343,7 +422,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                       ),
                                       const SizedBox(height: 2),
                                       Text(
-                                        item["ministry"] ?? "",
+                                        _localizeText(item["ministry"] ?? "", currentLang),
                                         style: TextStyle(color: Colors.grey.shade700, fontSize: 13),
                                       ),
                                     ],
@@ -363,7 +442,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                       const Icon(Icons.event_available, size: 14, color: Colors.red),
                                       const SizedBox(width: 4),
                                       Text(
-                                        "${context.tr('last_date')}: ${item['last_date_to_apply'] ?? '31 Dec 2026 (Open Year-Round)'}",
+                                        "${context.tr('last_date')}: ${_localizeText(item['last_date_to_apply'] ?? '31 Dec 2026 (Open Year-Round)', currentLang)}",
                                         style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.red),
                                       ),
                                     ],
@@ -374,14 +453,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             if ((item["key_benefits"] ?? "").toString().isNotEmpty) ...[
                               const SizedBox(height: 8),
                               Text(
-                                item["key_benefits"].toString(),
+                                _localizeText(item["key_benefits"].toString(), currentLang),
                                 style: const TextStyle(fontSize: 13, color: Colors.black87),
                               ),
                             ],
                             if ((item["eligibility_summary"] ?? "").toString().isNotEmpty) ...[
                               const SizedBox(height: 4),
                               Text(
-                                item["eligibility_summary"].toString(),
+                                _localizeText(item["eligibility_summary"].toString(), currentLang),
                                 style: TextStyle(fontSize: 13, color: Colors.grey.shade700),
                               ),
                             ],
@@ -392,7 +471,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 runSpacing: 4,
                                 children: whyMatches.map((w) => Chip(
                                   label: Text(
-                                    w.toString(),
+                                    _localizeText(w.toString(), currentLang),
                                     style: const TextStyle(fontSize: 11),
                                   ),
                                   padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 0),
