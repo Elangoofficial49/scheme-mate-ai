@@ -195,6 +195,14 @@ def seed_partners_if_empty(db: Session):
             db.add(partner_obj)
         db.commit()
 
+import urllib.parse
+
+def make_google_maps_url(user_lat: float, user_lon: float, partner: ChannelPartner) -> str:
+    origin = f"{user_lat},{user_lon}"
+    dest_str = f"{partner.name}, {partner.branch_name}, {partner.address or ''}".strip(", ")
+    dest_encoded = urllib.parse.quote_plus(dest_str)
+    return f"https://www.google.com/maps/dir/?api=1&origin={origin}&destination={dest_encoded}&travelmode=driving"
+
 @router.get("/nearest")
 def locate_nearest_eligible_partners(
     lat: float = Query(13.0827, description="User Live Latitude"),
@@ -243,7 +251,7 @@ def locate_nearest_eligible_partners(
                 "address": p.address,
                 "distance_km": dist_km,
                 "is_next_nearest_fallback": False,
-                "maps_navigation_url": f"https://www.google.com/maps/dir/?api=1&destination={p.latitude},{p.longitude}"
+                "maps_navigation_url": make_google_maps_url(lat, lon, p)
             })
 
     eligible_in_radius = [r for r in results if r["is_eligible_for_routing"]]
@@ -278,7 +286,7 @@ def locate_nearest_eligible_partners(
                     "address": p.address,
                     "distance_km": dist_km,
                     "is_next_nearest_fallback": True,
-                    "maps_navigation_url": f"https://www.google.com/maps/dir/?api=1&destination={p.latitude},{p.longitude}"
+                    "maps_navigation_url": make_google_maps_url(lat, lon, p)
                 })
         
         all_eligible.sort(key=lambda x: x["distance_km"])

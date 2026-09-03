@@ -156,8 +156,19 @@ class _PartnerLocatorScreenState extends State<PartnerLocatorScreen> {
     });
   }
 
-  void _openMapUrl(String url) {
-    html.window.open(url, '_blank');
+  void _openMapForPartner(dynamic item) {
+    final Map<String, dynamic> partner = Map<String, dynamic>.from(item as Map);
+    final String name = (partner["name"] ?? "").toString();
+    final String branch = (partner["branch_name"] ?? "").toString();
+    final String address = (partner["address"] ?? "").toString();
+    final String state = (partner["state"] ?? "").toString();
+
+    // Query combines exact Name, Branch, and Address so Google Maps pins the exact Bank Branch!
+    final String queryStr = "$name, $branch, $address, $state".replaceAll(RegExp(r'\s+'), ' ').trim();
+    final String encodedDest = Uri.encodeComponent(queryStr);
+
+    final String mapsUrl = "https://www.google.com/maps/dir/?api=1&origin=$_userLat,$_userLon&destination=$encodedDest&travelmode=driving";
+    html.window.open(mapsUrl, '_blank');
   }
 
   @override
@@ -464,9 +475,7 @@ class _PartnerLocatorScreenState extends State<PartnerLocatorScreen> {
                               SizedBox(
                                 width: double.infinity,
                                 child: ElevatedButton.icon(
-                                  onPressed: isEligible && item["maps_navigation_url"] != null
-                                      ? () => _openMapUrl(item["maps_navigation_url"])
-                                      : null,
+                                  onPressed: isEligible ? () => _openMapForPartner(item) : null,
                                   icon: const Icon(Icons.directions, size: 18),
                                   label: Text(
                                     isEligible
