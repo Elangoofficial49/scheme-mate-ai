@@ -11,6 +11,8 @@ import 'business_profile_form_screen.dart';
 import 'ocr_scan_screen.dart';
 import 'scheme_requirements_screen.dart';
 import 'admin_screen.dart';
+import 'financial_calculator_screen.dart';
+import 'partner_locator_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({Key? key}) : super(key: key);
@@ -174,6 +176,26 @@ class _DashboardScreenState extends State<DashboardScreen> {
       appBar: AppBar(
         title: Text(context.tr("app_title")),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.calculate_rounded),
+            tooltip: "Financial & EMI Calculator",
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const FinancialCalculatorScreen()),
+              );
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.near_me_rounded),
+            tooltip: "Geo-Spatial Partner Locator",
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const PartnerLocatorScreen()),
+              );
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.language_rounded),
             tooltip: context.tr("change_language"),

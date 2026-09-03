@@ -6,6 +6,8 @@ import '../core/i18n/app_localizations.dart';
 import '../core/theme/app_theme.dart';
 import '../providers/locale_provider.dart';
 import '../widgets/language_selector_sheet.dart';
+import 'financial_calculator_screen.dart';
+import 'partner_locator_screen.dart';
 
 class SchemeRequirementsScreen extends StatelessWidget {
   final Map<String, dynamic> scheme;
@@ -197,6 +199,54 @@ class SchemeRequirementsScreen extends StatelessWidget {
                         ),
                       ],
                     ),
+                  ),
+                  const SizedBox(height: 14),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton.icon(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => FinancialCalculatorScreen(prefillScheme: scheme),
+                              ),
+                            );
+                          },
+                          icon: const Icon(Icons.calculate, size: 16, color: AppTheme.primaryBlue),
+                          label: Text(
+                            currentLang == 'ta' ? 'EMI கணக்கிடு' : 'Calculate EMI',
+                            style: const TextStyle(fontSize: 12, color: AppTheme.primaryBlue, fontWeight: FontWeight.bold),
+                          ),
+                          style: OutlinedButton.styleFrom(
+                            side: const BorderSide(color: AppTheme.primaryBlue),
+                            padding: const EdgeInsets.symmetric(vertical: 8),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: OutlinedButton.icon(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => PartnerLocatorScreen(initialSchemeName: schemeName),
+                              ),
+                            );
+                          },
+                          icon: const Icon(Icons.near_me, size: 16, color: AppTheme.successGreen),
+                          label: Text(
+                            currentLang == 'ta' ? 'வங்கி / முகவர்' : 'Locate Partner',
+                            style: const TextStyle(fontSize: 12, color: AppTheme.successGreen, fontWeight: FontWeight.bold),
+                          ),
+                          style: OutlinedButton.styleFrom(
+                            side: const BorderSide(color: AppTheme.successGreen),
+                            padding: const EdgeInsets.symmetric(vertical: 8),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),

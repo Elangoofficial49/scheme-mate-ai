@@ -5,7 +5,7 @@ from app.core.config import settings
 from app.core.database import init_db
 from app.core.mongodb import init_mongodb, close_mongodb, get_mongodb
 from app.security.middleware import SecurityHeadersMiddleware, RateLimitMiddleware, global_exception_handler
-from app.api.v1 import auth, profile, schemes, matching, documents, action_plan, sync, notifications, admin
+from app.api.v1 import auth, profile, schemes, matching, documents, action_plan, sync, notifications, admin, financial_calculator, partner_locator
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -37,9 +37,11 @@ app.include_router(schemes.router, prefix=settings.API_V1_STR)
 app.include_router(matching.router, prefix=settings.API_V1_STR)
 app.include_router(documents.router, prefix=settings.API_V1_STR)
 app.include_router(action_plan.router, prefix=settings.API_V1_STR)
-app.include_router(sync.router, prefix=settings.API_V1_STR)
+app.include_router(sync.router, prefix=settings.API_V1_STR)  
 app.include_router(notifications.router, prefix=settings.API_V1_STR)
 app.include_router(admin.router, prefix=settings.API_V1_STR)
+app.include_router(financial_calculator.router, prefix=settings.API_V1_STR)
+app.include_router(partner_locator.router, prefix=settings.API_V1_STR)
 
 @app.on_event("startup")
 def startup_event():
