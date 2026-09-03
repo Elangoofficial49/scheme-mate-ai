@@ -168,14 +168,13 @@ class GeminiSchemeAdvisorService:
             }
         }
 
-        with httpx.Client(timeout=8.0) as client:
+        with httpx.Client(timeout=3.5) as client:
             response = client.post(url, json=payload)
             if response.status_code != 200:
-                # Try standard non-responseMimeType request if model doesn't support json mode
                 payload["generationConfig"].pop("responseMimeType", None)
                 response = client.post(url, json=payload)
                 if response.status_code != 200:
-                    raise Exception(f"Gemini API returned status {response.status_code}: {response.text}")
+                    raise Exception(f"Gemini API returned status {response.status_code}")
 
             data = response.json()
             candidates = data.get("candidates", [])
