@@ -21,3 +21,4 @@ class ChannelPartner(Base):
     contact_email = Column(String, nullable=True)
     address = Column(String, nullable=True)
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
+

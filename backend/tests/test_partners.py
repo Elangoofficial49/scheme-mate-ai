@@ -30,3 +30,4 @@ def test_get_all_channel_partners():
     data = response.json()
     assert data["success"] is True
     assert data["total"] >= 5
+

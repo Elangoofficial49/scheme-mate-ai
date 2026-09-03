@@ -38,3 +38,4 @@ def test_financial_calculator_zero_moratorium():
     assert data["net_loan_amount"] == 425000.0
     assert data["moratorium_monthly_payment"] == 0.0
     assert data["regular_monthly_emi"] > 0
+
