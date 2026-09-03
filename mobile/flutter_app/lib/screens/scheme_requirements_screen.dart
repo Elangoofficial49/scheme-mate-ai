@@ -100,6 +100,27 @@ class SchemeRequirementsScreen extends StatelessWidget {
                       style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
                     ),
                   ],
+                  const SizedBox(height: 12),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: Colors.red.shade50,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: Colors.red.shade200),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.event_available, color: Colors.red, size: 18),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            "Last Date to Apply: ${scheme['last_date_to_apply'] ?? '31 Dec 2026 (Open Year-Round)'}",
+                            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Colors.red),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ],
               ),
             ),

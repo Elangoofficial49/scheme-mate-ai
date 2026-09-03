@@ -103,16 +103,17 @@ class GeminiSchemeAdvisorService:
             "      ],\n"
             '      "key_benefits": "Clear description of financial/subsidy/loan benefits",\n'
             '      "eligibility_summary": "Summary of eligibility criteria",\n'
+            '      "last_date_to_apply": "Application deadline or e.g. 31 Dec 2026 (Open Year-Round)",\n'
             '      "required_documents": ["Aadhaar Card", "PAN Card", "Project Report", "Caste/Income Certificate if applicable", "Bank Statement"],\n'
             '      "official_application_url": "https://official-government-portal-url.gov.in",\n'
             '      "step_by_step_application_steps": [\n'
             '        "Step 1: Visit the official portal",\n'
             '        "Step 2: Prepare required documents and project report",\n'
             '        "Step 3: Submit online application and track reference number"\n'
-            "      ]\n"
-            "    }\n"
-            "  ]\n"
-            "}"
+            '      ]\n'
+            '    }\n'
+            '  ]\n'
+            '}'
         )
 
         user_content = (
@@ -180,6 +181,8 @@ class GeminiSchemeAdvisorService:
                         item["match_score"] = 90.0
                 if "match_label" not in item and "match_score" in item:
                     item["match_label"] = f"{int(item['match_score'])}% AI Match"
+                if not item.get("last_date_to_apply"):
+                    item["last_date_to_apply"] = "31 Dec 2026 (Open Year-Round)"
 
             return {
                 "success": True,
@@ -238,6 +241,7 @@ class GeminiSchemeAdvisorService:
             ]
             res["key_benefits"] = s.get("benefits") or "Financial subsidy and institutional credit assistance"
             res["eligibility_summary"] = f"Suitable for {s.get('target_beneficiary', 'Entrepreneurs')} in {s.get('state', 'All India')}"
+            res["last_date_to_apply"] = s.get("last_date_to_apply") or "31 Dec 2026 (Open Year-Round)"
             res["category"] = "Government Scheme"
             
             analyzed_schemes.append(res)

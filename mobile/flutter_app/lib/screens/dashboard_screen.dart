@@ -322,14 +322,46 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              item["scheme_name"] ?? "",
-                              style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              item["ministry"] ?? "",
-                              style: TextStyle(color: Colors.grey.shade700, fontSize: 13),
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        item["scheme_name"] ?? "",
+                                        style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
+                                      ),
+                                      const SizedBox(height: 2),
+                                      Text(
+                                        item["ministry"] ?? "",
+                                        style: TextStyle(color: Colors.grey.shade700, fontSize: 13),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                  decoration: BoxDecoration(
+                                    color: Colors.red.shade50,
+                                    borderRadius: BorderRadius.circular(6),
+                                    border: Border.all(color: Colors.red.shade200),
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      const Icon(Icons.event_available, size: 14, color: Colors.red),
+                                      const SizedBox(width: 4),
+                                      Text(
+                                        "Last Date: ${item['last_date_to_apply'] ?? '31 Dec 2026'}",
+                                        style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.red),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
                             ),
                             if ((item["key_benefits"] ?? "").toString().isNotEmpty) ...[
                               const SizedBox(height: 8),

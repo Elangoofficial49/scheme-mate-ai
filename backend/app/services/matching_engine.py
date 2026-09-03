@@ -122,5 +122,6 @@ class AIMatchingEngine:
             "required_documents": docs_list,
             "official_application_url": scheme.get("official_application_url"),
             "official_source_url": scheme.get("official_source_url"),
-            "last_verified": scheme.get("last_verified")
+            "last_verified": scheme.get("last_verified"),
+            "last_date_to_apply": scheme.get("last_date_to_apply") or "31 Dec 2026 (Open Year-Round)"
         }
