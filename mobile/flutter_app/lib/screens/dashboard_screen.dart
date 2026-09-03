@@ -46,8 +46,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
     if (mounted) {
       final schemeProv = Provider.of<SchemeProvider>(context, listen: false);
       await schemeProv.fetchRecommendations();
-      setState(() => _isLoadingProfile = false);
-      schemeProv.fetchGeminiSuggestions();
+      final localeProv = Provider.of<LocaleProvider>(context, listen: false);
+      schemeProv.fetchGeminiSuggestions(preferredLanguage: localeProv.languageCode);
     }
   }
 

@@ -50,13 +50,18 @@ class SchemeProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> fetchGeminiSuggestions({String? query, Map<String, dynamic>? customProfile}) async {
+  Future<void> fetchGeminiSuggestions({
+    String? query,
+    Map<String, dynamic>? customProfile,
+    String? preferredLanguage,
+  }) async {
     _isLoadingGemini = true;
     notifyListeners();
 
     final res = await ApiClient.post("/matching/gemini-suggestions", {
       if (query != null && query.isNotEmpty) "query": query,
       if (customProfile != null) "custom_profile": customProfile,
+      if (preferredLanguage != null) "preferred_language": preferredLanguage,
     });
 
     if (res["success"] == true && res["data"] != null) {

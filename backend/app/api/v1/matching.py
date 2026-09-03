@@ -19,6 +19,7 @@ class RAGQueryRequest(BaseModel):
 class GeminiSuggestionsRequest(BaseModel):
     query: Optional[str] = None
     custom_profile: Optional[dict] = None
+    preferred_language: Optional[str] = "en"
 
 @router.post("/analyze")
 def analyze_scheme_matching(payload: dict = Depends(get_current_user_token), db: Session = Depends(get_db)):
@@ -152,10 +153,13 @@ def get_gemini_scheme_suggestions(
         "required_documents": s.required_documents
     } for s in schemes_orm]
 
+    user_lang = req.preferred_language if req and req.preferred_language else "en"
+
     suggestions_response = GeminiSchemeAdvisorService.suggest_schemes_with_gemini(
         profile=profile_dict,
         query=user_query,
-        schemes_kb=schemes_kb
+        schemes_kb=schemes_kb,
+        preferred_language=user_lang
     )
 
     AuditService.log_action(

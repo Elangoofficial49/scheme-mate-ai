@@ -39,12 +39,39 @@ class GeminiSchemeAdvisorService:
             lines.append(f'• Specific Goal / Query by User: "{query}"')
         return "\n".join(lines)
 
+    LANGUAGE_NAMES = {
+        'en': 'English',
+        'ta': 'Tamil',
+        'hi': 'Hindi',
+        'te': 'Telugu',
+        'kn': 'Kannada',
+        'ml': 'Malayalam',
+        'mr': 'Marathi',
+        'bn': 'Bengali',
+        'gu': 'Gujarati',
+        'pa': 'Punjabi',
+        'or': 'Odia',
+        'as': 'Assamese',
+        'ur': 'Urdu',
+        'sa': 'Sanskrit',
+        'ne': 'Nepali',
+        'mai': 'Maithili',
+        'sat': 'Santali',
+        'ks': 'Kashmiri',
+        'kok': 'Konkani',
+        'sd': 'Sindhi',
+        'doi': 'Dogri',
+        'brx': 'Bodo',
+        'mni': 'Manipuri'
+    }
+
     @classmethod
     def suggest_schemes_with_gemini(
         cls,
         profile: Dict[str, Any],
         query: Optional[str] = None,
-        schemes_kb: Optional[List[Dict[str, Any]]] = None
+        schemes_kb: Optional[List[Dict[str, Any]]] = None,
+        preferred_language: str = "en"
     ) -> Dict[str, Any]:
         """
         Main entry point for Gemini AI scheme recommendations.
@@ -57,14 +84,14 @@ class GeminiSchemeAdvisorService:
 
         if not api_key:
             logger.info("No Gemini API Key found in environment. Using intelligent hybrid scheme matching engine.")
-            return cls._fallback_hybrid_suggestions(profile, query, schemes_kb, note="Generated using SchemeMate AI Hybrid Engine (Set GEMINI_API_KEY for direct Gemini model calls).")
+            return cls._fallback_hybrid_suggestions(profile, query, schemes_kb, preferred_language=preferred_language, note="Generated using SchemeMate AI Hybrid Engine (Set GEMINI_API_KEY for direct Gemini model calls).")
 
         # Call Gemini API
         try:
-            return cls._call_gemini_api(api_key, model, profile, query, schemes_kb)
+            return cls._call_gemini_api(api_key, model, profile, query, schemes_kb, preferred_language=preferred_language)
         except Exception as e:
             logger.error(f"Gemini API invocation error: {e}. Falling back to hybrid scheme matching engine.")
-            return cls._fallback_hybrid_suggestions(profile, query, schemes_kb, note=f"Gemini service notice: {str(e)}. Displaying verified database schemes.")
+            return cls._fallback_hybrid_suggestions(profile, query, schemes_kb, preferred_language=preferred_language, note=f"Gemini service notice: {str(e)}. Displaying verified database schemes.")
 
     @classmethod
     def _call_gemini_api(
@@ -73,43 +100,46 @@ class GeminiSchemeAdvisorService:
         model: str,
         profile: Dict[str, Any],
         query: Optional[str],
-        schemes_kb: Optional[List[Dict[str, Any]]]
+        schemes_kb: Optional[List[Dict[str, Any]]],
+        preferred_language: str = "en"
     ) -> Dict[str, Any]:
         """Direct HTTP call to Google Generative Language API for Gemini."""
         url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}"
         
         profile_text = cls.format_profile_for_prompt(profile, query)
+        lang_name = cls.LANGUAGE_NAMES.get(preferred_language, "English")
 
         system_instruction = (
             "You are SchemeMate AI, a world-class AI Government Scheme Advisor for India. "
-            "Your job is to analyze the entrepreneur's exact profile (demographics, income, business type, stage, funding need, state) "
-            "and suggest top official, real, active Government of India & State Government schemes (e.g. PMEGP, PM Mudra, Stand-Up India, "
-            "PM Vishwakarma, CGTMSE, CLCSS, MSME Champions, State Schemes like NEEDS, etc.).\n\n"
+            f"IMPORTANT MULTILINGUAL DIRECTIVE: The user's selected interface language is '{lang_name}' (ISO code: '{preferred_language}'). "
+            f"You MUST generate all descriptive text fields ('ai_analysis_summary', 'key_benefits', 'eligibility_summary', 'why_matches', 'last_date_to_apply', 'step_by_step_application_steps') in the '{lang_name}' language.\n\n"
+            "Analyze the entrepreneur's exact profile details (caste/community, business type, age, annual income, state, funding requirement) "
+            "and suggest top official, real, active Government of India & State Government schemes matching their profile.\n\n"
             "Return ONLY valid JSON matching this exact schema:\n"
             "{\n"
-            '  "ai_analysis_summary": "2-3 sentences explaining the entrepreneur\'s overall scheme eligibility landscape and top opportunities.",\n'
+            '  "ai_analysis_summary": "Summary in ' + lang_name + '",\n'
             '  "recommended_schemes": [\n'
             "    {\n"
             '      "scheme_id": "unique-slug-id",\n'
             '      "scheme_name": "Official Scheme Name",\n'
-            '      "ministry": "Ministry / Department Name",\n'
-            '      "category": "e.g., Credit Subsidy / Machinery Loan / Women Support",\n'
+            '      "ministry": "Ministry / Department Name in ' + lang_name + '",\n'
+            '      "category": "Category in ' + lang_name + '",\n'
             '      "match_score": 95,\n'
             '      "match_label": "95% AI Match",\n'
             '      "eligibility_status": "Eligible",\n'
             '      "why_matches": [\n'
-            '        "Specific reason tailored to their business type and sector",\n'
-            '        "Specific reason tailored to their social category/location/funding"\n'
+            '        "Reason 1 tailored to caste/business/income in ' + lang_name + '",\n'
+            '        "Reason 2 tailored to location/funding in ' + lang_name + '"\n'
             "      ],\n"
-            '      "key_benefits": "Clear description of financial/subsidy/loan benefits",\n'
-            '      "eligibility_summary": "Summary of eligibility criteria",\n'
-            '      "last_date_to_apply": "Application deadline or e.g. 31 Dec 2026 (Open Year-Round)",\n'
+            '      "key_benefits": "Benefits description in ' + lang_name + '",\n'
+            '      "eligibility_summary": "Eligibility criteria summary in ' + lang_name + '",\n'
+            '      "last_date_to_apply": "Verified application deadline date in ' + lang_name + ' (e.g. 31 Dec 2026 / Open Year-Round)",\n'
             '      "required_documents": ["Aadhaar Card", "PAN Card", "Project Report", "Caste/Income Certificate if applicable", "Bank Statement"],\n'
             '      "official_application_url": "https://official-government-portal-url.gov.in",\n'
             '      "step_by_step_application_steps": [\n'
-            '        "Step 1: Visit the official portal",\n'
-            '        "Step 2: Prepare required documents and project report",\n'
-            '        "Step 3: Submit online application and track reference number"\n'
+            '        "Step 1 in ' + lang_name + '",\n'
+            '        "Step 2 in ' + lang_name + '",\n'
+            '        "Step 3 in ' + lang_name + '"\n'
             '      ]\n'
             '    }\n'
             '  ]\n'
@@ -199,6 +229,7 @@ class GeminiSchemeAdvisorService:
         profile: Dict[str, Any],
         query: Optional[str],
         schemes_kb: Optional[List[Dict[str, Any]]],
+        preferred_language: str = "en",
         note: str = ""
     ) -> Dict[str, Any]:
         """Intelligent local matching fallback grounded on verified schemes knowledge base."""
