@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../core/i18n/app_localizations.dart';
 import '../core/theme/app_theme.dart';
 import '../models/match_result_model.dart';
 import 'action_plan_screen.dart';
@@ -58,7 +59,7 @@ class SchemeDetailScreen extends StatelessWidget {
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
-                            "Last Date to Apply: ${match.lastDateToApply}",
+                            "${context.tr('last_date')}: ${match.lastDateToApply}",
                             style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Colors.red),
                           ),
                         ),

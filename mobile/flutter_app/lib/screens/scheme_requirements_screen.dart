@@ -114,7 +114,7 @@ class SchemeRequirementsScreen extends StatelessWidget {
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
-                            "Last Date to Apply: ${scheme['last_date_to_apply'] ?? '31 Dec 2026 (Open Year-Round)'}",
+                            "${context.tr('last_date')}: ${scheme['last_date_to_apply'] ?? '31 Dec 2026 (Open Year-Round)'}",
                             style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Colors.red),
                           ),
                         ),

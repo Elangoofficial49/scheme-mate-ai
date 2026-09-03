@@ -106,5 +106,6 @@
   "hint_custom_state": "e.g. Goa, Ladakh, Telangana, Special Economic Zone",
   "field_custom_caste": "Enter Caste / Community Name",
   "hint_custom_caste": "e.g. Yadava, Thevar, Vanniyar, Vankar, Meena, etc.",
-  "view_all_languages": "تمام 23 سرکاری بھارتی زبانیں دیکھیں ->"
+  "view_all_languages": "تمام 23 سرکاری بھارتی زبانیں دیکھیں ->",
+  "last_date": "آخری تاریخ"
 }

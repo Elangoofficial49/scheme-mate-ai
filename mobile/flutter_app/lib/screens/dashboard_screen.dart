@@ -355,7 +355,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                       const Icon(Icons.event_available, size: 14, color: Colors.red),
                                       const SizedBox(width: 4),
                                       Text(
-                                        "Last Date: ${item['last_date_to_apply'] ?? '31 Dec 2026'}",
+                                        "${context.tr('last_date')}: ${item['last_date_to_apply'] ?? '31 Dec 2026 (Open Year-Round)'}",
                                         style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.red),
                                       ),
                                     ],
