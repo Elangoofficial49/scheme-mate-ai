@@ -12,6 +12,7 @@ class MatchResultModel {
   final String officialApplicationUrl;
   final String officialSourceUrl;
   final String lastVerified;
+  final String lastDateToApply;
 
   MatchResultModel({
     required this.schemeId,
@@ -27,6 +28,7 @@ class MatchResultModel {
     required this.officialApplicationUrl,
     required this.officialSourceUrl,
     required this.lastVerified,
+    this.lastDateToApply = "31 Dec 2026 (Open Year-Round)",
   });
 
   factory MatchResultModel.fromJson(Map<String, dynamic> json) {
@@ -44,6 +46,7 @@ class MatchResultModel {
       officialApplicationUrl: json['official_application_url'] ?? '',
       officialSourceUrl: json['official_source_url'] ?? '',
       lastVerified: json['last_verified'] ?? '',
+      lastDateToApply: json['last_date_to_apply'] ?? '31 Dec 2026 (Open Year-Round)',
     );
   }
 }
