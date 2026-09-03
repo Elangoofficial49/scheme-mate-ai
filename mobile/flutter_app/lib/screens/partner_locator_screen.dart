@@ -20,20 +20,53 @@ class PartnerLocatorScreen extends StatefulWidget {
 class _PartnerLocatorScreenState extends State<PartnerLocatorScreen> {
   double _userLat = 13.0827; // Default Chennai coordinates
   double _userLon = 80.2707;
-  double _searchRadiusKm = 50.0;
+  bool _isUsingLiveGps = false;
+  String _locationStatusText = "Default Location (Chennai)";
+
+  double _searchRadiusKm = 50.0; // Default 50 km radius
   String _selectedState = 'All';
   String _selectedDistrict = 'All';
 
   bool _isLoading = false;
   List<dynamic> _partners = [];
   int _eligibleCount = 0;
+  bool _fallbackUsed = false;
+  String? _fallbackMessage;
 
   final List<String> _states = ['All', 'Tamil Nadu', 'Odisha', 'Delhi', 'Maharashtra', 'Karnataka', 'Telangana'];
 
   @override
   void initState() {
     super.initState();
-    _fetchNearestPartners();
+    _requestLiveGpsLocation();
+  }
+
+  void _requestLiveGpsLocation() {
+    try {
+      if (html.window.navigator.geolocation != null) {
+        setState(() => _locationStatusText = "Acquiring Live GPS Location...");
+        html.window.navigator.geolocation.getCurrentPosition().then((pos) {
+          if (pos.coords != null) {
+            final lat = pos.coords!.latitude?.toDouble() ?? 13.0827;
+            final lon = pos.coords!.longitude?.toDouble() ?? 80.2707;
+            setState(() {
+              _userLat = lat;
+              _userLon = lon;
+              _isUsingLiveGps = true;
+              _locationStatusText = "Live GPS: ${lat.toStringAsFixed(4)}° N, ${lon.toStringAsFixed(4)}° E";
+            });
+            _fetchNearestPartners();
+          }
+        }).catchError((err) {
+          setState(() => _locationStatusText = "GPS Permission Denied. Using Default Coordinates.");
+          _fetchNearestPartners();
+        });
+      } else {
+        _fetchNearestPartners();
+      }
+    } catch (e) {
+      _fetchNearestPartners();
+    }
   }
 
   Future<void> _fetchNearestPartners() async {
@@ -49,15 +82,17 @@ class _PartnerLocatorScreenState extends State<PartnerLocatorScreen> {
         setState(() {
           _partners = data["partners"] ?? [];
           _eligibleCount = data["eligible_count"] ?? 0;
+          _fallbackUsed = data["fallback_used"] == true;
+          _fallbackMessage = data["fallback_message"];
           _isLoading = false;
         });
         return;
       }
     } catch (e) {
-      // Local fallback data if backend disconnected
+      // Local fallback calculation if backend disconnected
     }
 
-    // Fallback Channel Partners
+    // Local Fallback Simulation
     setState(() {
       _partners = [
         {
@@ -75,6 +110,7 @@ class _PartnerLocatorScreenState extends State<PartnerLocatorScreen> {
           "contact_email": "tabcedco@tn.gov.in",
           "address": "No. 735, Anna Salai, Chennai, Tamil Nadu 600006",
           "distance_km": 2.4,
+          "is_next_nearest_fallback": false,
           "maps_navigation_url": "https://www.google.com/maps/dir/?api=1&destination=13.0604,80.2496"
         },
         {
@@ -92,6 +128,7 @@ class _PartnerLocatorScreenState extends State<PartnerLocatorScreen> {
           "contact_email": "sbi.01824@sbi.co.in",
           "address": "SIDCO Industrial Estate, Guindy, Chennai, Tamil Nadu 600032",
           "distance_km": 5.1,
+          "is_next_nearest_fallback": false,
           "maps_navigation_url": "https://www.google.com/maps/dir/?api=1&destination=13.0102,80.2084"
         },
         {
@@ -109,10 +146,12 @@ class _PartnerLocatorScreenState extends State<PartnerLocatorScreen> {
           "contact_email": "restricted@nbfc.com",
           "address": "Parrys Corner, Chennai, Tamil Nadu 600001",
           "distance_km": 7.8,
+          "is_next_nearest_fallback": false,
           "maps_navigation_url": "https://www.google.com/maps/dir/?api=1&destination=13.0827,80.2707"
         }
       ];
       _eligibleCount = 2;
+      _fallbackUsed = false;
       _isLoading = false;
     });
   }
@@ -130,10 +169,17 @@ class _PartnerLocatorScreenState extends State<PartnerLocatorScreen> {
         title: Text(langCode == 'ta' ? 'அருகிலுள்ள தகுதியான வங்கி / SCA முகவரி' : 'Nearest Eligible Channel Partners'),
         backgroundColor: AppTheme.primaryBlue,
         foregroundColor: Colors.white,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.my_location),
+            tooltip: "Use Live GPS Location",
+            onPressed: _requestLiveGpsLocation,
+          ),
+        ],
       ),
       body: Column(
         children: [
-          // 1. Filter Header Bar
+          // 1. Live Location & Routing Policy Header
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             color: Colors.blue.shade50,
@@ -142,19 +188,47 @@ class _PartnerLocatorScreenState extends State<PartnerLocatorScreen> {
               children: [
                 Row(
                   children: [
-                    const Icon(Icons.my_location, color: AppTheme.primaryBlue, size: 20),
+                    Icon(
+                      _isUsingLiveGps ? Icons.gps_fixed : Icons.location_on_outlined,
+                      color: _isUsingLiveGps ? AppTheme.successGreen : AppTheme.primaryBlue,
+                      size: 20,
+                    ),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        langCode == 'ta'
-                            ? 'ரூட்டிங் கொள்கை: NPA < 3.0% உள்ள தகுதியான வங்கிகள் மட்டும்'
-                            : 'Routing Policy: NPA < 3.0% & Active Fund Quota Partners',
-                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppTheme.primaryBlue),
+                        _locationStatusText,
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 13,
+                          color: _isUsingLiveGps ? AppTheme.successGreen : AppTheme.primaryBlue,
+                        ),
+                      ),
+                    ),
+                    InkWell(
+                      onTap: _requestLiveGpsLocation,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: AppTheme.primaryBlue.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Row(
+                          children: [
+                            const Icon(Icons.refresh, size: 14, color: AppTheme.primaryBlue),
+                            const SizedBox(width: 4),
+                            Text(
+                              langCode == 'ta' ? 'GPS புதுப்பி' : 'Live GPS',
+                              style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppTheme.primaryBlue),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ],
                 ),
                 const SizedBox(height: 10),
+
+                // State Filter & Radius Selector (50 km Default)
                 Row(
                   children: [
                     // State Dropdown
@@ -182,17 +256,18 @@ class _PartnerLocatorScreenState extends State<PartnerLocatorScreen> {
                       ),
                     ),
                     const SizedBox(width: 10),
-                    // Search Radius Slider Chip
+
+                    // Radius Dropdown Popup
                     PopupMenuButton<double>(
                       onSelected: (val) {
                         setState(() => _searchRadiusKm = val);
                         _fetchNearestPartners();
                       },
                       itemBuilder: (context) => [
-                        const PopupMenuItem(value: 10.0, child: Text('Radius: 10 km')),
                         const PopupMenuItem(value: 25.0, child: Text('Radius: 25 km')),
-                        const PopupMenuItem(value: 50.0, child: Text('Radius: 50 km')),
+                        const PopupMenuItem(value: 50.0, child: Text('Radius: 50 km (Default)')),
                         const PopupMenuItem(value: 100.0, child: Text('Radius: 100 km')),
+                        const PopupMenuItem(value: 250.0, child: Text('Radius: 250 km')),
                       ],
                       child: Container(
                         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
@@ -218,6 +293,26 @@ class _PartnerLocatorScreenState extends State<PartnerLocatorScreen> {
             ),
           ),
 
+          // 2. Next Nearest Fallback Alert Banner (If > 50km required)
+          if (_fallbackUsed && _fallbackMessage != null)
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              color: Colors.orange.shade50,
+              child: Row(
+                children: [
+                  const Icon(Icons.error_outline, color: Colors.deepOrange, size: 20),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      _fallbackMessage!,
+                      style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.deepOrange),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
           // Status Counter Bar
           Padding(
             padding: const EdgeInsets.all(12.0),
@@ -235,7 +330,7 @@ class _PartnerLocatorScreenState extends State<PartnerLocatorScreen> {
                     borderRadius: BorderRadius.circular(6),
                   ),
                   child: Text(
-                    '$_eligibleCount ${langCode == 'ta' ? 'தகுதியானவர்கள்' : 'Eligible & Healthy'}',
+                    '$_eligibleCount ${langCode == 'ta' ? 'தகுதியானவர்கள் (NPA < 3%)' : 'Eligible & Healthy'}',
                     style: const TextStyle(color: AppTheme.successGreen, fontWeight: FontWeight.bold, fontSize: 12),
                   ),
                 ),
@@ -243,7 +338,7 @@ class _PartnerLocatorScreenState extends State<PartnerLocatorScreen> {
             ),
           ),
 
-          // 2. Partner Cards List
+          // 3. Partner Cards List
           Expanded(
             child: _isLoading
                 ? const Center(child: CircularProgressIndicator())
@@ -253,6 +348,7 @@ class _PartnerLocatorScreenState extends State<PartnerLocatorScreen> {
                     itemBuilder: (context, index) {
                       final item = _partners[index];
                       final bool isEligible = item["is_eligible_for_routing"] == true;
+                      final bool isFallback = item["is_next_nearest_fallback"] == true;
                       final double dist = (item["distance_km"] as num? ?? 0.0).toDouble();
 
                       return Card(
@@ -261,7 +357,9 @@ class _PartnerLocatorScreenState extends State<PartnerLocatorScreen> {
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                           side: BorderSide(
-                            color: isEligible ? AppTheme.successGreen.withOpacity(0.4) : Colors.red.withOpacity(0.4),
+                            color: isFallback
+                                ? Colors.orange
+                                : (isEligible ? AppTheme.successGreen.withOpacity(0.4) : Colors.red.withOpacity(0.4)),
                           ),
                         ),
                         child: Padding(
@@ -302,12 +400,16 @@ class _PartnerLocatorScreenState extends State<PartnerLocatorScreen> {
                                   Container(
                                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                                     decoration: BoxDecoration(
-                                      color: Colors.blue.shade50,
+                                      color: isFallback ? Colors.orange.shade50 : Colors.blue.shade50,
                                       borderRadius: BorderRadius.circular(6),
                                     ),
                                     child: Text(
                                       '${dist.toStringAsFixed(1)} km',
-                                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: AppTheme.primaryBlue),
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 12,
+                                        color: isFallback ? Colors.deepOrange : AppTheme.primaryBlue,
+                                      ),
                                     ),
                                   ),
                                 ],
@@ -333,7 +435,9 @@ class _PartnerLocatorScreenState extends State<PartnerLocatorScreen> {
                                     const SizedBox(width: 6),
                                     Expanded(
                                       child: Text(
-                                        "${item['status_label']} (NPA: ${item['npa_rate']}%)",
+                                        isFallback
+                                            ? "Next Nearest Eligible Bank (NPA: ${item['npa_rate']}%)"
+                                            : "${item['status_label']} (NPA: ${item['npa_rate']}%)",
                                         style: TextStyle(
                                           fontSize: 12,
                                           fontWeight: FontWeight.bold,
