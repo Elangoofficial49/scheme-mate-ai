@@ -4,6 +4,7 @@ import '../core/i18n/app_languages.dart';
 import '../core/i18n/app_localizations.dart';
 import '../core/theme/app_theme.dart';
 import '../providers/locale_provider.dart';
+import '../providers/scheme_provider.dart';
 import '../widgets/language_selector_sheet.dart';
 import 'auth_screen.dart';
 
@@ -253,7 +254,12 @@ class HomeScreen extends StatelessWidget {
     required bool isSelected,
   }) {
     return InkWell(
-      onTap: () => localeProv.setLocale(lang.code),
+      onTap: () {
+        localeProv.setLocale(lang.code);
+        final schemeProv = Provider.of<SchemeProvider>(context, listen: false);
+        schemeProv.fetchGeminiSuggestions(preferredLanguage: lang.code);
+        schemeProv.fetchRecommendations(preferredLanguage: lang.code);
+      },
       borderRadius: BorderRadius.circular(10),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 180),

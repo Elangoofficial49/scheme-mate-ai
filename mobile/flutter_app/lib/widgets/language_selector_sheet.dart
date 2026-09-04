@@ -4,6 +4,7 @@ import '../core/i18n/app_languages.dart';
 import '../core/i18n/app_localizations.dart';
 import '../core/theme/app_theme.dart';
 import '../providers/locale_provider.dart';
+import '../providers/scheme_provider.dart';
 
 class LanguageSelectorSheet extends StatefulWidget {
   const LanguageSelectorSheet({Key? key}) : super(key: key);
@@ -110,6 +111,9 @@ class _LanguageSelectorSheetState extends State<LanguageSelectorSheet> {
                         child: InkWell(
                           onTap: () {
                             localeProv.setLocale(lang.code);
+                            final schemeProv = Provider.of<SchemeProvider>(context, listen: false);
+                            schemeProv.fetchGeminiSuggestions(preferredLanguage: lang.code);
+                            schemeProv.fetchRecommendations(preferredLanguage: lang.code);
                             Navigator.pop(context);
                           },
                           borderRadius: BorderRadius.circular(10),

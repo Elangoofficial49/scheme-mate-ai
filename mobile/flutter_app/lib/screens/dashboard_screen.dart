@@ -26,6 +26,7 @@ class DashboardScreen extends StatefulWidget {
 class _DashboardScreenState extends State<DashboardScreen> {
   Map<String, dynamic>? _userProfile;
   bool _isLoadingProfile = true;
+  String? _lastLanguageCode;
 
   @override
   void initState() {
@@ -33,6 +34,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _loadDashboardData();
     });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final localeProv = Provider.of<LocaleProvider>(context);
+    if (_lastLanguageCode != null && _lastLanguageCode != localeProv.languageCode) {
+      _lastLanguageCode = localeProv.languageCode;
+      _loadDashboardData();
+    } else {
+      _lastLanguageCode = localeProv.languageCode;
+    }
   }
 
   Future<void> _loadDashboardData() async {
@@ -88,8 +101,22 @@ class _DashboardScreenState extends State<DashboardScreen> {
         .replaceAll("Scheme operates in your region", "உங்கள் பிராந்தியத்தில் இத்திட்டம் செயல்படுகிறது")
         .replaceAll("State eligibility matched", "மாநில தகுதி பொருந்தியது")
         .replaceAll("Matches your funding requirement", "உங்கள் நிதியுதவி தேவைகளுடன் பொருந்துகிறது")
+        .replaceAll("(All India)", "(அனைத்து இந்தியா)")
+        .replaceAll("(Transportation & Logistics)", "(போக்குவரத்து மற்றும் தளவாடங்கள்)")
+        .replaceAll("(Manufacturing)", "(உற்பத்தி)")
+        .replaceAll("(Service)", "(சேவை)")
+        .replaceAll("31 Dec 2026 (Open Year-Round)", "31 டிசம்பர் 2026 (ஆண்டு முழுவதும் திறந்திருக்கும்)")
+        .replaceAll("Loan from Rs. 5,00,001 to Rs. 10,00,000.", "ரூ. 5,00,001 முதல் ரூ. 10,00,000 வரை கடன் உதவி.")
         .replaceAll("Loan from Rs. 50,001 up to Rs. 5,00,000 without requirement of collateral security.", "பிணைய உத்தரவாதம் இன்றி ரூ. 50,001 முதல் ரூ. 5,00,000 வரை கடன் உதவி.")
+        .replaceAll("Loans up to Rs. 50,000 without collateral at affordable interest rates.", "பிணைய உத்தரவாதம் இன்றி குறைந்த வட்டியில் ரூ. 50,000 வரை சிறு கடன்.")
+        .replaceAll("Rs. 15,000 toolkit digital voucher, 5-7 days basic training with Rs. 500/day stipend, collateral-free loan of Rs. 1 Lakh (Tranche 1) and Rs. 2 Lakh (Tranche 2) at 5% interest rate.", "ரூ. 15,000 கருவித்தொகுப்பு டிஜிட்டல் வவுச்சர், 5-7 நாட்கள் பயிற்சி, பிணையமற்ற கடன் ரூ. 1 லட்சம் மற்றும் ரூ. 2 லட்சம் 5% வட்டியில்.")
+        .replaceAll("Working capital loan of Rs. 10,00,000 (1st tranche), Rs. 20,000 (2nd tranche), and Rs. 50,000 (3rd tranche) with 7% interest subsidy and cashback on digital transactions.", "7% வட்டி மானியத்துடன் ரூ. 10,00,000 நடைமுறை மூலதனக் கடன் உதவி.")
+        .replaceAll("Working capital loan of Rs. 10,000 (1st tranche), Rs. 20,000 (2nd tranche), and Rs. 50,000 (3rd tranche) with 7% interest subsidy and cashback on digital transactions.", "7% வட்டி மானியத்துடன் ரூ. 10,000 நடைமுறை மூலதனக் கடன் உதவி.")
+        .replaceAll("Suitable for Growing small business owners and commercial units in All India", "அனைத்து இந்தியாவிலும் வளர்ச்சி அடையும் சிறு தொழில் உரிமையாளர்களுக்கு ஏற்றது.")
         .replaceAll("Suitable for Existing micro-enterprises seeking growth capital in All India", "அனைத்து இந்தியாவிலும் வளர்ச்சி நிதி தேடும் குறு நிறுவனங்களுக்கு ஏற்றது.")
+        .replaceAll("Suitable for Micro entrepreneurs, shopkeepers, artisans, street vendors in All India", "குறு தொழில்முனைவோர், கடைக்காரர்கள், கைவினைஞர்களுக்கு ஏற்றது.")
+        .replaceAll("Suitable for Artisans and Craftsmen working with hands and tools in 18 traditional trades in All India", "18 பாரம்பரிய தொழில்களில் கையால் வேலை செய்யும் கைவினைஞர்களுக்கு ஏற்றது.")
+        .replaceAll("Suitable for Street vendors, hawkers, roadside shop owners in All India", "தெருவோர வியாபாரிகள் மற்றும் சிறு கடைக்காரர்களுக்கு ஏற்றது.")
         .replaceAll("(Open Year-Round)", "(ஆண்டு முழுவதும் திறந்திருக்கும்)");
     } else if (langCode == 'hi') {
       res = res
@@ -100,7 +127,94 @@ class _DashboardScreenState extends State<DashboardScreen> {
         .replaceAll("Business sector eligible", "व्यवसाय क्षेत्र पात्र है")
         .replaceAll("Scheme operates in your region", "यह योजना आपके क्षेत्र में संचालित है")
         .replaceAll("State eligibility matched", "राज्य की पात्रता मेल खाती है")
-        .replaceAll("Matches your funding requirement", "आपकी वित्त पोषण आवश्यकता से मेल खाता है");
+        .replaceAll("Matches your funding requirement", "आपकी फंडिंग आवश्यकता से मेल खाता है")
+        .replaceAll("(All India)", "(अखिल भारतीय)")
+        .replaceAll("(Transportation & Logistics)", "(परिवहन और लॉजिस्टिक्स)")
+        .replaceAll("(Manufacturing)", "(विनिर्माण / उत्पादन)")
+        .replaceAll("(Service)", "(सेवा)")
+        .replaceAll("31 Dec 2026 (Open Year-Round)", "31 दिसंबर 2026 (वर्ष भर खुला)")
+        .replaceAll("Loan from Rs. 5,00,001 to Rs. 10,00,000.", "रु. 5,00,001 से रु. 10,00,000 तक का ऋण सहायता।")
+        .replaceAll("Loan from Rs. 50,001 up to Rs. 5,00,000 without requirement of collateral security.", "बिना किसी गारंटी के रु. 50,001 से रु. 5,00,000 तक का ऋण।")
+        .replaceAll("Loans up to Rs. 50,000 without collateral at affordable interest rates.", "बिना गारंटी के किफायती दरों पर रु. 50,000 तक का ऋण।")
+        .replaceAll("Rs. 15,000 toolkit digital voucher, 5-7 days basic training with Rs. 500/day stipend, collateral-free loan of Rs. 1 Lakh (Tranche 1) and Rs. 2 Lakh (Tranche 2) at 5% interest rate.", "रु. 15,000 टूलकिट वाउचर, रु. 500/दिन वजीफे के साथ प्रशिक्षण, 5% ब्याज दर पर 1 लाख और 2 लाख का ऋण।")
+        .replaceAll("Working capital loan of Rs. 10,00,000 (1st tranche), Rs. 20,000 (2nd tranche), and Rs. 50,000 (3rd tranche) with 7% interest subsidy and cashback on digital transactions.", "7% ब्याज सब्सिडी के साथ रु. 10,00,000 का कार्यशील पूंजी ऋण।")
+        .replaceAll("Working capital loan of Rs. 10,000 (1st tranche), Rs. 20,000 (2nd tranche), and Rs. 50,000 (3rd tranche) with 7% interest subsidy and cashback on digital transactions.", "7% ब्याज सब्सिडी के साथ रु. 10,000 का कार्यशील पूंजी ऋण।")
+        .replaceAll("Suitable for Growing small business owners and commercial units in All India", "पूरे भारत में बढ़ते छोटे व्यवसाय मालिकों और वाणिज्यिक इकाइयों के लिए उपयुक्त।")
+        .replaceAll("Suitable for Existing micro-enterprises seeking growth capital in All India", "पूरे भारत में विकास पूंजी चाहने वाले मौजूदा सूक्ष्म उद्यमों के लिए उपयुक्त।")
+        .replaceAll("Suitable for Micro entrepreneurs, shopkeepers, artisans, street vendors in All India", "सूक्ष्म उद्यमियों, दुकानदारों, कारीगरों, स्ट्रीट वेंडरों के लिए उपयुक्त।")
+        .replaceAll("Suitable for Artisans and Craftsmen working with hands and tools in 18 traditional trades in All India", "18 पारंपरिक व्यवसायों में काम करने वाले कारीगरों और शिल्पकारों के लिए उपयुक्त।")
+        .replaceAll("Suitable for Street vendors, hawkers, roadside shop owners in All India", "स्ट्रीट वेंडरों, फेरीवालों और सड़क किनारे दुकान मालिकों के लिए उपयुक्त।");
+    } else if (langCode == 'kok') {
+      res = res
+        .replaceAll("Ministry of Finance", "अर्थ मंत्रालय")
+        .replaceAll("Ministry of Micro, Small and Medium Enterprises", "सूक्ष्म, ल्हान आनी मध्यम उद्योग मंत्रालय (MSME)")
+        .replaceAll("Ministry of Housing and Urban Affairs", "घराणी आनी शारी कामकाज मंत्रालय")
+        .replaceAll("Minimum age criterion met", "उण्यांत उणी पिरायेची अट पुरा जाली")
+        .replaceAll("Business sector eligible", "वेवसाय मळ तजविजीक योग्य आसा")
+        .replaceAll("Scheme operates in your region", "ही येवजण तुमच्या वाठारांत कार्यान्वीत आसा")
+        .replaceAll("(All India)", "(अखिल भारत)")
+        .replaceAll("(Transportation & Logistics)", "(येरादारी आनी लॉजिस्टिक्स)")
+        .replaceAll("31 Dec 2026 (Open Year-Round)", "31 डिसेंबर 2026 (वर्सभर उग्ते)")
+        .replaceAll("Loan from Rs. 5,00,001 to Rs. 10,00,000.", "रु. 5,00,001 ते रु. 10,00,000 ची रीण पालव.")
+        .replaceAll("Rs. 15,00,000 toolkit digital voucher, 5-7 days basic training with Rs. 500/day stipend, collateral-free loan of Rs. 1 Lakh (Tranche 1) and Rs. 2 Lakh (Tranche 2) at 5% interest rate.", "रु. 15,000 टूलकिट व्हाउचर, 5-7 दिसांचे प्रशिक्षण आनी 5% व्याजान रीण.")
+        .replaceAll("Rs. 15,000 toolkit digital voucher, 5-7 days basic training with Rs. 500/day stipend, collateral-free loan of Rs. 1 Lakh (Tranche 1) and Rs. 2 Lakh (Tranche 2) at 5% interest rate.", "रु. 15,000 टूलकिट व्हाउचर, 5-7 दिसांचे प्रशिक्षण आनी 5% व्याजान रीण.")
+        .replaceAll("Working capital loan of Rs. 10,00,000 (1st tranche), Rs. 20,000 (2nd tranche), and Rs. 50,000 (3rd tranche) with 7% interest subsidy and cashback on digital transactions.", "7% व्याज सब्सिडी वांगडा रु. 10,00,000 चं भांडवल रीण.")
+        .replaceAll("Working capital loan of Rs. 10,000 (1st tranche), Rs. 20,000 (2nd tranche), and Rs. 50,000 (3rd tranche) with 7% interest subsidy and cashback on digital transactions.", "7% व्याज सब्सिडी वांगडा रु. 10,000 चं भांडवल रीण.")
+        .replaceAll("Suitable for Growing small business owners and commercial units in All India", "अखिल भारतांतल्या वाडट्या ल्हान वेवसायीकां खातीर योग्य.")
+        .replaceAll("Suitable for Artisans and Craftsmen working with hands and tools in 18 traditional trades in All India", "18 परंपरीक कामांतल्या कारागिरां खातीर योग्य.")
+        .replaceAll("Suitable for Street vendors, hawkers, roadside shop owners in All India", "रस्तेव्यापाऱ्यां आनी ल्हान दुकानदारां खातीर योग्य.");
+    } else if (langCode == 'mr') {
+      res = res
+        .replaceAll("Ministry of Finance", "वित्त मंत्रालय")
+        .replaceAll("Ministry of Micro, Small and Medium Enterprises", "सूक्ष्म, लघु आणि मध्यम उद्यम मंत्रालय (MSME)")
+        .replaceAll("Ministry of Housing and Urban Affairs", "गृहनिर्माण आणि शहरी व्यवहार मंत्रालय")
+        .replaceAll("Minimum age criterion met", "किमान वयोमर्यादा पूर्ण")
+        .replaceAll("Business sector eligible", "व्यवसाय क्षेत्र पात्र आहे")
+        .replaceAll("Scheme operates in your region", "ही योजना तुमच्या क्षेत्रात कार्यरत आहे")
+        .replaceAll("(All India)", "(सर्व भारत)")
+        .replaceAll("(Transportation & Logistics)", "(वाहतूक आणि लॉजिस्टिक)")
+        .replaceAll("31 Dec 2026 (Open Year-Round)", "31 डिसेंबर 2026 (वर्षभर उघडे)")
+        .replaceAll("Loan from Rs. 5,00,001 to Rs. 10,00,000.", "रु. 5,00,001 ते रु. 10,00,000 पर्यंत कर्ज सहाय्य.")
+        .replaceAll("Rs. 15,00,000 toolkit digital voucher, 5-7 days basic training with Rs. 500/day stipend, collateral-free loan of Rs. 1 Lakh (Tranche 1) and Rs. 2 Lakh (Tranche 2) at 5% interest rate.", "रु. 15,000 टूलकिट व्हाऊचर, प्रशिक्षणासह 5% व्याजदराने कर्ज.")
+        .replaceAll("Rs. 15,000 toolkit digital voucher, 5-7 days basic training with Rs. 500/day stipend, collateral-free loan of Rs. 1 Lakh (Tranche 1) and Rs. 2 Lakh (Tranche 2) at 5% interest rate.", "रु. 15,000 टूलकिट व्हाऊचर, प्रशिक्षणासह 5% व्याजदराने कर्ज.")
+        .replaceAll("Working capital loan of Rs. 10,00,000 (1st tranche), Rs. 20,000 (2nd tranche), and Rs. 50,000 (3rd tranche) with 7% interest subsidy and cashback on digital transactions.", "7% व्याज सवलतीसह रु. 10,00,000 चे खेळते भांडवल कर्ज.")
+        .replaceAll("Working capital loan of Rs. 10,000 (1st tranche), Rs. 20,000 (2nd tranche), and Rs. 50,000 (3rd tranche) with 7% interest subsidy and cashback on digital transactions.", "7% व्याज सवलतीसह रु. 10,000 चे खेळते भांडवल कर्ज.")
+        .replaceAll("Suitable for Growing small business owners and commercial units in All India", "सर्व भारतात वाढत्या लहान व्यवसाय मालकांसाठी योग्य.")
+        .replaceAll("Suitable for Artisans and Craftsmen working with hands and tools in 18 traditional trades in All India", "18 पारंपारिक व्यवसायांतील कारागिरांसाठी योग्य.")
+        .replaceAll("Suitable for Street vendors, hawkers, roadside shop owners in All India", "रस्त्यावरील विक्रेत्यांसाठी योग्य.");
+    } else if (langCode == 'te') {
+      res = res
+        .replaceAll("Ministry of Finance", "ఆర్థిక మంత్రిత్వ శాఖ")
+        .replaceAll("Ministry of Micro, Small and Medium Enterprises", "సూక్ష్మ, చిన్న మరియు మధ్య తరహా పరిశ్రమల మంత్రిత్వ శాఖ")
+        .replaceAll("Minimum age criterion met", "కనీస వయస్సు నిబంధన పూర్తయింది")
+        .replaceAll("Business sector eligible", "వ్యాపార రంగం అర్హత పొందింది")
+        .replaceAll("Scheme operates in your region", "మీ ప్రాంతంలో ఈ పథకం అందుబాటులో ఉంది")
+        .replaceAll("(All India)", "(అఖిల భారత)")
+        .replaceAll("Loan from Rs. 5,00,001 to Rs. 10,00,000.", "రూ. 5,00,001 నుండి రూ. 10,00,000 వరకు రుణం.")
+        .replaceAll("Suitable for Growing small business owners and commercial units in All India", "భారతదేశవ్యాప్తంగా అభివృద్ధి చెందుతున్న చిన్న వ్యాపార యజమానులకు అనుకూలం.");
+    } else if (langCode == 'kn') {
+      res = res
+        .replaceAll("Ministry of Finance", "ಹಣಕಾಸು ಸಚಿವಾಲಯ")
+        .replaceAll("Ministry of Micro, Small and Medium Enterprises", "ಸೂಕ್ಷ್ಮ, ಸಣ್ಣ ಮತ್ತು ಮಧ್ಯಮ ಉದ್ಯಮಗಳ ಸಚಿವಾಲಯ")
+        .replaceAll("Loan from Rs. 5,00,001 to Rs. 10,00,000.", "ರೂ. 5,00,001 ರಿಂದ ರೂ. 10,00,000 ವರೆಗೆ ಸಾಲ ಸಹಾಯ.")
+        .replaceAll("Suitable for Growing small business owners and commercial units in All India", "ಬೆಳೆಯುತ್ತಿರುವ ಸಣ್ಣ ಉದ್ಯಮಿಗಳಿಗೆ ಸೂಕ್ತವಾಗಿದೆ.");
+    } else if (langCode == 'ml') {
+      res = res
+        .replaceAll("Ministry of Finance", "ധനകാര്യ മന്ത്രാലയം")
+        .replaceAll("Ministry of Micro, Small and Medium Enterprises", "മൈക്രോ, സ്മോൾ ആൻഡ് മീഡിയം എന്റർപ്രൈസസ് മന്ത്രാലയം")
+        .replaceAll("Loan from Rs. 5,00,001 to Rs. 10,00,000.", "രൂപ 5,00,001 മുതൽ 10,00,000 രൂപ വരെ വായ്പ ധനസഹായം.")
+        .replaceAll("Suitable for Growing small business owners and commercial units in All India", "വളർന്നുവരുന്ന ചെറുകിട സംരംഭകർക്ക് അനുയോജ്യം.");
+    } else if (langCode == 'mr') {
+      res = res
+        .replaceAll("Ministry of Finance", "वित्त मंत्रालय")
+        .replaceAll("Ministry of Micro, Small and Medium Enterprises", "सूक्ष्म, लघु आणि मध्यम उद्यम मंत्रालय")
+        .replaceAll("Loan from Rs. 5,00,001 to Rs. 10,00,000.", "रु. 5,00,001 ते रु. 10,00,000 पर्यंत कर्ज सहाय्य.")
+        .replaceAll("Suitable for Growing small business owners and commercial units in All India", "वाढत्या लहान व्यवसाय मालकांसाठी योग्य.");
+    } else if (langCode == 'bn') {
+      res = res
+        .replaceAll("Ministry of Finance", "অর্থ মন্ত্রণালয়")
+        .replaceAll("Ministry of Micro, Small and Medium Enterprises", "ক্ষুদ্র, ছোট ও মাঝারি শিল্প মন্ত্রণালয়")
+        .replaceAll("Loan from Rs. 5,00,001 to Rs. 10,00,000.", "৫,০০,০০১ টাকা থেকে ১০,০০,০০০ টাকা পর্যন্ত ঋণ সহায়তা।");
     }
     return res;
   }
@@ -400,7 +514,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           icon: const Icon(Icons.refresh, color: AppTheme.primaryNavy),
                           tooltip: context.tr("refresh_suggestions"),
                           onPressed: () async {
-                            await schemeProv.fetchGeminiSuggestions();
+                            await schemeProv.fetchGeminiSuggestions(preferredLanguage: currentLang);
                           },
                         ),
                       ],

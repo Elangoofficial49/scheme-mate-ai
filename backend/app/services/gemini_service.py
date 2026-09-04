@@ -202,7 +202,8 @@ class GeminiSchemeAdvisorService:
             parsed_data = json.loads(clean_json_str)
             schemes_list = parsed_data.get("recommended_schemes") or parsed_data.get("schemes") or []
 
-            # Ensure proper typing and formatting
+            # Ensure proper typing, formatting, and full multilingual translation
+            translated_schemes = []
             for item in schemes_list:
                 if "match_score" in item:
                     try:
@@ -213,14 +214,21 @@ class GeminiSchemeAdvisorService:
                     item["match_label"] = f"{int(item['match_score'])}% AI Match"
                 if not item.get("last_date_to_apply"):
                     item["last_date_to_apply"] = "31 Dec 2026 (Open Year-Round)"
+                
+                # Post-process with SchemeTranslator to guarantee requested language
+                item = SchemeTranslator.translate_scheme_dict(item, preferred_language)
+                translated_schemes.append(item)
 
             return {
                 "success": True,
                 "provider": "google_gemini",
                 "model": model,
-                "ai_analysis_summary": parsed_data.get("ai_analysis_summary") or "Gemini AI has analyzed your entrepreneur profile and matched official government schemes.",
-                "total_suggestions": len(schemes_list),
-                "data": schemes_list
+                "ai_analysis_summary": SchemeTranslator.translate_text(
+                    parsed_data.get("ai_analysis_summary") or "Gemini AI has analyzed your entrepreneur profile and matched official government schemes.",
+                    preferred_language
+                ),
+                "total_suggestions": len(translated_schemes),
+                "data": translated_schemes
             }
 
     @classmethod

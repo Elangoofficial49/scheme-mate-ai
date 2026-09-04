@@ -46,8 +46,13 @@ class SchemeRequirementsScreen extends StatelessWidget {
         .replaceAll("Scheme operates in your region", "உங்கள் பிராந்தியத்தில் இத்திட்டம் செயல்படுகிறது")
         .replaceAll("State eligibility matched", "மாநில தகுதி பொருந்தியது")
         .replaceAll("Matches your funding requirement", "உங்கள் நிதியுதவி தேவைகளுடன் பொருந்துகிறது")
+        .replaceAll("(All India)", "(அனைத்து இந்தியா)")
+        .replaceAll("(Transportation & Logistics)", "(போக்குவரத்து மற்றும் தளவாடங்கள்)")
+        .replaceAll("31 Dec 2026 (Open Year-Round)", "31 டிசம்பர் 2026 (ஆண்டு முழுவதும் திறந்திருக்கும்)")
+        .replaceAll("Loan from Rs. 5,00,001 to Rs. 10,00,000.", "ரூ. 5,00,001 முதல் ரூ. 10,00,000 வரை கடன் உதவி.")
         .replaceAll("Loan from Rs. 50,001 up to Rs. 5,00,000 without requirement of collateral security.", "பிணைய உத்தரவாதம் இன்றி ரூ. 50,001 முதல் ரூ. 5,00,000 வரை கடன் உதவி.")
-        .replaceAll("Suitable for Existing micro-enterprises seeking growth capital in All India", "அனைத்து இந்தியாவிலும் வளர்ச்சி நிதி தேடும் குறு நிறுவனங்களுக்கு ஏற்றது.")
+        .replaceAll("Loans up to Rs. 50,000 without collateral at affordable interest rates.", "பிணைய உத்தரவாதம் இன்றி குறைந்த வட்டியில் ரூ. 50,000 வரை சிறு கடன்.")
+        .replaceAll("Suitable for Growing small business owners and commercial units in All India", "அனைத்து இந்தியாவிலும் வளர்ச்சி அடையும் சிறு தொழில் உரிமையாளர்களுக்கு ஏற்றது.")
         .replaceAll("(Open Year-Round)", "(ஆண்டு முழுவதும் திறந்திருக்கும்)");
     } else if (langCode == 'hi') {
       res = res
@@ -57,7 +62,37 @@ class SchemeRequirementsScreen extends StatelessWidget {
         .replaceAll("Minimum age criterion met", "न्यूनतम आयु मानदंड पूरा हुआ")
         .replaceAll("Business sector eligible", "व्यवसाय क्षेत्र पात्र है")
         .replaceAll("Scheme operates in your region", "यह योजना आपके क्षेत्र में संचालित है")
+        .replaceAll("(All India)", "(अखिल भारतीय)")
+        .replaceAll("(Transportation & Logistics)", "(परिवहन और लॉजिस्टिक्स)")
+        .replaceAll("31 Dec 2026 (Open Year-Round)", "31 दिसंबर 2026 (वर्ष भर खुला)")
+        .replaceAll("Loan from Rs. 5,00,001 to Rs. 10,00,000.", "रु. 5,00,001 से रु. 10,00,000 तक का ऋण सहायता।")
+        .replaceAll("Loan from Rs. 50,001 up to Rs. 5,00,000 without requirement of collateral security.", "बिना किसी गारंटी के रु. 50,001 से रु. 5,00,000 तक का ऋण।")
+        .replaceAll("Loans up to Rs. 50,000 without collateral at affordable interest rates.", "बिना गारंटी के किफायती दरों पर रु. 50,000 तक का ऋण।")
+        .replaceAll("Suitable for Growing small business owners and commercial units in All India", "पूरे भारत में बढ़ते छोटे व्यवसाय मालिकों और वाणिज्यिक इकाइयों के लिए उपयुक्त।")
         .replaceAll("(Open Year-Round)", "(वर्ष भर खुला)");
+    } else if (langCode == 'kok') {
+      res = res
+        .replaceAll("Ministry of Finance", "अर्थ मंत्रालय")
+        .replaceAll("Ministry of Micro, Small and Medium Enterprises", "सूक्ष्म, ल्हान आनी मध्यम उद्योग मंत्रालय (MSME)")
+        .replaceAll("Ministry of Housing and Urban Affairs", "घराणी आनी शारी कामकाज मंत्रालय")
+        .replaceAll("Minimum age criterion met", "उण्यांत उणी पिरायेची अट पुरा जाली")
+        .replaceAll("Business sector eligible", "वेवसाय मळ तजविजीक योग्य आसा")
+        .replaceAll("Scheme operates in your region", "ही येवजण तुमच्या वाठारांत कार्यान्वीत आसा")
+        .replaceAll("(All India)", "(अखिल भारत)")
+        .replaceAll("(Transportation & Logistics)", "(येरादारी आनी लॉजिस्टिक्स)")
+        .replaceAll("31 Dec 2026 (Open Year-Round)", "31 डिसेंबर 2026 (वर्सभर उഗ്ते)")
+        .replaceAll("Loan from Rs. 5,00,001 to Rs. 10,00,000.", "रु. 5,00,001 ते रु. 10,00,000 ची रीण पालव.");
+    } else if (langCode == 'mr') {
+      res = res
+        .replaceAll("Ministry of Finance", "वित्त मंत्रालय")
+        .replaceAll("Ministry of Micro, Small and Medium Enterprises", "सूक्ष्म, लघु आणि मध्यम उद्यम मंत्रालय (MSME)")
+        .replaceAll("Ministry of Housing and Urban Affairs", "गृहनिर्माण आणि शहरी व्यवहार मंत्रालय")
+        .replaceAll("Minimum age criterion met", "किमान वयोमर्यादा पूर्ण")
+        .replaceAll("Business sector eligible", "व्यवसाय क्षेत्र पात्र आहे")
+        .replaceAll("Scheme operates in your region", "ही योजना तुमच्या क्षेत्रात कार्यरत आहे")
+        .replaceAll("(All India)", "(सर्व भारत)")
+        .replaceAll("(Transportation & Logistics)", "(वाहतूक आणि लॉजिस्टिक)")
+        .replaceAll("31 Dec 2026 (Open Year-Round)", "31 डिसेंबर 2026 (वर्षभर उघडे)");
     } else if (langCode == 'te') {
       res = res
         .replaceAll("Ministry of Finance", "ఆర్థిక మంత్రిత్వ శాఖ")
@@ -65,6 +100,7 @@ class SchemeRequirementsScreen extends StatelessWidget {
         .replaceAll("Minimum age criterion met", "కనీస వయస్సు నిబంధన పూర్తయింది")
         .replaceAll("Business sector eligible", "వ్యాపార రంగం అర్హత పొందింది")
         .replaceAll("Scheme operates in your region", "మీ ప్రాంతంలో ఈ పథకం అందుబాటులో ఉంది")
+        .replaceAll("(All India)", "(అఖిల భారత)")
         .replaceAll("(Open Year-Round)", "(ఏడాది పొడవునా తెరిచి ఉంటుంది)");
     } else if (langCode == 'kn') {
       res = res
@@ -82,14 +118,6 @@ class SchemeRequirementsScreen extends StatelessWidget {
         .replaceAll("Business sector eligible", "ബിസിനസ്സ് മേഖല യോഗ്യമാണ്")
         .replaceAll("Scheme operates in your region", "നിങ്ങളുടെ പ്രദേശത്ത് ഈ പദ്ധതി ലഭ്യമാണ്")
         .replaceAll("(Open Year-Round)", "(വർഷം മുഴുവൻ ലഭ്യമാണ്)");
-    } else if (langCode == 'mr') {
-      res = res
-        .replaceAll("Ministry of Finance", "वित्त मंत्रालय")
-        .replaceAll("Ministry of Micro, Small and Medium Enterprises", "सूक्ष्म, लघु आणि मध्यम उद्यम मंत्रालय")
-        .replaceAll("Minimum age criterion met", "किमान वयोमर्यादा पूर्ण")
-        .replaceAll("Business sector eligible", "व्यवसाय क्षेत्र पात्र आहे")
-        .replaceAll("Scheme operates in your region", "तुमच्या क्षेत्रात योजना कार्यरत आहे")
-        .replaceAll("(Open Year-Round)", "(वर्षभर उघडे)");
     } else if (langCode == 'bn') {
       res = res
         .replaceAll("Ministry of Finance", "অর্থ মন্ত্রণালয়")
