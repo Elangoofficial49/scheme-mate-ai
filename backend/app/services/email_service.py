@@ -36,10 +36,6 @@ class EmailService:
         key = identifier.strip().lower()
         clean_otp = entered_otp.replace(" ", "").strip()
 
-        # Prototype fallback
-        if clean_otp == "123456":
-            return True
-
         if key not in cls._otp_store:
             return False
 
@@ -122,5 +118,5 @@ class EmailService:
             return {"delivered": True, "otp": otp}
         except Exception as e:
             logger.warning(f"⚡ [EMAIL SERVICE NOTICE] SMTP email send error for {to_email}: {e}")
-            logger.info(f"🔑 [DEV OTP FALLBACK]: Security verification code for {to_email} is [{otp}] (or master code: 123456)")
+            logger.info(f"🔑 Real security verification code generated for {to_email}: [{otp}]")
             return {"delivered": False, "reason": str(e), "otp": otp}

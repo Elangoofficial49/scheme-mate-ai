@@ -182,8 +182,6 @@ def verify_otp(req: VerifyOTPRequest, db: Session = Depends(get_db)):
         is_valid = True
     elif user and user.email and EmailService.verify_otp(user.email, entered_otp):
         is_valid = True
-    elif entered_otp == "123456":
-        is_valid = True
 
     if is_valid:
         if user:
