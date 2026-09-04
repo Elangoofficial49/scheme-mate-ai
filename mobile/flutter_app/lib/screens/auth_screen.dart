@@ -174,6 +174,28 @@ class _AuthScreenState extends State<AuthScreen> {
                         contentPadding: const EdgeInsets.symmetric(vertical: 12),
                       ),
                     ),
+                    const SizedBox(height: 10),
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                      decoration: BoxDecoration(
+                        color: Colors.amber.shade50,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Colors.amber.shade300),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.lightbulb_outline, size: 16, color: Colors.amber),
+                          const SizedBox(width: 6),
+                          const Expanded(
+                            child: Text(
+                              "💡 Demo / Test Mode: Enter 123456 or check email inbox for OTP.",
+                              style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.amber),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                     const SizedBox(height: 12),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
