@@ -5,6 +5,8 @@ import '../core/i18n/app_localizations.dart';
 import '../core/theme/app_theme.dart';
 import '../providers/auth_provider.dart';
 import '../providers/locale_provider.dart';
+import '../widgets/gov_top_header.dart';
+import '../widgets/gov_footer.dart';
 import '../widgets/language_selector_sheet.dart';
 import 'business_profile_form_screen.dart';
 
@@ -92,7 +94,7 @@ class _AuthScreenState extends State<AuthScreen> {
       } else if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(res["error"]?["message"] ?? "Account creation failed. Phone or Email already registered."),
+            content: Text(res["message"] ?? "Registration failed. Email or phone number might already be registered."),
             backgroundColor: AppTheme.warningOrange,
           ),
         );
@@ -100,10 +102,7 @@ class _AuthScreenState extends State<AuthScreen> {
     }
   }
 
-  void _showEmailOTPDialog({
-    required String phone,
-    required String email,
-  }) {
+  void _showEmailOTPDialog({required String phone, required String email}) {
     final otpController = TextEditingController();
     bool isVerifying = false;
     bool isResending = false;
@@ -125,16 +124,14 @@ class _AuthScreenState extends State<AuthScreen> {
             });
 
             return AlertDialog(
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               title: Row(
                 children: [
-                  const Icon(Icons.mark_email_read_rounded, color: AppTheme.primaryBlue, size: 26),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Text(
-                      context.tr("otp_title"),
-                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                    ),
+                  const Icon(Icons.mark_email_read_rounded, color: AppTheme.primaryNavy),
+                  const SizedBox(width: 8),
+                  Text(
+                    context.tr("verify_email_otp_title"),
+                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: AppTheme.primaryNavy),
                   ),
                 ],
               ),
@@ -151,12 +148,12 @@ class _AuthScreenState extends State<AuthScreen> {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                       decoration: BoxDecoration(
-                        color: AppTheme.primaryBlue.withOpacity(0.08),
+                        color: AppTheme.primaryNavy.withOpacity(0.08),
                         borderRadius: BorderRadius.circular(6),
                       ),
                       child: Text(
                         email,
-                        style: const TextStyle(fontWeight: FontWeight.bold, color: AppTheme.primaryBlue, fontSize: 13),
+                        style: const TextStyle(fontWeight: FontWeight.bold, color: AppTheme.primaryNavy, fontSize: 13),
                       ),
                     ),
                     const SizedBox(height: 16),
@@ -201,8 +198,8 @@ class _AuthScreenState extends State<AuthScreen> {
                                   if (res["success"] == true && mounted) {
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
-                                        content: Text("📩 Fresh 6-digit OTP dispatched to $email!"),
-                                        backgroundColor: AppTheme.primaryBlue,
+                                        content: Text("Dispatched 6-digit OTP to $email!"),
+                                        backgroundColor: AppTheme.primaryNavy,
                                       ),
                                     );
                                   }
@@ -213,7 +210,7 @@ class _AuthScreenState extends State<AuthScreen> {
                               : Icon(
                                   Icons.replay_rounded,
                                   size: 16,
-                                  color: secondsRemaining == 0 ? AppTheme.primaryBlue : Colors.grey,
+                                  color: secondsRemaining == 0 ? AppTheme.primaryNavy : Colors.grey,
                                 ),
                           label: Text(
                             secondsRemaining > 0
@@ -222,7 +219,7 @@ class _AuthScreenState extends State<AuthScreen> {
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 13,
-                              color: secondsRemaining == 0 ? AppTheme.primaryBlue : Colors.grey,
+                              color: secondsRemaining == 0 ? AppTheme.primaryNavy : Colors.grey,
                             ),
                           ),
                         ),
@@ -266,7 +263,7 @@ class _AuthScreenState extends State<AuthScreen> {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
                                 content: Text("Account verified successfully! You can now log in."),
-                                backgroundColor: AppTheme.successGreen,
+                                backgroundColor: AppTheme.govGreen,
                               ),
                             );
 
@@ -285,7 +282,7 @@ class _AuthScreenState extends State<AuthScreen> {
                           }
                         },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.successGreen,
+                    backgroundColor: AppTheme.govGreen,
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   ),
                   child: isVerifying
@@ -306,160 +303,186 @@ class _AuthScreenState extends State<AuthScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final localeProv = Provider.of<LocaleProvider>(context);
-    final currentLang = localeProv.languageCode;
-
     return Scaffold(
-      appBar: AppBar(
-        title: Text(_isLoginTab ? context.tr("login_title") : context.tr("create_account_title")),
-        elevation: 2,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.language_rounded),
-            tooltip: context.tr("change_language"),
-            onPressed: () => LanguageSelectorSheet.show(context),
+      appBar: GovTopHeader(
+        title: _isLoginTab ? context.tr("login_title") : context.tr("create_account_title"),
+      ),
+      body: Column(
+        children: [
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 28.0),
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 500),
+                  child: Card(
+                    elevation: 3,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      side: const BorderSide(color: AppTheme.primaryNavy, width: 1.2),
+                    ),
+                    child: Column(
+                      children: [
+                        // Card Header Ribbon
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                          decoration: const BoxDecoration(
+                            color: AppTheme.primaryNavy,
+                            borderRadius: BorderRadius.vertical(top: Radius.circular(10)),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Icon(Icons.shield_outlined, color: AppTheme.accentSaffron, size: 18),
+                              const SizedBox(width: 8),
+                              Text(
+                                _isLoginTab ? "CITIZEN PORTAL SINGLE SIGN-ON (SSO)" : "NATIONAL ENTREPRENEUR REGISTRATION",
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 12,
+                                  letterSpacing: 0.5,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        Padding(
+                          padding: const EdgeInsets.all(24.0),
+                          child: Column(
+                            children: [
+                              // Toggle Login / Register Tabs
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  ChoiceChip(
+                                    label: Padding(
+                                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                                      child: Text(context.tr("tab_login"), style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+                                    ),
+                                    selected: _isLoginTab,
+                                    selectedColor: AppTheme.primaryNavy.withOpacity(0.12),
+                                    onSelected: (val) => setState(() => _isLoginTab = true),
+                                  ),
+                                  const SizedBox(width: 16),
+                                  ChoiceChip(
+                                    label: Padding(
+                                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                                      child: Text(context.tr("tab_create_account"), style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+                                    ),
+                                    selected: !_isLoginTab,
+                                    selectedColor: AppTheme.primaryNavy.withOpacity(0.12),
+                                    onSelected: (val) => setState(() => _isLoginTab = false),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 24),
+
+                              if (_isLoginTab) ...[
+                                TextField(
+                                  controller: _emailController,
+                                  keyboardType: TextInputType.emailAddress,
+                                  decoration: InputDecoration(
+                                    labelText: context.tr("registered_email"),
+                                    hintText: context.tr("email_hint"),
+                                    prefixIcon: const Icon(Icons.email_outlined, color: AppTheme.primaryNavy),
+                                    border: const OutlineInputBorder(),
+                                  ),
+                                ),
+                                const SizedBox(height: 16),
+                              ] else ...[
+                                TextField(
+                                  controller: _nameController,
+                                  decoration: InputDecoration(
+                                    labelText: context.tr("full_name"),
+                                    hintText: context.tr("full_name_hint"),
+                                    prefixIcon: const Icon(Icons.person_outline, color: AppTheme.primaryNavy),
+                                    border: const OutlineInputBorder(),
+                                  ),
+                                ),
+                                const SizedBox(height: 16),
+
+                                TextField(
+                                  controller: _emailController,
+                                  keyboardType: TextInputType.emailAddress,
+                                  decoration: InputDecoration(
+                                    labelText: context.tr("registered_email"),
+                                    hintText: context.tr("email_hint"),
+                                    prefixIcon: const Icon(Icons.email_outlined, color: AppTheme.primaryNavy),
+                                    border: const OutlineInputBorder(),
+                                  ),
+                                ),
+                                const SizedBox(height: 16),
+
+                                TextField(
+                                  controller: _phoneController,
+                                  keyboardType: TextInputType.phone,
+                                  decoration: InputDecoration(
+                                    labelText: context.tr("phone_number"),
+                                    hintText: context.tr("phone_hint"),
+                                    prefixIcon: const Icon(Icons.phone_outlined, color: AppTheme.primaryNavy),
+                                    border: const OutlineInputBorder(),
+                                  ),
+                                ),
+                                const SizedBox(height: 16),
+                              ],
+
+                              TextField(
+                                controller: _passwordController,
+                                obscureText: true,
+                                decoration: InputDecoration(
+                                  labelText: context.tr("password"),
+                                  hintText: _isLoginTab ? context.tr("password_hint") : context.tr("password_min_hint"),
+                                  prefixIcon: const Icon(Icons.lock_outline, color: AppTheme.primaryNavy),
+                                  border: const OutlineInputBorder(),
+                                ),
+                              ),
+                              const SizedBox(height: 24),
+
+                              SizedBox(
+                                width: double.infinity,
+                                child: ElevatedButton(
+                                  onPressed: _isLoading ? null : _submit,
+                                  style: ElevatedButton.styleFrom(
+                                    padding: const EdgeInsets.symmetric(vertical: 14),
+                                    backgroundColor: AppTheme.primaryNavy,
+                                  ),
+                                  child: _isLoading
+                                      ? const CircularProgressIndicator(color: Colors.white)
+                                      : Text(
+                                          _isLoginTab ? context.tr("btn_login_submit") : context.tr("btn_register_submit"),
+                                          style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                                        ),
+                                ),
+                              ),
+                              const SizedBox(height: 16),
+
+                              if (_isLoginTab)
+                                TextButton(
+                                  onPressed: () {
+                                    _emailController.text = "ramesh@example.com";
+                                    _passwordController.text = "123456";
+                                  },
+                                  child: const Text(
+                                    "⚡ Quick Demo Login (Ramesh Kumar)",
+                                    style: TextStyle(color: AppTheme.primaryNavy, fontWeight: FontWeight.bold, fontSize: 13),
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
           ),
+          const GovFooter(),
         ],
       ),
-      body: Center(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 24.0),
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 550),
-            child: Card(
-              elevation: 4,
-              shadowColor: Colors.black12,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-              child: Padding(
-                padding: const EdgeInsets.all(28.0),
-                child: Column(
-                  children: [
-            const SizedBox(height: 10),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                ChoiceChip(
-                  label: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                    child: Text(context.tr("tab_login"), style: const TextStyle(fontSize: 16)),
-                  ),
-                  selected: _isLoginTab,
-                  onSelected: (val) => setState(() => _isLoginTab = true),
-                ),
-                const SizedBox(width: 20),
-                ChoiceChip(
-                  label: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                    child: Text(context.tr("tab_create_account"), style: const TextStyle(fontSize: 16)),
-                  ),
-                  selected: !_isLoginTab,
-                  onSelected: (val) => setState(() => _isLoginTab = false),
-                ),
-              ],
-            ),
-            const SizedBox(height: 24),
-
-            if (_isLoginTab) ...[
-              // Registered Email Address for Login
-              TextField(
-                controller: _emailController,
-                keyboardType: TextInputType.emailAddress,
-                decoration: InputDecoration(
-                  labelText: context.tr("registered_email"),
-                  hintText: context.tr("email_hint"),
-                  prefixIcon: const Icon(Icons.email_outlined),
-                  border: const OutlineInputBorder(),
-                ),
-              ),
-              const SizedBox(height: 16),
-            ] else ...[
-              // Full Name
-              TextField(
-                controller: _nameController,
-                decoration: InputDecoration(
-                  labelText: context.tr("full_name"),
-                  hintText: context.tr("full_name_hint"),
-                  prefixIcon: const Icon(Icons.person_outline),
-                  border: const OutlineInputBorder(),
-                ),
-              ),
-              const SizedBox(height: 16),
-
-              // Email Address
-              TextField(
-                controller: _emailController,
-                keyboardType: TextInputType.emailAddress,
-                decoration: InputDecoration(
-                  labelText: context.tr("registered_email"),
-                  hintText: context.tr("email_hint"),
-                  prefixIcon: const Icon(Icons.email_outlined),
-                  border: const OutlineInputBorder(),
-                ),
-              ),
-              const SizedBox(height: 16),
-
-              // Phone Number
-              TextField(
-                controller: _phoneController,
-                keyboardType: TextInputType.phone,
-                decoration: InputDecoration(
-                  labelText: context.tr("phone_number"),
-                  hintText: context.tr("phone_hint"),
-                  prefixIcon: const Icon(Icons.phone_outlined),
-                  border: const OutlineInputBorder(),
-                ),
-              ),
-              const SizedBox(height: 16),
-            ],
-
-            // Password
-            TextField(
-              controller: _passwordController,
-              obscureText: true,
-              decoration: InputDecoration(
-                labelText: context.tr("password"),
-                hintText: _isLoginTab ? context.tr("password_hint") : context.tr("password_min_hint"),
-                prefixIcon: const Icon(Icons.lock_outline),
-                border: const OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 28),
-
-            // Submit Button
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: _isLoading ? null : _submit,
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  backgroundColor: AppTheme.primaryBlue,
-                ),
-                child: _isLoading
-                    ? const CircularProgressIndicator(color: Colors.white)
-                    : Text(
-                        _isLoginTab ? context.tr("btn_login_submit") : context.tr("btn_register_submit"),
-                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                      ),
-              ),
-            ),
-            const SizedBox(height: 20),
-
-            if (_isLoginTab)
-              TextButton(
-                onPressed: () {
-                  _emailController.text = "ramesh@example.com";
-                  _passwordController.text = "123456";
-                  _submit();
-                },
-                child: Text(context.tr("btn_demo_login")),
-              )
-          ],
-        ),
-      ),
-    ),
-  ),
-),
-),
     );
   }
 }

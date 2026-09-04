@@ -6,6 +6,8 @@ import '../core/network/api_client.dart';
 import '../core/i18n/app_localizations.dart';
 import '../core/theme/app_theme.dart';
 import '../providers/locale_provider.dart';
+import '../widgets/gov_top_header.dart';
+import '../widgets/gov_footer.dart';
 
 class FinancialCalculatorScreen extends StatefulWidget {
   final Map<String, dynamic>? prefillScheme;
@@ -137,10 +139,8 @@ class _FinancialCalculatorScreenState extends State<FinancialCalculatorScreen> {
     final langCode = Provider.of<LocaleProvider>(context).languageCode;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(langCode == 'ta' ? 'திட்டக் கடன் & EMI கணக்கிடுவான்' : 'Scheme Loan & EMI Calculator'),
-        backgroundColor: AppTheme.primaryBlue,
-        foregroundColor: Colors.white,
+      appBar: GovTopHeader(
+        title: langCode == 'ta' ? 'திட்டக் கடன் & EMI கணக்கிடுவான்' : 'Scheme Loan & EMI Calculator',
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),

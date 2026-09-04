@@ -7,6 +7,8 @@ import 'package:provider/provider.dart';
 import '../core/network/api_client.dart';
 import '../core/theme/app_theme.dart';
 import '../providers/locale_provider.dart';
+import '../widgets/gov_top_header.dart';
+import '../widgets/gov_footer.dart';
 
 class PartnerLocatorScreen extends StatefulWidget {
   final String? initialSchemeName;
@@ -176,13 +178,11 @@ class _PartnerLocatorScreenState extends State<PartnerLocatorScreen> {
     final langCode = Provider.of<LocaleProvider>(context).languageCode;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(langCode == 'ta' ? 'அருகிலுள்ள தகுதியான வங்கி / SCA முகவரி' : 'Nearest Eligible Channel Partners'),
-        backgroundColor: AppTheme.primaryBlue,
-        foregroundColor: Colors.white,
+      appBar: GovTopHeader(
+        title: langCode == 'ta' ? 'அருகிலுள்ள தகுதியான வங்கி / SCA முகவரி' : 'Nearest Eligible Channel Partners',
         actions: [
           IconButton(
-            icon: const Icon(Icons.my_location),
+            icon: const Icon(Icons.my_location, color: Colors.white),
             tooltip: "Use Live GPS Location",
             onPressed: _requestLiveGpsLocation,
           ),

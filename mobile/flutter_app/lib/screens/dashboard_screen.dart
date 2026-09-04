@@ -6,6 +6,8 @@ import '../core/theme/app_theme.dart';
 import '../providers/auth_provider.dart';
 import '../providers/locale_provider.dart';
 import '../providers/scheme_provider.dart';
+import '../widgets/gov_top_header.dart';
+import '../widgets/gov_footer.dart';
 import '../widgets/language_selector_sheet.dart';
 import 'business_profile_form_screen.dart';
 import 'ocr_scan_screen.dart';
@@ -98,56 +100,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         .replaceAll("Business sector eligible", "व्यवसाय क्षेत्र पात्र है")
         .replaceAll("Scheme operates in your region", "यह योजना आपके क्षेत्र में संचालित है")
         .replaceAll("State eligibility matched", "राज्य की पात्रता मेल खाती है")
-        .replaceAll("Matches your funding requirement", "आपकी फंडिंग आवश्यकता से मेल खाता है")
-        .replaceAll("(Open Year-Round)", "(वर्ष भर खुला)");
-    } else if (langCode == 'te') {
-      res = res
-        .replaceAll("Ministry of Finance", "ఆర్థిక మంత్రిత్వ శాఖ")
-        .replaceAll("Ministry of Micro, Small and Medium Enterprises", "సూక్ష్మ, చిన్న మరియు మధ్య తరహా పరిశ్రమల మంత్రిత్వ శాఖ")
-        .replaceAll("Minimum age criterion met", "కనీస వయస్సు నిబంధన పూర్తయింది")
-        .replaceAll("Business sector eligible", "వ్యాపార రంగం అర్హత పొందింది")
-        .replaceAll("Scheme operates in your region", "మీ ప్రాంతంలో ఈ పథకం అందుబాటులో ఉంది")
-        .replaceAll("(Open Year-Round)", "(ఏడాది పొడవునా తెరిచి ఉంటుంది)");
-    } else if (langCode == 'kn') {
-      res = res
-        .replaceAll("Ministry of Finance", "ಹಣಕಾಸು ಸಚಿವಾಲಯ")
-        .replaceAll("Ministry of Micro, Small and Medium Enterprises", "ಸೂಕ್ಷ್ಮ, ಸಣ್ಣ ಮತ್ತು ಮಧ್ಯಮ ಉದ್ಯಮಗಳ ಸಚಿವಾಲಯ")
-        .replaceAll("Minimum age criterion met", "ಕನಿಷ್ಠ ವಯಸ್ಸಿನ ಮಾನದಂಡ ಪೂರೈಸಲಾಗಿದೆ")
-        .replaceAll("Business sector eligible", "ವ್ಯಾಪಾರ ಕ್ಷೇತ್ರವು ಅರ್ಹವಾಗಿದೆ")
-        .replaceAll("Scheme operates in your region", "ನಿಮ್ಮ ಪ್ರದೇಶದಲ್ಲಿ ಈ ಯೋಜನೆ ಲಭ್ಯವಿದೆ")
-        .replaceAll("(Open Year-Round)", "(ವರ್ಷಪೂರ್ತಿ ಲಭ್ಯವಿದೆ)");
-    } else if (langCode == 'ml') {
-      res = res
-        .replaceAll("Ministry of Finance", "ധനകാര്യ മന്ത്രാലയം")
-        .replaceAll("Ministry of Micro, Small and Medium Enterprises", "മൈക്രോ, സ്മോൾ ആൻഡ് മീഡിയം എന്റർപ്രൈസസ് മന്ത്രാലയം")
-        .replaceAll("Minimum age criterion met", "കുറഞ്ഞ പ്രായപരിധി യോഗ്യത നേടി")
-        .replaceAll("Business sector eligible", "ബിസിനസ്സ് മേഖല യോഗ്യമാണ്")
-        .replaceAll("Scheme operates in your region", "നിങ്ങളുടെ പ്രദേശത്ത് ഈ പദ്ധതി ലഭ്യമാണ്")
-        .replaceAll("(Open Year-Round)", "(വർഷം മുഴുവൻ ലഭ്യമാണ്)");
-    } else if (langCode == 'mr') {
-      res = res
-        .replaceAll("Ministry of Finance", "वित्त मंत्रालय")
-        .replaceAll("Ministry of Micro, Small and Medium Enterprises", "सूक्ष्म, लघु आणि मध्यम उद्यम मंत्रालय")
-        .replaceAll("Minimum age criterion met", "किमान वयोमर्यादा पूर्ण")
-        .replaceAll("Business sector eligible", "व्यवसाय क्षेत्र पात्र आहे")
-        .replaceAll("Scheme operates in your region", "तुमच्या क्षेत्रात योजना कार्यरत आहे")
-        .replaceAll("(Open Year-Round)", "(वर्षभर उघडे)");
-    } else if (langCode == 'bn') {
-      res = res
-        .replaceAll("Ministry of Finance", "অর্থ মন্ত্রণালয়")
-        .replaceAll("Ministry of Micro, Small and Medium Enterprises", "ক্ষুদ্র, ছোট ও মাঝারি শিল্প মন্ত্রণালয়")
-        .replaceAll("Minimum age criterion met", "নূন্যতম বয়স মাপকাঠি পূরণ হয়েছে")
-        .replaceAll("Business sector eligible", "ব্যবসা খাত যোগ্য")
-        .replaceAll("Scheme operates in your region", "আপনার অঞ্চলে এই প্রকল্প চালু আছে")
-        .replaceAll("(Open Year-Round)", "(সারা বছর খোলা)");
-    } else if (langCode == 'gu') {
-      res = res
-        .replaceAll("Ministry of Finance", "નાણાં મંત્રાલય")
-        .replaceAll("Ministry of Micro, Small and Medium Enterprises", "સૂક્ષ્મ, લઘુ અને મધ્યમ ઉદ્યોગ મંત્રાલય")
-        .replaceAll("Minimum age criterion met", "ન્યૂનતમ વય માનદંડ પૂર્ણ")
-        .replaceAll("Business sector eligible", "વ્યવસાય ક્ષેત્ર પાત્ર છે")
-        .replaceAll("Scheme operates in your region", "આ યોજના તમારા વિસ્તારમાં કાર્યરત છે")
-        .replaceAll("(Open Year-Round)", "(આખું વર્ષ ખુલ્લું)");
+        .replaceAll("Matches your funding requirement", "आपकी वित्त पोषण आवश्यकता से मेल खाता है");
     }
     return res;
   }
@@ -156,28 +109,27 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Widget build(BuildContext context) {
     final auth = Provider.of<AuthProvider>(context);
     final schemeProv = Provider.of<SchemeProvider>(context);
-    final localeProv = Provider.of<LocaleProvider>(context);
-    final currentLang = localeProv.languageCode;
+    final currentLang = Provider.of<LocaleProvider>(context).languageCode;
+
+    final companyName = _userProfile?["company_name"] ?? context.tr("not_set");
+    final businessDesc = _userProfile?["business_description"] ?? context.tr("not_set");
+    final age = _userProfile?["age"] ?? context.tr("not_set");
+    final category = _userProfile?["category"] ?? context.tr("general");
+    final annualIncome = _userProfile?["annual_income"] ?? 0;
+    final incomeSource = _userProfile?["source_of_income"] ?? context.tr("not_set");
+    final stateName = _userProfile?["state"] ?? context.tr("all_india");
+    final isCertUploaded = _userProfile?["certificate_uploaded"] == true;
+    final certType = _userProfile?["certificate_type"] ?? context.tr("caste_income_cert");
+    final certNumber = _userProfile?["certificate_number"];
+
     final completionPct = _calculateProfileCompletion();
 
-    final companyName = _userProfile?["company_name"] ?? "Sri Lakshmi Textiles";
-    final businessDesc = _userProfile?["business_description"] ?? "Garment manufacturing and tailoring unit";
-    final age = _userProfile?["age"] ?? 28;
-    final category = _userProfile?["category"] ?? "OBC";
-    final incomeSource = _userProfile?["source_of_income"] ?? "Self-Employed";
-    final annualIncome = _userProfile?["annual_income"] ?? 150000;
-    final stateName = _userProfile?["state"] ?? "Tamil Nadu";
-    final certNumber = _userProfile?["certificate_number"];
-    final isCertUploaded = (_userProfile?["certificate_uploaded"] == true) ||
-        ((certNumber ?? "").toString().trim().isNotEmpty);
-    final certType = _userProfile?["certificate_type"] ?? "Certificate";
-
     return Scaffold(
-      appBar: AppBar(
-        title: Text(context.tr("app_title")),
+      appBar: GovTopHeader(
+        title: "SchemeMate AI",
         actions: [
           IconButton(
-            icon: const Icon(Icons.calculate_rounded),
+            icon: const Icon(Icons.calculate_outlined, color: Colors.white),
             tooltip: "Financial & EMI Calculator",
             onPressed: () {
               Navigator.push(
@@ -187,7 +139,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             },
           ),
           IconButton(
-            icon: const Icon(Icons.near_me_rounded),
+            icon: const Icon(Icons.near_me_outlined, color: Colors.white),
             tooltip: "Geo-Spatial Partner Locator",
             onPressed: () {
               Navigator.push(
@@ -197,15 +149,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
             },
           ),
           IconButton(
-            icon: const Icon(Icons.language_rounded),
-            tooltip: context.tr("change_language"),
-            onPressed: () async {
-              await LanguageSelectorSheet.show(context);
-              _loadDashboardData();
+            icon: const Icon(Icons.document_scanner_outlined, color: Colors.white),
+            tooltip: "OCR Verification",
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const OCRScanScreen()),
+              );
             },
           ),
           IconButton(
-            icon: const Icon(Icons.edit_note_rounded),
+            icon: const Icon(Icons.edit_note_outlined, color: Colors.white),
             tooltip: context.tr("edit_form"),
             onPressed: () {
               Navigator.push(
@@ -214,19 +168,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ).then((_) => _loadDashboardData());
             },
           ),
-          IconButton(
-            icon: const Icon(Icons.document_scanner_rounded),
-            tooltip: "OCR Document Scan",
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const OCRScanScreen()),
-              );
-            },
-          ),
           if (auth.isAdmin)
             IconButton(
-              icon: const Icon(Icons.admin_panel_settings_rounded),
+              icon: const Icon(Icons.admin_panel_settings_outlined, color: AppTheme.accentSaffron),
               onPressed: () {
                 Navigator.push(
                   context,
@@ -240,302 +184,409 @@ class _DashboardScreenState extends State<DashboardScreen> {
         onRefresh: _loadDashboardData,
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
-          padding: const EdgeInsets.all(16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               if (schemeProv.isOffline)
                 Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.all(10),
-                  margin: const EdgeInsets.only(bottom: 16),
-                  color: Colors.amber.shade800,
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                  color: AppTheme.warningOrange,
                   child: Row(
                     children: [
-                      const Icon(Icons.wifi_off, color: Colors.white),
+                      const Icon(Icons.wifi_off, color: Colors.white, size: 18),
                       const SizedBox(width: 10),
                       Expanded(
                         child: Text(
                           context.tr("offline_mode_active"),
-                          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
                         ),
                       ),
                     ],
                   ),
                 ),
 
-              // Entrepreneur Profile Card
-              Card(
-                elevation: 3,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                child: Padding(
-                  padding: const EdgeInsets.all(18.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Official Citizen / Entrepreneur Credentials Card
+                    Card(
+                      elevation: 2,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        side: const BorderSide(color: AppTheme.primaryNavy, width: 1.2),
+                      ),
+                      child: Column(
                         children: [
-                          Expanded(
+                          // Official Header Banner on Card
+                          Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                            decoration: const BoxDecoration(
+                              color: AppTheme.primaryNavy,
+                              borderRadius: BorderRadius.vertical(top: Radius.circular(8)),
+                            ),
+                            child: Row(
+                              children: [
+                                const Icon(Icons.verified_user, color: AppTheme.accentSaffron, size: 16),
+                                const SizedBox(width: 8),
+                                const Text(
+                                  "OFFICIAL CITIZEN ENTREPRENEUR PROFILE",
+                                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 11, letterSpacing: 0.5),
+                                ),
+                                const Spacer(),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                  decoration: BoxDecoration(
+                                    color: AppTheme.govGreen,
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                  child: const Text(
+                                    "VALIDATED",
+                                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 9),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+
+                          Padding(
+                            padding: const EdgeInsets.all(16.0),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(
-                                  context.tr("hello_user", {"name": auth.fullName ?? 'Entrepreneur'}),
-                                  style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  "🏢 $companyName",
-                                  style: const TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w600,
-                                    color: AppTheme.primaryBlue,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          OutlinedButton.icon(
-                            onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(builder: (context) => const BusinessProfileFormScreen()),
-                              ).then((_) => _loadDashboardData());
-                            },
-                            icon: const Icon(Icons.edit, size: 16),
-                            label: Text(context.tr("edit_form")),
-                            style: OutlinedButton.styleFrom(
-                              visualDensity: VisualDensity.compact,
-                              foregroundColor: AppTheme.primaryBlue,
-                            ),
-                          )
-                        ],
-                      ),
-                      const SizedBox(height: 10),
-                      Text(
-                        "${context.tr('details_prefix')}$businessDesc",
-                        style: TextStyle(color: Colors.grey.shade800, fontSize: 14),
-                      ),
-                      const Divider(height: 24),
-                      Wrap(
-                        spacing: 12,
-                        runSpacing: 8,
-                        children: [
-                          Chip(
-                            avatar: const Icon(Icons.cake, size: 16),
-                            label: Text(context.tr("age_chip", {"age": "$age"})),
-                            backgroundColor: Colors.grey.shade100,
-                          ),
-                          Chip(
-                            avatar: const Icon(Icons.location_on, size: 16),
-                            label: Text(stateName),
-                            backgroundColor: Colors.grey.shade100,
-                          ),
-                          Chip(
-                            avatar: const Icon(Icons.groups, size: 16),
-                            label: Text(context.tr("category_chip", {"category": category})),
-                            backgroundColor: Colors.grey.shade100,
-                          ),
-                          Chip(
-                            avatar: const Icon(Icons.account_balance_wallet, size: 16),
-                            label: Text(context.tr("income_chip", {"income": "$annualIncome", "source": incomeSource})),
-                            backgroundColor: Colors.grey.shade100,
-                          ),
-                          if (isCertUploaded)
-                            Chip(
-                              avatar: const Icon(
-                                Icons.verified,
-                                size: 16,
-                                color: AppTheme.successGreen,
-                              ),
-                              label: Text(
-                                (certNumber != null && certNumber.toString().trim().isNotEmpty)
-                                    ? context.tr("verified_chip", {"type": certType, "number": "$certNumber"})
-                                    : context.tr("verified_chip_no_num", {"type": certType}),
-                              ),
-                              backgroundColor: AppTheme.successGreen.withValues(alpha: 0.12),
-                            ),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-                      Row(
-                        children: [
-                          Text(context.tr("profile_completion"), style: const TextStyle(fontWeight: FontWeight.bold)),
-                          Text(
-                            "$completionPct%",
-                            style: const TextStyle(color: AppTheme.successGreen, fontWeight: FontWeight.bold),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 6),
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(4),
-                        child: LinearProgressIndicator(
-                          value: completionPct / 100.0,
-                          minHeight: 8,
-                          color: AppTheme.successGreen,
-                          backgroundColor: Colors.black12,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(height: 20),
-
-              // Suggested Schemes Section - powered by Gemini AI
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(
-                    child: Text(
-                      context.tr("suggested_schemes"),
-                      style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.refresh),
-                    tooltip: context.tr("refresh_suggestions"),
-                    onPressed: () async {
-                      await schemeProv.fetchGeminiSuggestions();
-                    },
-                  ),
-                ],
-              ),
-              const SizedBox(height: 10),
-
-              if (schemeProv.isLoadingGemini || _isLoadingProfile)
-                const Center(child: Padding(padding: EdgeInsets.all(30), child: CircularProgressIndicator()))
-              else if (schemeProv.geminiSuggestions.isEmpty)
-                Center(
-                  child: Padding(
-                    padding: const EdgeInsets.all(20.0),
-                    child: Text(context.tr("no_suggestions")),
-                  ),
-                )
-              else
-                ListView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: schemeProv.geminiSuggestions.length,
-                  itemBuilder: (context, index) {
-                    final item = schemeProv.geminiSuggestions[index];
-                    final List<dynamic> whyMatches = item["why_matches"] as List<dynamic>? ?? [];
-                    return Card(
-                      margin: const EdgeInsets.only(bottom: 14),
-                      elevation: 2,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        item["scheme_name"] ?? "",
-                                        style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            context.tr("hello_user", {"name": auth.fullName ?? 'Entrepreneur'}),
+                                            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.textDark),
+                                          ),
+                                          const SizedBox(height: 4),
+                                          Row(
+                                            children: [
+                                              const Icon(Icons.business_outlined, size: 16, color: AppTheme.primaryNavy),
+                                              const SizedBox(width: 6),
+                                              Expanded(
+                                                child: Text(
+                                                  "$companyName",
+                                                  style: const TextStyle(
+                                                    fontSize: 15,
+                                                    fontWeight: FontWeight.bold,
+                                                    color: AppTheme.primaryNavy,
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
                                       ),
-                                      const SizedBox(height: 2),
-                                      Text(
-                                        _localizeText(item["ministry"] ?? "", currentLang),
-                                        style: TextStyle(color: Colors.grey.shade700, fontSize: 13),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                const SizedBox(width: 8),
-                                Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                  decoration: BoxDecoration(
-                                    color: Colors.red.shade50,
-                                    borderRadius: BorderRadius.circular(6),
-                                    border: Border.all(color: Colors.red.shade200),
-                                  ),
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      const Icon(Icons.event_available, size: 14, color: Colors.red),
-                                      const SizedBox(width: 4),
-                                      Text(
-                                        "${context.tr('last_date')}: ${_localizeText(item['last_date_to_apply'] ?? '31 Dec 2026 (Open Year-Round)', currentLang)}",
-                                        style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.red),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                            if ((item["key_benefits"] ?? "").toString().isNotEmpty) ...[
-                              const SizedBox(height: 8),
-                              Text(
-                                _localizeText(item["key_benefits"].toString(), currentLang),
-                                style: const TextStyle(fontSize: 13, color: Colors.black87),
-                              ),
-                            ],
-                            if ((item["eligibility_summary"] ?? "").toString().isNotEmpty) ...[
-                              const SizedBox(height: 4),
-                              Text(
-                                _localizeText(item["eligibility_summary"].toString(), currentLang),
-                                style: TextStyle(fontSize: 13, color: Colors.grey.shade700),
-                              ),
-                            ],
-                            if (whyMatches.isNotEmpty) ...[
-                              const SizedBox(height: 10),
-                              Wrap(
-                                spacing: 6,
-                                runSpacing: 4,
-                                children: whyMatches.map((w) => Chip(
-                                  label: Text(
-                                    _localizeText(w.toString(), currentLang),
-                                    style: const TextStyle(fontSize: 11),
-                                  ),
-                                  padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 0),
-                                  backgroundColor: AppTheme.successGreen.withOpacity(0.1),
-                                  side: BorderSide(color: AppTheme.successGreen.withOpacity(0.3)),
-                                  labelStyle: const TextStyle(color: AppTheme.successGreen, fontWeight: FontWeight.w600),
-                                )).toList(),
-                              ),
-                            ],
-                            const SizedBox(height: 14),
-                            const Divider(height: 1),
-                            const SizedBox(height: 10),
-                            SizedBox(
-                              width: double.infinity,
-                              child: ElevatedButton.icon(
-                                onPressed: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => SchemeRequirementsScreen(scheme: item),
                                     ),
-                                  );
-                                },
-                                icon: const Icon(Icons.assignment_outlined, size: 18),
-                                label: Text(context.tr("view_required_details_btn")),
-                                style: ElevatedButton.styleFrom(
-                                  padding: const EdgeInsets.symmetric(vertical: 10),
-                                  backgroundColor: AppTheme.primaryBlue,
-                                  foregroundColor: Colors.white,
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                    OutlinedButton.icon(
+                                      onPressed: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(builder: (context) => const BusinessProfileFormScreen()),
+                                        ).then((_) => _loadDashboardData());
+                                      },
+                                      icon: const Icon(Icons.edit, size: 14),
+                                      label: Text(context.tr("edit_form")),
+                                      style: OutlinedButton.styleFrom(
+                                        visualDensity: VisualDensity.compact,
+                                        foregroundColor: AppTheme.primaryNavy,
+                                      ),
+                                    )
+                                  ],
                                 ),
-                              ),
+                                const SizedBox(height: 10),
+                                Text(
+                                  "${context.tr('details_prefix')}$businessDesc",
+                                  style: TextStyle(color: Colors.grey.shade800, fontSize: 13),
+                                ),
+                                const Divider(height: 20),
+
+                                // Citizen Attribute Chips
+                                Wrap(
+                                  spacing: 8,
+                                  runSpacing: 8,
+                                  children: [
+                                    _buildGovAttributeChip(Icons.cake, context.tr("age_chip", {"age": "$age"})),
+                                    _buildGovAttributeChip(Icons.location_on, stateName),
+                                    _buildGovAttributeChip(Icons.groups, context.tr("category_chip", {"category": category})),
+                                    _buildGovAttributeChip(Icons.account_balance_wallet, context.tr("income_chip", {"income": "$annualIncome", "source": incomeSource})),
+                                    if (isCertUploaded)
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                        decoration: BoxDecoration(
+                                          color: AppTheme.govGreen.withOpacity(0.1),
+                                          borderRadius: BorderRadius.circular(6),
+                                          border: Border.all(color: AppTheme.govGreen.withOpacity(0.3)),
+                                        ),
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            const Icon(Icons.verified, size: 14, color: AppTheme.govGreen),
+                                            const SizedBox(width: 6),
+                                            Text(
+                                              (certNumber != null && certNumber.toString().trim().isNotEmpty)
+                                                  ? context.tr("verified_chip", {"type": certType, "number": "$certNumber"})
+                                                  : context.tr("verified_chip_no_num", {"type": certType}),
+                                              style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppTheme.govGreen),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                  ],
+                                ),
+                                const SizedBox(height: 16),
+
+                                // Profile Readiness Progress
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      "Government Scheme Eligibility Readiness:",
+                                      style: TextStyle(color: Colors.grey.shade800, fontWeight: FontWeight.bold, fontSize: 12),
+                                    ),
+                                    Text(
+                                      "$completionPct%",
+                                      style: const TextStyle(color: AppTheme.govGreen, fontWeight: FontWeight.bold, fontSize: 13),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 6),
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(4),
+                                  child: LinearProgressIndicator(
+                                    value: completionPct / 100.0,
+                                    minHeight: 8,
+                                    color: AppTheme.govGreen,
+                                    backgroundColor: Colors.grey.shade200,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+
+                    // Section Title: Official Scheme Recommendations
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          children: [
+                            Container(
+                              width: 4,
+                              height: 20,
+                              color: AppTheme.accentSaffron,
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              context.tr("suggested_schemes"),
+                              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.primaryNavy),
                             ),
                           ],
                         ),
+                        IconButton(
+                          icon: const Icon(Icons.refresh, color: AppTheme.primaryNavy),
+                          tooltip: context.tr("refresh_suggestions"),
+                          onPressed: () async {
+                            await schemeProv.fetchGeminiSuggestions();
+                          },
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+
+                    // Scheme Cards List
+                    if (schemeProv.isLoadingGemini || _isLoadingProfile)
+                      const Center(child: Padding(padding: EdgeInsets.all(40), child: CircularProgressIndicator()))
+                    else if (schemeProv.geminiSuggestions.isEmpty)
+                      Center(
+                        child: Padding(
+                          padding: const EdgeInsets.all(20.0),
+                          child: Text(context.tr("no_suggestions")),
+                        ),
+                      )
+                    else
+                      ListView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: schemeProv.geminiSuggestions.length,
+                        itemBuilder: (context, index) {
+                          final item = schemeProv.geminiSuggestions[index];
+                          final List<dynamic> whyMatches = item["why_matches"] as List<dynamic>? ?? [];
+                          return Card(
+                            margin: const EdgeInsets.only(bottom: 16),
+                            elevation: 2,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                              side: const BorderSide(color: AppTheme.borderGrey, width: 1),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                // Ministry Header Ribbon
+                                Container(
+                                  width: double.infinity,
+                                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                                  decoration: BoxDecoration(
+                                    color: Colors.blue.shade50,
+                                    borderRadius: const BorderRadius.vertical(top: Radius.circular(10)),
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      const Icon(Icons.account_balance, size: 14, color: AppTheme.primaryNavy),
+                                      const SizedBox(width: 6),
+                                      Expanded(
+                                        child: Text(
+                                          _localizeText(item["ministry"] ?? "Ministry of MSME, Govt of India", currentLang),
+                                          style: const TextStyle(
+                                            fontSize: 11,
+                                            fontWeight: FontWeight.bold,
+                                            color: AppTheme.primaryNavy,
+                                          ),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                        decoration: BoxDecoration(
+                                          color: Colors.red.shade50,
+                                          borderRadius: BorderRadius.circular(4),
+                                          border: Border.all(color: Colors.red.shade200),
+                                        ),
+                                        child: Text(
+                                          "${context.tr('last_date')}: ${_localizeText(item['last_date_to_apply'] ?? '31 Dec 2026', currentLang)}",
+                                          style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.red),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+
+                                Padding(
+                                  padding: const EdgeInsets.all(16.0),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      // Scheme Name Title
+                                      Text(
+                                        item["scheme_name"] ?? "",
+                                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppTheme.textDark),
+                                      ),
+                                      const SizedBox(height: 8),
+
+                                      // Benefits & Description
+                                      if ((item["key_benefits"] ?? "").toString().isNotEmpty) ...[
+                                        Text(
+                                          _localizeText(item["key_benefits"].toString(), currentLang),
+                                          style: const TextStyle(fontSize: 13, color: Colors.black87),
+                                        ),
+                                        const SizedBox(height: 6),
+                                      ],
+                                      if ((item["eligibility_summary"] ?? "").toString().isNotEmpty) ...[
+                                        Text(
+                                          _localizeText(item["eligibility_summary"].toString(), currentLang),
+                                          style: TextStyle(fontSize: 12, color: Colors.grey.shade700),
+                                        ),
+                                      ],
+
+                                      // Why Matches Tag Chips
+                                      if (whyMatches.isNotEmpty) ...[
+                                        const SizedBox(height: 10),
+                                        Wrap(
+                                          spacing: 6,
+                                          runSpacing: 4,
+                                          children: whyMatches.map((w) => Container(
+                                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                            decoration: BoxDecoration(
+                                              color: AppTheme.govGreen.withOpacity(0.08),
+                                              borderRadius: BorderRadius.circular(4),
+                                              border: Border.all(color: AppTheme.govGreen.withOpacity(0.3)),
+                                            ),
+                                            child: Text(
+                                              "✔ ${_localizeText(w.toString(), currentLang)}",
+                                              style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppTheme.govGreen),
+                                            ),
+                                          )).toList(),
+                                        ),
+                                      ],
+
+                                      const SizedBox(height: 14),
+                                      const Divider(height: 1),
+                                      const SizedBox(height: 12),
+
+                                      // Action Buttons
+                                      SizedBox(
+                                        width: double.infinity,
+                                        child: ElevatedButton.icon(
+                                          onPressed: () {
+                                            Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) => SchemeRequirementsScreen(scheme: item),
+                                              ),
+                                            );
+                                          },
+                                          icon: const Icon(Icons.assignment_turned_in_outlined, size: 16),
+                                          label: Text(context.tr("view_required_details_btn")),
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: AppTheme.primaryNavy,
+                                            foregroundColor: Colors.white,
+                                            padding: const EdgeInsets.symmetric(vertical: 12),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
                       ),
-                    );
-                  },
+                  ],
                 ),
+              ),
+
+              // Official Portal Footer
+              const GovFooter(),
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildGovAttributeChip(IconData icon, String label) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: Colors.grey.shade100,
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(color: Colors.grey.shade300),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 14, color: AppTheme.primaryNavy),
+          const SizedBox(width: 6),
+          Text(
+            label,
+            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppTheme.textDark),
+          ),
+        ],
       ),
     );
   }

@@ -5,6 +5,8 @@ import 'package:provider/provider.dart';
 import '../core/i18n/app_localizations.dart';
 import '../core/theme/app_theme.dart';
 import '../providers/locale_provider.dart';
+import '../widgets/gov_top_header.dart';
+import '../widgets/gov_footer.dart';
 import '../widgets/language_selector_sheet.dart';
 import 'financial_calculator_screen.dart';
 import 'partner_locator_screen.dart';
@@ -127,17 +129,8 @@ class SchemeRequirementsScreen extends StatelessWidget {
     }
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(context.tr("required_details_title")),
-        backgroundColor: AppTheme.primaryBlue,
-        foregroundColor: Colors.white,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.language_rounded),
-            tooltip: context.tr("change_language"),
-            onPressed: () => LanguageSelectorSheet.show(context),
-          ),
-        ],
+      appBar: GovTopHeader(
+        title: context.tr("required_details_title"),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),

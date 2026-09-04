@@ -7,6 +7,7 @@ class LocaleProvider with ChangeNotifier {
 
   Locale get currentLocale => _currentLocale;
   String get languageCode => _currentLocale.languageCode;
+  String get currentLanguageName => AppLanguages.getByCode(_currentLocale.languageCode).nativeName;
 
   LocaleProvider() {
     _loadSavedLocale();
