@@ -290,7 +290,7 @@ class SchemeRequirementsScreen extends StatelessWidget {
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
-                            w.toString(),
+                            _localizeReqText(w.toString(), currentLang),
                             style: const TextStyle(
                               fontSize: 14,
                               color: AppTheme.successGreen,
@@ -367,7 +367,7 @@ class SchemeRequirementsScreen extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              docName,
+                              _localizeReqText(docName, currentLang),
                               style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
                             ),
                             if (docType.isNotEmpty) ...[
