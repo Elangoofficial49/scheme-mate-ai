@@ -1,3 +1,4 @@
+from unittest.mock import patch
 from fastapi.testclient import TestClient
 from app.main import app
 from app.core.database import init_db
@@ -31,16 +32,20 @@ def test_auth_email_register_and_login_flow():
     test_phone = "9870001122"
     test_password = "SecurePassword123!"
 
-    reg_res = client.post("/api/v1/auth/register", json={
-        "full_name": "Test User",
-        "email": test_email,
-        "phone": test_phone,
-        "password": test_password
-    })
+    # Force a deterministic OTP so we don't have to guess the random one.
+    # auth.py generates it as: f"{secrets.randbelow(900000) + 100000}"
+    # randbelow(900000) returning 23456 -> otp = "123456"
+    with patch("app.api.v1.auth.secrets.randbelow", return_value=23456):
+        reg_res = client.post("/api/v1/auth/register", json={
+            "full_name": "Test User",
+            "email": test_email,
+            "phone": test_phone,
+            "password": test_password
+        })
     assert reg_res.status_code == 200
     assert reg_res.json()["success"] is True
 
-    # 2. Verify OTP
+    # 2. Verify OTP — now matches the OTP forced above
     verify_res = client.post("/api/v1/auth/verify-otp", json={
         "phone": test_phone,
         "otp": "123456"
