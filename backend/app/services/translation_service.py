@@ -57,6 +57,8 @@ TRANSLATIONS: Dict[str, Dict[str, str]] = {
         "No strict eligibility criteria defined": "कोई सख्त पात्रता मानदंड परिभाषित नहीं है",
 
         # Ministries
+        "Ministry of Food Processing Industries (MoFPI)": "खाद्य प्रसंस्करण उद्योग मंत्रालय (MoFPI)",
+        "Government of Tamil Nadu": "तमिलनाडु सरकार",
         "Ministry of Finance": "वित्त मंत्रालय",
         "Ministry of Micro, Small and Medium Enterprises": "सूक्ष्म, लघु एवं मध्यम उद्यम मंत्रालय (MSME)",
         "Ministry of Housing and Urban Affairs": "आवास और शहरी कार्य मंत्रालय",
@@ -69,13 +71,18 @@ TRANSLATIONS: Dict[str, Dict[str, str]] = {
         "31 Dec 2026 (Open Year-Round)": "31 दिसंबर 2026 (वर्ष भर खुला)",
 
         # Scheme Benefits & Descriptions
+        "Credit-linked capital subsidy at 35% of eligible project cost up to Rs. 10 Lakhs.": "पात्र परियोजना लागत का 35% (अधिकतम रु. 10 लाख) क्रेडिट-लिंक्ड पूंजी सब्सिडी।",
+        "Credit linked capital subsidy at 35% of eligible project cost up to Rs. 10 Lakhs.": "पात्र परियोजना लागत का 35% (अधिकतम रु. 10 लाख) क्रेडिट-लिंक्ड पूंजी सब्सिडी।",
+        "25% capital subsidy up to Rs. 75 Lakhs and 3% interest subvention.": "रु. 75 लाख तक 25% पूंजी सब्सिडी और 3% ब्याज अनुदान।",
+        "Suitable for Individual micro food processing units, FPOs, SHGs, Producer Co-operatives in All India": "अखिल भारतीय स्तर पर सूक्ष्म खाद्य प्रसंस्करण इकाइयों, FPO, SHG और उत्पादक सहकारी समितियों के लिए उपयुक्त।",
+        "Suitable for First-generation entrepreneurs in Tamil Nadu with Degree/Diploma/ITI in Tamil Nadu": "तमिलनाडु में डिग्री/डिप्लोमा/आईटीआई वाले प्रथम पीढ़ी के उद्यमियों के लिए उपयुक्त।",
         "Loan from Rs. 5,00,001 to Rs. 10,00,000.": "रु. 5,00,001 से रु. 10,00,000 तक का ऋण सहायता।",
         "Loan from Rs. 50,001 up to Rs. 5,00,000 without requirement of collateral security.": "बिना किसी गारंटी के रु. 50,001 से रु. 5,00,000 तक का ऋण।",
         "Loans up to Rs. 50,000 without collateral at affordable interest rates.": "बिना गारंटी के किफायती दरों पर रु. 50,000 तक का ऋण।",
         "Subsidy of 15% to 35% of project cost up to Rs. 50 Lakhs for manufacturing and Rs. 20 Lakhs for service sector.": "विनिर्माण के लिए 50 लाख और सेवा क्षेत्र के लिए 20 लाख रुपये तक 15% से 35% सब्सिडी।",
         "Bank loan between Rs. 10 Lakhs and Rs. 1 Crore for setting up a greenfield enterprise.": "नया उद्यम स्थापित करने के लिए 10 लाख से 1 करोड़ रुपये तक का बैंक ऋण।",
         "Rs. 15,000 toolkit digital voucher, 5-7 days basic training with Rs. 500/day stipend, collateral-free loan of Rs. 1 Lakh (Tranche 1) and Rs. 2 Lakh (Tranche 2) at 5% interest rate.": "रु. 15,000 टूलकिट वाउचर, रु. 500/दिन वजीफे के साथ प्रशिक्षण, 5% ब्याज दर पर 1 लाख और 2 लाख का ऋण।",
-        "Working capital loan of Rs. 10,000 (1st tranche), Rs. 20,000 (2nd tranche), and Rs. 50,000 (3rd tranche) with 7% interest subsidy and cashback on digital transactions.": "7% ब्याज सब्सिडी के साथ रु. 10,000, 20,000 और 50,000 का कार्यशील पूंजी ऋण।",
+        "Working capital loan of Rs. 10,00,000 (1st tranche), Rs. 20,000 (2nd tranche), and Rs. 50,000 (3rd tranche) with 7% interest subsidy and cashback on digital transactions.": "7% ब्याज सब्सिडी के साथ रु. 10,00,000, 20,00,000 और 50,00,000 का कार्यशील पूंजी ऋण।",
         "Collateral-free credit facility up to Rs. 5 Crore with guarantee cover up to 85% for women/SC/ST/Aspirations districts.": "महिलाओं/SC/ST के लिए 85% गारंटी के साथ रु. 5 करोड़ तक की गारंटी-मुक्त ऋण सुविधा।",
 
         # Target Beneficiaries
