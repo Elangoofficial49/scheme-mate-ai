@@ -27,6 +27,15 @@ class HomeScreen extends StatelessWidget {
       appBar: AppBar(
         title: Text(context.tr("home_title")),
         elevation: 2,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          tooltip: "Back",
+          onPressed: () {
+            if (Navigator.canPop(context)) {
+              Navigator.pop(context);
+            }
+          },
+        ),
         actions: [
           TextButton.icon(
             onPressed: () => LanguageSelectorSheet.show(context),

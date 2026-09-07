@@ -28,9 +28,6 @@ class ActionPlanScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final localeProv = Provider.of<LocaleProvider>(context);
-    final currentLang = localeProv.languageCode;
-
     final List<Map<String, String>> steps = [
       {
         "title": context.tr("step_1_title"),
@@ -66,6 +63,15 @@ class ActionPlanScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(context.tr("action_plan_title")),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          tooltip: "Back",
+          onPressed: () {
+            if (Navigator.canPop(context)) {
+              Navigator.pop(context);
+            }
+          },
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.language_rounded),

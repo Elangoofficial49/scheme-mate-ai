@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../core/i18n/app_localizations.dart';
+import '../core/i18n/scheme_translation_helper.dart';
 import '../core/network/api_client.dart';
 import '../core/theme/app_theme.dart';
 import '../providers/auth_provider.dart';
@@ -217,6 +218,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         .replaceAll("Loan from Rs. 5,00,001 to Rs. 10,00,000.", "৫,০০,০০১ টাকা থেকে ১০,০০,০০০ টাকা পর্যন্ত ঋণ সহায়তা।");
     }
     return res;
+    return SchemeTranslationHelper.localize(input, langCode);
   }
 
   @override

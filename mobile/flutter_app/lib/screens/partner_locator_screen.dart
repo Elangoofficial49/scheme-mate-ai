@@ -3,12 +3,10 @@ import 'dart:html' as html;
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:provider/provider.dart';
+import '../core/i18n/app_localizations.dart';
 import '../core/network/api_client.dart';
 import '../core/theme/app_theme.dart';
-import '../providers/locale_provider.dart';
 import '../widgets/gov_top_header.dart';
-import '../widgets/gov_footer.dart';
 
 class PartnerLocatorScreen extends StatefulWidget {
   final String? initialSchemeName;
@@ -175,11 +173,9 @@ class _PartnerLocatorScreenState extends State<PartnerLocatorScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final langCode = Provider.of<LocaleProvider>(context).languageCode;
-
     return Scaffold(
       appBar: GovTopHeader(
-        title: langCode == 'ta' ? 'அருகிலுள்ள தகுதியான வங்கி / SCA முகவரி' : 'Nearest Eligible Channel Partners',
+        title: context.tr('partner_locator_title'),
         actions: [
           IconButton(
             icon: const Icon(Icons.my_location, color: Colors.white),
@@ -228,7 +224,7 @@ class _PartnerLocatorScreenState extends State<PartnerLocatorScreen> {
                             const Icon(Icons.refresh, size: 14, color: AppTheme.primaryBlue),
                             const SizedBox(width: 4),
                             Text(
-                              langCode == 'ta' ? 'GPS புதுப்பி' : 'Live GPS',
+                              context.tr('gps_update'),
                               style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppTheme.primaryBlue),
                             ),
                           ],
@@ -331,7 +327,7 @@ class _PartnerLocatorScreenState extends State<PartnerLocatorScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  '${_partners.length} ${langCode == 'ta' ? 'வங்கி / முகவர்கள் கண்டறியப்பட்டது' : 'Partners Found'}',
+                  '${_partners.length} ${context.tr('partners_found')}',
                   style: TextStyle(color: Colors.grey.shade700, fontWeight: FontWeight.bold, fontSize: 13),
                 ),
                 Container(
@@ -341,7 +337,7 @@ class _PartnerLocatorScreenState extends State<PartnerLocatorScreen> {
                     borderRadius: BorderRadius.circular(6),
                   ),
                   child: Text(
-                    '$_eligibleCount ${langCode == 'ta' ? 'தகுதியானவர்கள் (NPA < 3%)' : 'Eligible & Healthy'}',
+                    '$_eligibleCount ${context.tr('eligible_healthy')}',
                     style: const TextStyle(color: AppTheme.successGreen, fontWeight: FontWeight.bold, fontSize: 12),
                   ),
                 ),
@@ -479,8 +475,8 @@ class _PartnerLocatorScreenState extends State<PartnerLocatorScreen> {
                                   icon: const Icon(Icons.directions, size: 18),
                                   label: Text(
                                     isEligible
-                                        ? (langCode == 'ta' ? 'வரைபடத்தில் வழிப்பாதையைக் காட்டு' : 'Get Branch Directions in Maps')
-                                        : (langCode == 'ta' ? 'அதிக NPA காரணத்தால் விண்ணப்பம் தவிர்க்கப்பட்டது' : 'Routing Disabled (High NPA)'),
+                                        ? context.tr('get_directions')
+                                        : context.tr('routing_disabled'),
                                   ),
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: isEligible ? AppTheme.primaryBlue : Colors.grey.shade400,

@@ -518,6 +518,20 @@ class _BusinessProfileFormScreenState extends State<BusinessProfileFormScreen> {
       appBar: AppBar(
         title: Text(context.tr("profile_form_title")),
         elevation: 2,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          tooltip: "Back",
+          onPressed: () {
+            if (Navigator.canPop(context)) {
+              Navigator.pop(context);
+            } else {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => const DashboardScreen()),
+              );
+            }
+          },
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.language_rounded),

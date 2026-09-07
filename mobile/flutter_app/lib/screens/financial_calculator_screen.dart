@@ -1,13 +1,10 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:provider/provider.dart';
 import '../core/network/api_client.dart';
 import '../core/i18n/app_localizations.dart';
 import '../core/theme/app_theme.dart';
-import '../providers/locale_provider.dart';
 import '../widgets/gov_top_header.dart';
-import '../widgets/gov_footer.dart';
 
 class FinancialCalculatorScreen extends StatefulWidget {
   final Map<String, dynamic>? prefillScheme;
@@ -136,11 +133,9 @@ class _FinancialCalculatorScreenState extends State<FinancialCalculatorScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final langCode = Provider.of<LocaleProvider>(context).languageCode;
-
     return Scaffold(
       appBar: GovTopHeader(
-        title: langCode == 'ta' ? 'திட்டக் கடன் & EMI கணக்கிடுவான்' : 'Scheme Loan & EMI Calculator',
+        title: context.tr('calc_title'),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
@@ -149,7 +144,7 @@ class _FinancialCalculatorScreenState extends State<FinancialCalculatorScreen> {
           children: [
             // 1. Presets Header
             Text(
-              langCode == 'ta' ? 'பிரபலமான அரசு திட்ட முன்கமைப்புகள்:' : 'Popular Scheme Guidelines Presets:',
+              context.tr('calc_presets_heading'),
               style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
             ),
             const SizedBox(height: 8),
@@ -196,7 +191,7 @@ class _FinancialCalculatorScreenState extends State<FinancialCalculatorScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          langCode == 'ta' ? 'தேவையான கடன் தொகை:' : 'Required Loan Amount:',
+                          context.tr('calc_loan_amount_label'),
                           style: const TextStyle(fontWeight: FontWeight.w600),
                         ),
                         Text(
@@ -224,7 +219,7 @@ class _FinancialCalculatorScreenState extends State<FinancialCalculatorScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          langCode == 'ta' ? 'திட்ட வட்டி விகிதம் (%):' : 'Scheme Interest Rate (%):',
+                          context.tr('calc_interest_rate_label'),
                           style: const TextStyle(fontWeight: FontWeight.w600),
                         ),
                         Text(
@@ -252,11 +247,11 @@ class _FinancialCalculatorScreenState extends State<FinancialCalculatorScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          langCode == 'ta' ? 'சலுகை காலம் (மாதங்கள்):' : 'Moratorium Period (Months):',
+                          context.tr('calc_moratorium_label'),
                           style: const TextStyle(fontWeight: FontWeight.w600),
                         ),
                         Text(
-                          '$_moratoriumMonths ${langCode == 'ta' ? 'மாதங்கள்' : 'Months'}',
+                          '$_moratoriumMonths ${context.tr('months_suffix')}',
                           style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.purple),
                         ),
                       ],
@@ -266,7 +261,7 @@ class _FinancialCalculatorScreenState extends State<FinancialCalculatorScreen> {
                       min: 0,
                       max: 18,
                       divisions: 18,
-                      label: '$_moratoriumMonths Months',
+                      label: '$_moratoriumMonths ${context.tr('months_suffix')}',
                       activeColor: Colors.purple,
                       onChanged: (val) {
                         setState(() => _moratoriumMonths = val.toInt());
@@ -280,11 +275,11 @@ class _FinancialCalculatorScreenState extends State<FinancialCalculatorScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          langCode == 'ta' ? 'மொத்த திருப்பிச் செலுத்தும் காலம்:' : 'Total Repayment Tenure:',
+                          context.tr('calc_tenure_label'),
                           style: const TextStyle(fontWeight: FontWeight.w600),
                         ),
                         Text(
-                          '$_tenureMonths ${langCode == 'ta' ? 'மாதங்கள்' : 'Months'} (${(_tenureMonths / 12).toStringAsFixed(1)} Yrs)',
+                          '$_tenureMonths ${context.tr('months_suffix')} (${(_tenureMonths / 12).toStringAsFixed(1)} Yrs)',
                           style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppTheme.successGreen),
                         ),
                       ],
@@ -294,7 +289,7 @@ class _FinancialCalculatorScreenState extends State<FinancialCalculatorScreen> {
                       min: 12,
                       max: 120,
                       divisions: 18,
-                      label: '$_tenureMonths Months',
+                      label: '$_tenureMonths ${context.tr('months_suffix')}',
                       activeColor: AppTheme.successGreen,
                       onChanged: (val) {
                         setState(() => _tenureMonths = val.toInt());
@@ -308,7 +303,7 @@ class _FinancialCalculatorScreenState extends State<FinancialCalculatorScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          langCode == 'ta' ? 'அரசு மானிய சதவீதம் (%):' : 'Govt Capital Subsidy (%):',
+                          context.tr('calc_subsidy_pct_label'),
                           style: const TextStyle(fontWeight: FontWeight.w600),
                         ),
                         Text(
@@ -354,7 +349,7 @@ class _FinancialCalculatorScreenState extends State<FinancialCalculatorScreen> {
                       child: Column(
                         children: [
                           Text(
-                            langCode == 'ta' ? 'மாதாந்திர EMI (சலுகைக்கு பின்)' : 'Regular Monthly EMI',
+                            context.tr('calc_monthly_emi'),
                             textAlign: TextAlign.center,
                             style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.blue),
                           ),
@@ -364,7 +359,7 @@ class _FinancialCalculatorScreenState extends State<FinancialCalculatorScreen> {
                             style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: AppTheme.primaryBlue),
                           ),
                           Text(
-                            '${_calcResult!["repayment_months"]} ${langCode == 'ta' ? 'மாதங்களுக்கு' : 'Months'}',
+                            '${_calcResult!["repayment_months"]} ${context.tr('months_suffix')}',
                             style: const TextStyle(fontSize: 11, color: Colors.grey),
                           ),
                         ],
@@ -383,7 +378,7 @@ class _FinancialCalculatorScreenState extends State<FinancialCalculatorScreen> {
                       child: Column(
                         children: [
                           Text(
-                            langCode == 'ta' ? 'சலுகை கால வட்டி/மாதம்' : 'Moratorium Monthly',
+                            context.tr('calc_moratorium_monthly'),
                             textAlign: TextAlign.center,
                             style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.purple),
                           ),
@@ -393,7 +388,7 @@ class _FinancialCalculatorScreenState extends State<FinancialCalculatorScreen> {
                             style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.purple),
                           ),
                           Text(
-                            '${_calcResult!["moratorium_months"]} ${langCode == 'ta' ? 'மாத சலுகை' : 'Months Grace'}',
+                            '${_calcResult!["moratorium_months"]} ${context.tr('months_grace')}',
                             style: const TextStyle(fontSize: 11, color: Colors.grey),
                           ),
                         ],
@@ -423,7 +418,7 @@ class _FinancialCalculatorScreenState extends State<FinancialCalculatorScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            langCode == 'ta' ? 'அரசு மானிய தொகை & சேமிப்பு' : 'Govt Capital Subsidy Credit',
+                            context.tr('calc_subsidy_credit'),
                             style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppTheme.successGreen),
                           ),
                           Text(
@@ -447,13 +442,13 @@ class _FinancialCalculatorScreenState extends State<FinancialCalculatorScreen> {
                   padding: const EdgeInsets.all(14.0),
                   child: Column(
                     children: [
-                      _buildSummaryRow(langCode == 'ta' ? 'மொத்த தேவையான கடன்:' : 'Gross Loan Amount:', '₹${_loanAmount.toStringAsFixed(0)}'),
+                      _buildSummaryRow(context.tr('calc_gross_loan'), '₹${_loanAmount.toStringAsFixed(0)}'),
                       const Divider(),
-                      _buildSummaryRow(langCode == 'ta' ? 'நிகர திருப்ப வேண்டிய கடன்:' : 'Net Effective Loan Balance:', '₹${(_calcResult!["net_loan_amount"] ?? 0).toStringAsFixed(0)}', isBold: true),
+                      _buildSummaryRow(context.tr('calc_net_loan'), '₹${(_calcResult!["net_loan_amount"] ?? 0).toStringAsFixed(0)}', isBold: true),
                       const Divider(),
-                      _buildSummaryRow(langCode == 'ta' ? 'மொத்த வட்டி தொகை:' : 'Total Interest Payable:', '₹${(_calcResult!["total_interest_payable"] ?? 0).toStringAsFixed(0)}'),
+                      _buildSummaryRow(context.tr('calc_total_interest'), '₹${(_calcResult!["total_interest_payable"] ?? 0).toStringAsFixed(0)}'),
                       const Divider(),
-                      _buildSummaryRow(langCode == 'ta' ? 'மொத்த திருப்பி செலுத்தும் தொகை:' : 'Total Outflow Payable:', '₹${(_calcResult!["total_amount_payable"] ?? 0).toStringAsFixed(0)}', isBold: true),
+                      _buildSummaryRow(context.tr('calc_total_outflow'), '₹${(_calcResult!["total_amount_payable"] ?? 0).toStringAsFixed(0)}', isBold: true),
                     ],
                   ),
                 ),

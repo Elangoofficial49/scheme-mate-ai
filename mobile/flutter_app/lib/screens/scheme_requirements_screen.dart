@@ -3,6 +3,7 @@ import 'dart:html' as html;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../core/i18n/app_localizations.dart';
+import '../core/i18n/scheme_translation_helper.dart';
 import '../core/theme/app_theme.dart';
 import '../providers/locale_provider.dart';
 import '../widgets/gov_top_header.dart';
@@ -101,7 +102,14 @@ class SchemeRequirementsScreen extends StatelessWidget {
         .replaceAll("Business sector eligible", "వ్యాపార రంగం అర్హత పొందింది")
         .replaceAll("Scheme operates in your region", "మీ ప్రాంతంలో ఈ పథకం అందుబాటులో ఉంది")
         .replaceAll("(All India)", "(అఖిల భారత)")
-        .replaceAll("(Open Year-Round)", "(ఏడాది పొడవునా తెరిచి ఉంటుంది)");
+        .replaceAll("(Open Year-Round)", "(ఏడాది పొడవునా తెరిచి ఉంటుంది)")
+        .replaceAll("Aadhaar & PAN Card", "ఆధార్ & పాన్ కార్డ్")
+        .replaceAll("IT Returns for last 2 years", "గత 2 సంవత్సరాల IT రిటర్నులు")
+        .replaceAll("Udyam Registration Certificate", "ఉద్యమ్ రిజిస్ట్రేషన్ సర్టిఫికేట్")
+        .replaceAll("Project report & 12-month projected financials", "ప్రాజెక్ట్ నివేదిక & 12 నెలల ఆర్థిక అంచనాలు")
+        .replaceAll("Identity", "గుర్తింపు")
+        .replaceAll("Financial", "ఆర్థిక")
+        .replaceAll("Business", "వ్యాపారం");
     } else if (langCode == 'kn') {
       res = res
         .replaceAll("Ministry of Finance", "ಹಣಕಾಸು ಸಚಿವಾಲಯ")
@@ -134,8 +142,247 @@ class SchemeRequirementsScreen extends StatelessWidget {
         .replaceAll("Business sector eligible", "વ્યવસાય ક્ષેત્ર પાત્ર છે")
         .replaceAll("Scheme operates in your region", "આ યોજના તમારા વિસ્તારમાં કાર્યરત છે")
         .replaceAll("(Open Year-Round)", "(આખું વર્ષ ખુલ્લું)");
+
+    final Map<String, Map<String, String>> dict = {
+      'ta': {
+        "Ministry of Finance": "நிதி அமைச்சகம்",
+        "Ministry of Micro, Small and Medium Enterprises": "குறு, சிறு மற்றும் நடுத்தர தொழில் அமைச்சகம் (MSME)",
+        "Ministry of Housing and Urban Affairs": "வீட்டுவசதி மற்றும் நகர்ப்புற விவகாரங்கள் அமைச்சகம்",
+        "Minimum age criterion met": "குறைந்தபட்ச வயது வரம்பு பூர்த்தியானது",
+        "Business sector eligible": "தொழில் துறை தகுதியானது",
+        "Scheme operates in your region": "உங்கள் பிராந்தியத்தில் இத்திட்டம் செயல்படுகிறது",
+        "State eligibility matched": "மாநில தகுதி பொருந்தியது",
+        "Matches your funding requirement": "உங்கள் நிதியுதவி தேவைகளுடன் பொருந்துகிறது",
+        "Aadhaar & PAN Card": "ஆதார் மற்றும் பான் கார்டு",
+        "IT Returns for last 2 years": "கடந்த 2 ஆண்டுகளுக்கான IT கணக்குలు",
+        "Udyam Registration Certificate": "உத்யம் பதிவு சான்றிதழ்",
+        "Project report & 12-month projected financials": "திட்ட அறிக்கை மற்றும் 12 மாத நிதி கணிப்பு",
+        "Identity": "அடையாளம்",
+        "Financial": "நிதி",
+        "Business": "வணிகம்",
+        "(All India)": "(அனைத்து இந்தியா)",
+        "(Open Year-Round)": "(ஆண்டு முழுவதும் திறந்திருக்கும்)"
+      },
+      'hi': {
+        "Ministry of Finance": "वित्त मंत्रालय",
+        "Ministry of Micro, Small and Medium Enterprises": "सूक्ष्म, लघु एवं मध्यम उद्यम मंत्रालय (MSME)",
+        "Ministry of Housing and Urban Affairs": "आवास और शहरी कार्य मंत्रालय",
+        "Minimum age criterion met": "न्यूनतम आयु मानदंड पूरा हुआ",
+        "Business sector eligible": "व्यवसाय क्षेत्र पात्र है",
+        "Scheme operates in your region": "यह योजना आपके क्षेत्र में संचालित है",
+        "State eligibility matched": "राज्य पात्रता का मिलान हुआ",
+        "Matches your funding requirement": "आपकी फंडिंग आवश्यकता से मेल खाता है",
+        "Aadhaar & PAN Card": "आधार और पैन कार्ड",
+        "IT Returns for last 2 years": "पिछले 2 वर्षों का IT रिटर्न",
+        "Udyam Registration Certificate": "उद्यम पंजीकरण प्रमाणपत्र",
+        "Project report & 12-month projected financials": "प्रोजेक्ट रिपोर्ट और 12 महीने का वित्तीय विवरण",
+        "Identity": "पहचान",
+        "Financial": "वित्तीय",
+        "Business": "व्यवसाय",
+        "(All India)": "(अखिल भारतीय)",
+        "(Open Year-Round)": "(वर्ष भर खुला)"
+      },
+      'te': {
+        "Ministry of Finance": "ఆర్థిక మంత్రిత్వ శాఖ",
+        "Ministry of Micro, Small and Medium Enterprises": "సూక్ష్మ, చిన్న మరియు మధ్య తరహా పరిశ్రమల మంత్రిత్వ శాఖ",
+        "Ministry of Housing and Urban Affairs": "పట్టణాభివృద్ధి మంత్రిత్వ శాఖ",
+        "Minimum age criterion met": "కనీస వయస్సు నిబంధన పూర్తయింది",
+        "Business sector eligible": "వ్యాపార రంగం అర్హత పొందింది",
+        "Scheme operates in your region": "మీ ప్రాంతంలో ఈ పథకం అందుబాటులో ఉంది",
+        "State eligibility matched": "రాష్ట్ర అర్హత సరిపోలింది",
+        "Matches your funding requirement": "మీ ఆర్థిక అవసరాలకు సరిపోతుంది",
+        "Aadhaar & PAN Card": "ఆధార్ & పాన్ కార్డ్",
+        "IT Returns for last 2 years": "గత 2 సంవత్సరాల IT రిటర్నులు",
+        "Udyam Registration Certificate": "ఉద్యమ్ రిజిస్ట్రేషన్ సర్టిఫికేట్",
+        "Project report & 12-month projected financials": "ప్రాజెక్ట్ నివేదిక & 12 నెలల ఆర్థిక అంచనాలు",
+        "Identity": "గుర్తింపు",
+        "Financial": "ఆర్థిక",
+        "Business": "వ్యాపారం",
+        "(All India)": "(అఖిల భారత)",
+        "(Open Year-Round)": "(ఏడాది పొడవునా తెరిచి ఉంటుంది)"
+      },
+      'bn': {
+        "Ministry of Finance": "অর্থ মন্ত্রণালয়",
+        "Ministry of Micro, Small and Medium Enterprises": "ক্ষুদ্র, ছোট ও মাঝারি শিল্প মন্ত্রণালয়",
+        "Ministry of Housing and Urban Affairs": "আবাসন ও নগর বিষয়ক মন্ত্রণালয়",
+        "Minimum age criterion met": "নূন্যতম বয়স মাপকাঠি পূরণ হয়েছে",
+        "Business sector eligible": "ব্যবসা খাত যোগ্য",
+        "Scheme operates in your region": "আপনার অঞ্চলে এই প্রকল্প চালু আছে",
+        "State eligibility matched": "রাজ্যের যোগ্যতা মিলেছে",
+        "Matches your funding requirement": "আপনার তহবিলের প্রয়োজনের সাথে মেলে",
+        "Aadhaar & PAN Card": "আধার ও প্যান কার্ড",
+        "IT Returns for last 2 years": "গত ২ বছরের আইটি রিটার্ন",
+        "Udyam Registration Certificate": "উদ্যম রেজিস্ট্রেশন সার্টিফিকেট",
+        "Project report & 12-month projected financials": "প্রকল্প রিপোর্ট ও ১২ মাসের আর্থিক হিসাব",
+        "Identity": "পরিচয়",
+        "Financial": "আর্থিক",
+        "Business": "ব্যবসা",
+        "(All India)": "(সর্বভারতীয়)",
+        "(Open Year-Round)": "(সারা বছর খোলা)"
+      },
+      'kn': {
+        "Ministry of Finance": "ಹಣಕಾಸು ಸಚಿವಾಲಯ",
+        "Ministry of Micro, Small and Medium Enterprises": "ಸೂಕ್ಷ್ಮ, ಸಣ್ಣ ಮತ್ತು ಮಧ್ಯಮ ಉದ್ಯಮಗಳ ಸಚಿವಾಲಯ",
+        "Ministry of Housing and Urban Affairs": "ವಸತಿ ಮತ್ತು ನಗರ ವ್ಯವಹಾರಗಳ ಸಚಿವಾಲಯ",
+        "Minimum age criterion met": "ಕನಿಷ್ಠ ವಯಸ್ಸಿನ ಮಾನದಂಡ ಪೂರೈಸಲಾಗಿದೆ",
+        "Business sector eligible": "ವ್ಯಾಪಾರ ಕ್ಷೇತ್ರವು ಅರ್ಹವಾಗಿದೆ",
+        "Scheme operates in your region": "ನಿಮ್ಮ ಪ್ರದೇಶದಲ್ಲಿ ಈ ಯೋಜನೆ ಲಭ್ಯವಿದೆ",
+        "State eligibility matched": "ರಾಜ್ಯ ಅರ್ಹತೆ ಹೊಂದಾಣಿಕೆಯಾಗಿದೆ",
+        "Matches your funding requirement": "ನಿಮ್ಮ ಹಣಕಾಸಿನ ಅಗತ್ಯಕ್ಕೆ ಸೂಕ್ತವಾಗಿದೆ",
+        "Aadhaar & PAN Card": "ಆಧಾರ್ ಮತ್ತು ಪಾನ್ ಕಾರ್ಡ್",
+        "IT Returns for last 2 years": "ಕಳೆದ 2 ವರ್ಷಗಳ IT ರಿಟರ್ನ್ಸ್",
+        "Udyam Registration Certificate": "ಉದ್ಯಮ್ ನೋಂದಣಿ ಪ್ರಮಾಣಪತ್ರ",
+        "Project report & 12-month projected financials": "ಪ್ರಾಜೆಕ್ಟ್ ವರದಿ ಮತ್ತು 12 ತಿಂಗಳ ಆರ್ಥಿಕ ಅಂದಾಜು",
+        "Identity": "ಗುರುತು",
+        "Financial": "ಆರ್ಥಿಕ",
+        "Business": "ಉದ್ಯಮ",
+        "(All India)": "(ಅಖಿಲ ಭಾರತ)",
+        "(Open Year-Round)": "(ವರ್ಷಪೂರ್ತಿ ಲಭ್ಯವಿದೆ)"
+      },
+      'ml': {
+        "Ministry of Finance": "ധനകാര്യ മന്ത്രാലയം",
+        "Ministry of Micro, Small and Medium Enterprises": "എംഎസ്എംഇ മന്ത്രാലയം",
+        "Ministry of Housing and Urban Affairs": "ഭവന വികസന മന്ത്രാലയം",
+        "Minimum age criterion met": "കുറഞ്ഞ പ്രായപരിധി യോഗ്യത നേടി",
+        "Business sector eligible": "ബിസിനസ്സ് മേഖല യോഗ്യമാണ്",
+        "Scheme operates in your region": "നിങ്ങളുടെ പ്രദേശത്ത് ഈ പദ്ധതി ലഭ്യമാണ്",
+        "State eligibility matched": "സംസ്ഥാന യോഗ്യത പൊരുത്തപ്പെട്ടു",
+        "Matches your funding requirement": "നിങ്ങളുടെ സാമ്പത്തിക ആവശ്യത്തിന് അനുയോജ്യം",
+        "Aadhaar & PAN Card": "ആധാർ & പാൻ കാർഡ്",
+        "IT Returns for last 2 years": "കഴിഞ്ഞ 2 വർഷത്തെ IT റിട്ടേണുകൾ",
+        "Udyam Registration Certificate": "ഉദ്യം രജിസ്ട്രേഷൻ സർട്ടിഫിക്കറ്റ്",
+        "Project report & 12-month projected financials": "പ്രോജക്ട് റിപ്പോർട്ടും സാമ്പത്തിക കണക്കുകളും",
+        "Identity": "തിരിച്ചറിയൽ",
+        "Financial": "സാമ്പത്തികം",
+        "Business": "ബിസിനസ്സ്",
+        "(All India)": "(ആൾ ഇന്ത്യ)",
+        "(Open Year-Round)": "(വർഷം മുഴുവൻ ലഭ്യമാണ്)"
+      },
+      'mr': {
+        "Ministry of Finance": "वित्त मंत्रालय",
+        "Ministry of Micro, Small and Medium Enterprises": "सूक्ष्म, लघु आणि मध्यम उद्यम मंत्रालय",
+        "Ministry of Housing and Urban Affairs": "गृहनिर्माण आणि शहरी व्यवहार मंत्रालय",
+        "Minimum age criterion met": "किमान वयोमर्यादा पूर्ण",
+        "Business sector eligible": "व्यवसाय क्षेत्र पात्र आहे",
+        "Scheme operates in your region": "ही योजना तुमच्या क्षेत्रात कार्यरत आहे",
+        "State eligibility matched": "राज्य पात्रता जुळली",
+        "Matches your funding requirement": "तुमच्या निधीच्या गरजेनुसार योग्य",
+        "Aadhaar & PAN Card": "आधार आणि पॅन कार्ड",
+        "IT Returns for last 2 years": "मागील २ वर्षांचे IT रिटर्न",
+        "Udyam Registration Certificate": "उद्यम नोंदणी प्रमाणपत्र",
+        "Project report & 12-month projected financials": "प्रकल्प अहवाल आणि १२ महिन्यांचे आर्थिक अंदाज",
+        "Identity": "ओळख",
+        "Financial": "आर्थिक",
+        "Business": "व्यवसाय",
+        "(All India)": "(सर्व भारत)",
+        "(Open Year-Round)": "(वर्षभर उघडे)"
+      },
+      'gu': {
+        "Ministry of Finance": "નાણાં મંત્રાલય",
+        "Ministry of Micro, Small and Medium Enterprises": "સૂક્ષ્મ, લઘુ અને મધ્યમ ઉદ્યોગ મંત્રાલય",
+        "Ministry of Housing and Urban Affairs": "આવાસ અને શહેરી બાબતોનું મંત્રાલય",
+        "Minimum age criterion met": "ન્યૂનતમ વય માનદંડ પૂર્ણ",
+        "Business sector eligible": "વ્યવસાય ક્ષેત્ર પાત્ર છે",
+        "Scheme operates in your region": "આ યોજના તમારા વિસ્તારમાં કાર્યરત છે",
+        "State eligibility matched": "રાજ્યની પાત્રતા યોગ્ય છે",
+        "Matches your funding requirement": "તમારી ફંડિંગ જરૂરિયાત મુજબ",
+        "Aadhaar & PAN Card": "આધાર અને પાન કાર્ડ",
+        "IT Returns for last 2 years": "છેલ્લા ૨ વર્ષનું IT રિટર્ન",
+        "Udyam Registration Certificate": "ઉદ્યમ નોંધણી પ્રમાણપત્ર",
+        "Project report & 12-month projected financials": "પ્રોજેક્ટ રિપોર્ટ અને ૧૨ મહિનાનો આર્થિક અંદાજ",
+        "Identity": "ઓળખ",
+        "Financial": "નાણાકીય",
+        "Business": "વ્યવસાય",
+        "(All India)": "(અખિલ ભારતીય)",
+        "(Open Year-Round)": "(આખું વર્ષ ખુલ્લું)"
+      },
+      'as': {
+        "Ministry of Finance": "বিত্ত মন্ত্ৰালয়",
+        "Ministry of Micro, Small and Medium Enterprises": "MSME মন্ত্ৰালয়",
+        "Ministry of Housing and Urban Affairs": "গৃহনিৰ্মাণ আৰু নগৰ পৰিক্ৰমা মন্ত্ৰালয়",
+        "Minimum age criterion met": "নূন্যতম বয়সৰ মাপকাঠি পূৰণ হৈছে",
+        "Business sector eligible": "ব্যৱસાય খণ্ড উপযুক্ত",
+        "Scheme operates in your region": "আপোনাৰ অঞ্চলত এই আঁচনি কাৰ্যকৰী",
+        "State eligibility matched": "ৰাজ্যিক যোগ্যতা মিলিছে",
+        "Matches your funding requirement": "আপোনাৰ পুঁজিৰ প্ৰয়োজনৰ সৈতে খাপ খায়",
+        "Aadhaar & PAN Card": "আধাৰ আৰু পান কাৰ্ড",
+        "IT Returns for last 2 years": "বিগত ২ বছৰৰ IT ৰিটাৰ্ন",
+        "Udyam Registration Certificate": "উদ্যম পঞ্জীয়ন প্ৰমাণপত্ৰ",
+        "Project report & 12-month projected financials": "প্ৰকল্প প্ৰতিবেদন আৰু ১২ মাহৰ বিত্তীয় হিসাব",
+        "Identity": "পৰিচয়",
+        "Financial": "বিত্তীয়",
+        "Business": "ব্যৱસાય",
+        "(All India)": "(সমগ্ৰ ভাৰত)",
+        "(Open Year-Round)": "(বছৰজুৰি খোলা)"
+      },
+      'ur': {
+        "Ministry of Finance": "وزارت مالیات",
+        "Ministry of Micro, Small and Medium Enterprises": "وزارت MSME",
+        "Ministry of Housing and Urban Affairs": "وزارت رہائش و شہری امور",
+        "Minimum age criterion met": "کم از کم عمر کا معیار پورا ہے",
+        "Business sector eligible": "کاروباری شعبہ اہل ہے",
+        "Scheme operates in your region": "اسکیم آپ کے علاقے میں فعال ہے",
+        "State eligibility matched": "ریاستی اہلیت مطابق ہے",
+        "Matches your funding requirement": "آپ کی مالی ضروریات کے مطابق",
+        "Aadhaar & PAN Card": "آدھار اور پین کارڈ",
+        "IT Returns for last 2 years": "گزشتہ 2 سالوں کے IT ریٹرنز",
+        "Udyam Registration Certificate": "ادیم رجسٹریشن سرٹیفکیٹ",
+        "Project report & 12-month projected financials": "پروجیکٹ رپورٹ اور 12 مہینے کا تخمینہ",
+        "Identity": "شناخت",
+        "Financial": "مالیاتی",
+        "Business": "کاروبار",
+        "(All India)": "(پورے ہندوستان میں)",
+        "(Open Year-Round)": "(سال بھر جاری)"
+      },
+      'or': {
+        "Ministry of Finance": "ଅର୍ଥ ମନ୍ତ୍ରଣାଳୟ",
+        "Ministry of Micro, Small and Medium Enterprises": "MSME ମନ୍ତ୍ରଣାଳୟ",
+        "Ministry of Housing and Urban Affairs": "ନଗର ଉନ୍ନୟନ ମନ୍ତ୍ରଣାଳୟ",
+        "Minimum age criterion met": "ନୂନ୍ଯତମ ବୟସ ଯୋଗ୍ୟତା ପୂରଣ ହୋଇଛି",
+        "Business sector eligible": "ବ୍ୟବସାୟ କ୍ଷେତ୍ର ଯୋଗ୍ୟ",
+        "Scheme operates in your region": "ଆପଣଙ୍କ ଅଞ୍ଚଳରେ ଯୋଜନା ସକ୍ରିୟ",
+        "State eligibility matched": "ରାଜ୍ୟ ଯୋଗ୍ୟତା ମିଳିଛି",
+        "Matches your funding requirement": "ଆପଣଙ୍କ ଆର୍ଥିକ ଆବଶ୍ୟକତା ସହ ମେଳ ଖାଉଛି",
+        "Aadhaar & PAN Card": "ଆଧାର ଏବଂ ପାନ୍ କାର୍ଡ",
+        "IT Returns for last 2 years": "ଗତ ୨ ବର୍ଷର IT ରିଟର୍ନ୍",
+        "Udyam Registration Certificate": "ଉଦ୍ୟମ ପଞ୍ଜୀକରଣ ପ୍ରମାଣପତ୍ର",
+        "Project report & 12-month projected financials": "ପ୍ରକଳ୍ପ ରିପୋର୍ଟ ଏବଂ ୧୨ ମାସର ଆର୍ଥିକ ଅନୁମାନ",
+        "Identity": "ପରିଚୟ",
+        "Financial": "ଆର୍ଥିକ",
+        "Business": "ବ୍ୟବସାୟ",
+        "(All India)": "(ସମଗ୍ର ଭାରତ)",
+        "(Open Year-Round)": "(ସାରା ବର୍ଷ ଖୋଲା)"
+      },
+      'pa': {
+        "Ministry of Finance": "ਵਿੱਤ ਮੰਤਰਾਲਾ",
+        "Ministry of Micro, Small and Medium Enterprises": "MSME ਮੰਤਰਾਲਾ",
+        "Ministry of Housing and Urban Affairs": "ਸ਼ਹਿਰੀ ਵਿਕਾਸ ਮੰਤਰਾਲਾ",
+        "Minimum age criterion met": "ਘੱਟੋ-ਘੱਟ ਉਮਰ ਪੂਰੀ ਹੈ",
+        "Business sector eligible": "ਕਾਰੋਬਾਰ ਖੇਤਰ ਯੋਗ ਹੈ",
+        "Scheme operates in your region": "ਇਹ ਸਕੀਮ ਤੁਹਾਡੇ ਖੇਤਰ ਵਿੱਚ ਲਾਗੂ ਹੈ",
+        "State eligibility matched": "ਰਾਜ ਦੀ ਯੋਗਤਾ ਪੂਰੀ ਹੈ",
+        "Matches your funding requirement": "ਤੁਹਾਡੀ ਫੰਡ ਦੀ ਲੋੜ ਨਾਲ ਮੇਲ ਖਾਂਦਾ ਹੈ",
+        "Aadhaar & PAN Card": "ਆਧਾਰ ਅਤੇ ਪੈਨ ਕਾਰਡ",
+        "IT Returns for last 2 years": "ਪਿਛਲੇ 2 ਸਾਲਾਂ ਦੀਆਂ IT ਰਿਟਰਨਾਂ",
+        "Udyam Registration Certificate": "ਉਦਯਮ ਰਜਿਸਟ੍ਰੇਸ਼ਨ ਸਰਟੀਫਿਕੇਟ",
+        "Project report & 12-month projected financials": "ਪ੍ਰੋਜੈਕਟ ਰਿਪੋਰਟ ਅਤੇ 12 ਮਹੀਨਿਆਂ ਦਾ ਵਿੱਤੀ ਵੇਰਵਾ",
+        "Identity": "ਪਛਾਣ",
+        "Financial": "ਵਿੱਤੀ",
+        "Business": "ਕਾਰੋਬਾਰ",
+        "(All India)": "(ਪੂਰੇ ਭਾਰਤ ਵਿੱਚ)",
+        "(Open Year-Round)": "(ਸਾਰਾ ਸਾਲ ਖੁੱਲ੍ਹਾ)"
+      }
+    };
+
+    final langDict = dict[langCode];
+    if (langDict != null) {
+      langDict.forEach((key, val) {
+        res = res.replaceAll(key, val);
+      });
     }
+
     return res;
+    return SchemeTranslationHelper.localize(input, langCode);
   }
 
   @override
@@ -236,7 +483,7 @@ class SchemeRequirementsScreen extends StatelessWidget {
                           },
                           icon: const Icon(Icons.calculate, size: 16, color: AppTheme.primaryBlue),
                           label: Text(
-                            currentLang == 'ta' ? 'EMI கணக்கிடு' : 'Calculate EMI',
+                            context.tr('calculate_emi'),
                             style: const TextStyle(fontSize: 12, color: AppTheme.primaryBlue, fontWeight: FontWeight.bold),
                           ),
                           style: OutlinedButton.styleFrom(
@@ -258,7 +505,7 @@ class SchemeRequirementsScreen extends StatelessWidget {
                           },
                           icon: const Icon(Icons.near_me, size: 16, color: AppTheme.successGreen),
                           label: Text(
-                            currentLang == 'ta' ? 'வங்கி / முகவர்' : 'Locate Partner',
+                            context.tr('locate_partner'),
                             style: const TextStyle(fontSize: 12, color: AppTheme.successGreen, fontWeight: FontWeight.bold),
                           ),
                           style: OutlinedButton.styleFrom(
@@ -373,7 +620,7 @@ class SchemeRequirementsScreen extends StatelessWidget {
                             if (docType.isNotEmpty) ...[
                               const SizedBox(height: 2),
                               Text(
-                                docType,
+                                _localizeReqText(docType, currentLang),
                                 style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
                               ),
                             ],
