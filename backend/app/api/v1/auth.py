@@ -10,6 +10,7 @@ from app.models.user import User
 from app.core.security import get_password_hash, verify_password, create_access_token, create_refresh_token, decode_refresh_token
 from app.services.audit_service import AuditService
 from app.services.email_service import EmailService
+from app.core.mongodb import sync_save_to_mongodb
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
@@ -108,8 +109,22 @@ def register(req: RegisterRequest, db: Session = Depends(get_db)):
                 )
 
     # Store exact same OTP in EmailService memory cache and send email
-    EmailService.store_otp(clean_phone, otp)
-    EmailService.store_otp(clean_email, otp)
+    EmailService._otp_store[target_user.email] = {
+        "otp": otp,
+        "expires_at": target_user.otp_expires_at
+    }
+
+    # Automatically insert/update user document in MongoDB Atlas
+    sync_save_to_mongodb("users", {
+        "id": target_user.id,
+        "phone": target_user.phone,
+        "email": target_user.email,
+        "full_name": target_user.full_name,
+        "role": target_user.role or "USER",
+        "is_verified": target_user.is_verified,
+        "created_at": str(target_user.created_at) if hasattr(target_user, "created_at") else None
+    }, query_filter={"email": target_user.email})
+
     email_result = EmailService.send_otp_email(to_email=clean_email, otp=otp, user_name=req.full_name)
 
     AuditService.log_action(db, "USER_REGISTER_INITIATED", user_id=target_user.id, details=f"Email: {clean_email}, Phone: {clean_phone}, Delivered: {email_result.get('delivered')}")

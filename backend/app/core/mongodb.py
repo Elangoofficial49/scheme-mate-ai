@@ -56,6 +56,44 @@ def get_mongo_collection(collection_name: str):
         return mongo_manager.db[collection_name]
     return None
 
+def sync_save_to_mongodb(collection_name: str, data: dict, query_filter: Optional[dict] = None):
+    """
+    Synchronously save or update a document in MongoDB Atlas automatically.
+    """
+    try:
+        if mongo_manager.sync_client is None:
+            init_mongodb()
+        
+        if mongo_manager.sync_client is not None:
+            db_name = os.getenv("MONGODB_DB_NAME", settings.MONGODB_DB_NAME)
+            db = mongo_manager.sync_client[db_name]
+            coll = db[collection_name]
+            
+            clean_data = {k: v for k, v in data.items() if not k.startswith('_sa_')}
+            if query_filter:
+                coll.update_one(query_filter, {"$set": clean_data}, upsert=True)
+            else:
+                coll.insert_one(clean_data)
+            logger.info(f"✅ Automatically synced document to MongoDB Atlas [{collection_name}]")
+    except Exception as e:
+        logger.warning(f"⚠ Automatic MongoDB sync notice: {e}")
+
+async def async_save_to_mongodb(collection_name: str, data: dict, query_filter: Optional[dict] = None):
+    """
+    Asynchronously save or update a document in MongoDB Atlas automatically.
+    """
+    try:
+        if mongo_manager.db is not None:
+            coll = mongo_manager.db[collection_name]
+            clean_data = {k: v for k, v in data.items() if not k.startswith('_sa_')}
+            if query_filter:
+                await coll.update_one(query_filter, {"$set": clean_data}, upsert=True)
+            else:
+                await coll.insert_one(clean_data)
+            logger.info(f"✅ Automatically synced async document to MongoDB Atlas [{collection_name}]")
+    except Exception as e:
+        logger.warning(f"⚠ Automatic async MongoDB sync notice: {e}")
+
 def close_mongodb():
     """Close MongoDB connections cleanly on application shutdown."""
     if mongo_manager.client:

@@ -1,6 +1,7 @@
 from sqlalchemy.orm import Session
 from app.models.audit import AuditLog, SecurityEvent
 from app.core.logging import logger
+from app.core.mongodb import sync_save_to_mongodb
 
 class AuditService:
     """
@@ -20,6 +21,15 @@ class AuditService:
             db.add(audit)
             db.commit()
             logger.info(f"AUDIT_LOG [{action}] User:{user_id} Res:{resource}")
+
+            # Automatically sync to MongoDB Atlas
+            sync_save_to_mongodb("audit_logs", {
+                "user_id": user_id,
+                "action": action,
+                "resource": resource,
+                "details": details,
+                "ip_address": ip_address
+            })
         except Exception as e:
             logger.error(f"Failed to record audit log: {e}")
 
@@ -36,5 +46,14 @@ class AuditService:
             db.add(sec_event)
             db.commit()
             logger.warning(f"SECURITY_EVENT [{event_type}] Severity:{severity} Desc:{description}")
+
+            # Automatically sync to MongoDB Atlas
+            sync_save_to_mongodb("security_events", {
+                "event_type": event_type,
+                "severity": severity,
+                "description": description,
+                "user_id": user_id,
+                "ip_address": ip_address
+            })
         except Exception as e:
             logger.error(f"Failed to record security event: {e}")

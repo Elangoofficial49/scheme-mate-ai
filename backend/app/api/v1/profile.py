@@ -6,6 +6,7 @@ from app.core.database import get_db
 from app.models.profile import EntrepreneurProfile
 from app.security.rbac import get_current_user_token
 from app.services.audit_service import AuditService
+from app.core.mongodb import sync_save_to_mongodb
 
 router = APIRouter(prefix="/profile", tags=["Entrepreneur Profile"])
 
@@ -92,6 +93,26 @@ def update_profile(req: ProfileUpdateRequest, payload: dict = Depends(get_curren
         
     db.commit()
     db.refresh(profile)
+
+    # Automatically save profile document to MongoDB Atlas
+    sync_save_to_mongodb("entrepreneur_profiles", {
+        "id": profile.id,
+        "user_id": profile.user_id,
+        "full_name": profile.full_name,
+        "age": profile.age,
+        "gender": profile.gender,
+        "state": profile.state,
+        "district": profile.district,
+        "category": profile.category,
+        "company_name": profile.company_name,
+        "business_description": profile.business_description,
+        "annual_income": profile.annual_income,
+        "funding_requirement": profile.funding_requirement,
+        "certificate_type": profile.certificate_type,
+        "certificate_number": profile.certificate_number,
+        "has_udyam_registration": profile.has_udyam_registration,
+        "education_level": profile.education_level
+    }, query_filter={"user_id": profile.user_id})
 
     AuditService.log_action(db, "PROFILE_UPDATE", user_id=user_id)
 
