@@ -120,7 +120,7 @@ def register(req: RegisterRequest, db: Session = Depends(get_db)):
         "phone": target_user.phone,
         "email": target_user.email,
         "full_name": target_user.full_name,
-        "role": target_user.role or "USER",
+        "role": getattr(target_user, "role", None) or getattr(req, "role", "USER"),
         "is_verified": target_user.is_verified,
         "created_at": str(target_user.created_at) if hasattr(target_user, "created_at") else None
     }, query_filter={"email": target_user.email})
