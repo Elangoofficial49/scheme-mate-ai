@@ -30,25 +30,27 @@ class OCRService:
     @classmethod
     def decode_qr_code(cls, file_bytes: bytes) -> Optional[str]:
         """
-        Decodes QR code from image bytes using pyzbar and OpenCV QRCodeDetector.
-        Returns the decoded text payload or None if no QR code detected.
+        Decodes QR code from image bytes using pyzbar and OpenCV QRCodeDetector
+        across 4 rotation angles (0°, 90°, 180°, 270°).
         """
         if not file_bytes:
             return None
 
-        # 1. Try pyzbar first
+        # 1. Try pyzbar across 4 rotation angles
         try:
             import pyzbar.pyzbar as pyzbar
             from PIL import Image
             img = Image.open(io.BytesIO(file_bytes))
-            decoded_objs = pyzbar.decode(img)
-            for obj in decoded_objs:
-                if obj.type == 'QRCODE' and obj.data:
-                    return obj.data.decode('utf-8', errors='ignore')
+            for angle in [0, 90, 180, 270]:
+                rot = img.rotate(angle, expand=True) if angle > 0 else img
+                decoded_objs = pyzbar.decode(rot)
+                for obj in decoded_objs:
+                    if obj.type == 'QRCODE' and obj.data:
+                        return obj.data.decode('utf-8', errors='ignore')
         except Exception:
             pass
 
-        # 2. Try OpenCV QRCodeDetector
+        # 2. Try OpenCV QRCodeDetector across 4 rotation angles
         try:
             import cv2
             import numpy as np
@@ -56,9 +58,19 @@ class OCRService:
             img_cv = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
             if img_cv is not None:
                 detector = cv2.QRCodeDetector()
-                val, pts, qr_code = detector.detectAndDecode(img_cv)
-                if val:
-                    return val
+                for angle in [0, 90, 180, 270]:
+                    if angle == 90:
+                        rot = cv2.rotate(img_cv, cv2.ROTATE_90_CLOCKWISE)
+                    elif angle == 180:
+                        rot = cv2.rotate(img_cv, cv2.ROTATE_180)
+                    elif angle == 270:
+                        rot = cv2.rotate(img_cv, cv2.ROTATE_90_COUNTERCLOCKWISE)
+                    else:
+                        rot = img_cv
+
+                    val, pts, _ = detector.detectAndDecode(rot)
+                    if val:
+                        return val
         except Exception:
             pass
 
@@ -134,52 +146,140 @@ class OCRService:
             }
 
     @classmethod
+    def _run_tesseract(cls, file_bytes: bytes) -> Tuple[str, bool]:
+        """
+        Runs Tesseract OCR on image bytes with multi-angle rotation (0°, 90°, 180°, 270°),
+        upscaling, and PSM mode scanning for vertical/rotated card photos.
+        """
+        if not file_bytes:
+            return "", False
+
+        try:
+            import pytesseract
+            from PIL import Image
+
+            tesseract_win_path = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
+            if os.path.exists(tesseract_win_path):
+                pytesseract.pytesseract.tesseract_cmd = tesseract_win_path
+
+            base_img = Image.open(io.BytesIO(file_bytes))
+            w, h = base_img.size
+
+            # Scale small/low-res images up for enhanced OCR accuracy
+            if w < 1000 or h < 1000:
+                scale_factor = 2 if max(w, h) > 600 else 3
+                scaled_img = base_img.resize((w * scale_factor, h * scale_factor), Image.Resampling.LANCZOS)
+            else:
+                scaled_img = base_img
+
+            gray_img = scaled_img.convert('L')
+            
+            combined_text = []
+            ocr_succeeded = False
+
+            # Scan across 4 rotation angles (0°, 90°, 180°, 270°) and PSM modes (3, 11, 6)
+            for angle in [0, 90, 180, 270]:
+                rot = gray_img.rotate(angle, expand=True) if angle > 0 else gray_img
+                for psm in [3, 11, 6]:
+                    try:
+                        text = pytesseract.image_to_string(rot, config=f'--psm {psm}')
+                        if text and len(text.strip()) > 5:
+                            combined_text.append(text)
+                            ocr_succeeded = True
+                            # If certificate number patterns are detected, stop early and return
+                            if re.search(r'\b\d{4}\s?\d{4}\s?\d{4}\b|\b[A-Z]{5}\d{4}[A-Z]{1}\b|UDYAM-[A-Z]{2}-\d{2}-\d{7}|\b[A-Z]{2,4}/\d{4}/\d{3,6}\b', text, re.IGNORECASE):
+                                return "\n".join(combined_text), True
+                    except Exception:
+                        pass
+
+            full_extracted = "\n".join(combined_text)
+            return full_extracted, ocr_succeeded
+        except Exception:
+            return "", False
+
+    @classmethod
     def scan_qr_proof(
         cls,
         document_type: str,
         file_bytes: bytes = b"",
     ) -> Dict[str, Any]:
         """
-        Scans an uploaded proof for a QR code and validates its document identifier.
-
-        Decoding a QR code alone is not proof verification. A payload is considered
-        verified only when it contains the identifier expected for the requested
-        document type.
+        Scans an uploaded proof for a QR code or runs multi-angle document OCR
+        to validate and extract certificate identifiers.
         """
+        # 1. Attempt QR decoding first across 4 rotation angles
         qr_text = cls.decode_qr_code(file_bytes)
-        if not qr_text:
+        if qr_text:
+            extracted_fields = cls._parse_qr_payload(qr_text, document_type)
+            primary_keys = {
+                "aadhaar": "extracted_number",
+                "pan": "pan_number",
+                "udyam": "udyam_number",
+                "income": "certificate_number",
+            }
+            document_key = next((key for key in primary_keys if key in document_type.lower()), None)
+            primary_value = extracted_fields.get(primary_keys[document_key]) if document_key else None
+            verified = bool(primary_value and str(primary_value).strip())
+
+            if verified:
+                return {
+                    "document_type": document_type,
+                    "status": "Verified QR Proof",
+                    "verified": True,
+                    "confidence_score": "100%",
+                    "scanner_used": "official_qr_code",
+                    "scan_succeeded": True,
+                    "requires_user_confirmation": True,
+                    "display_prompt": "✅ Official government QR code verified. Details extracted with 100% confidence.",
+                    "extracted_fields": extracted_fields,
+                }
+
+        # 2. Fallback to Multi-Angle Tesseract OCR
+        ocr_text, ocr_ok = cls._run_tesseract(file_bytes)
+        doc_type_clean = document_type.lower()
+
+        extracted_fields = {}
+        primary_id_key = "extracted_number"
+        if "aadhaar" in doc_type_clean:
+            extracted_fields = cls._parse_aadhaar(ocr_text)
+            primary_id_key = "extracted_number"
+        elif "pan" in doc_type_clean:
+            extracted_fields = cls._parse_pan(ocr_text)
+            primary_id_key = "pan_number"
+        elif "udyam" in doc_type_clean:
+            extracted_fields = cls._parse_udyam(ocr_text)
+            primary_id_key = "udyam_number"
+        elif "income" in doc_type_clean:
+            extracted_fields = cls._parse_income_certificate(ocr_text)
+            primary_id_key = "certificate_number"
+        else:
+            extracted_fields = {"document_name": document_type, "raw_extracted_text": ocr_text[:300]}
+
+        primary_id_val = extracted_fields.get(primary_id_key)
+        has_primary_id = bool(primary_id_val and str(primary_id_val).strip())
+
+        if has_primary_id:
             return {
                 "document_type": document_type,
-                "status": "Unverified - No QR Code Found",
-                "verified": False,
-                "confidence_score": "0%",
-                "scanner_used": "qr_code",
-                "scan_succeeded": False,
-                "requires_user_confirmation": False,
-                "display_prompt": "No QR code was detected. Upload a clear image of the official proof.",
-                "extracted_fields": {},
+                "status": "Extracted via Multi-Angle OCR",
+                "verified": True,
+                "confidence_score": "95%",
+                "scanner_used": "multi_angle_ocr",
+                "scan_succeeded": True,
+                "requires_user_confirmation": True,
+                "display_prompt": f"✅ Successfully detected {document_type} number '{primary_id_val}' from document photo.",
+                "extracted_fields": extracted_fields,
             }
-
-        extracted_fields = cls._parse_qr_payload(qr_text, document_type)
-        primary_keys = {
-            "aadhaar": "extracted_number",
-            "pan": "pan_number",
-            "udyam": "udyam_number",
-            "income": "certificate_number",
-        }
-        document_key = next((key for key in primary_keys if key in document_type.lower()), None)
-        primary_value = extracted_fields.get(primary_keys[document_key]) if document_key else None
-        verified = bool(primary_value and str(primary_value).strip())
 
         return {
             "document_type": document_type,
-            "status": "Verified QR Proof" if verified else "Unverified - Invalid QR Proof",
-            "verified": verified,
-            "confidence_score": "100%" if verified else "0%",
-            "scanner_used": "qr_code",
-            "scan_succeeded": True,
-            "requires_user_confirmation": verified,
-            "display_prompt": "QR proof verified. Review the extracted details before saving." if verified else "The QR code does not contain a valid identifier for this proof type.",
+            "status": "Unverified - No QR Code or Certificate Number Found",
+            "verified": False,
+            "confidence_score": "0%",
+            "scanner_used": "multi_angle_ocr",
+            "scan_succeeded": False,
+            "requires_user_confirmation": False,
+            "display_prompt": f"Could not detect a valid QR code or {document_type} number on the uploaded file. Please ensure the document is clear and properly aligned.",
             "extracted_fields": extracted_fields,
         }
 

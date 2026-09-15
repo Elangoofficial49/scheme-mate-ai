@@ -103,6 +103,32 @@ class ApiClient {
     }
   }
 
+  static Future<Map<String, dynamic>> uploadDocument(List<int> bytes, String fileName, String documentType) async {
+    try {
+      final uri = Uri.parse("$baseUrl/documents/upload");
+      var request = http.MultipartRequest('POST', uri);
+
+      if (authToken != null) {
+        request.headers['Authorization'] = 'Bearer $authToken';
+      }
+
+      request.fields['document_type'] = documentType;
+      request.files.add(
+        http.MultipartFile.fromBytes(
+          'file',
+          bytes,
+          filename: fileName,
+        ),
+      );
+
+      var streamedResponse = await request.send().timeout(const Duration(seconds: 45));
+      var response = await http.Response.fromStream(streamedResponse);
+      return _processResponse(response);
+    } catch (e) {
+      return {"success": false, "error": {"message": "Upload error: $e"}};
+    }
+  }
+
   static Map<String, dynamic> _processResponse(http.Response response) {
     try {
       final data = json.decode(response.body);

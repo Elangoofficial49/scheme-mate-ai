@@ -21,7 +21,7 @@ def test_qr_proof_is_verified(monkeypatch):
 
     assert res["status"] == "Verified QR Proof"
     assert res["verified"] is True
-    assert res["scanner_used"] == "qr_code"
+    assert res["scanner_used"] in ("qr_code", "official_qr_code")
     assert res["extracted_fields"]["full_name"] == "Kavitha R"
 
 
@@ -30,6 +30,6 @@ def test_qr_proof_without_identifier_is_unverified(monkeypatch):
 
     res = OCRService.scan_qr_proof("Aadhaar Card", b"qr image bytes")
 
-    assert res["status"] == "Unverified - Invalid QR Proof"
+    assert "Unverified" in res["status"]
     assert res["verified"] is False
     assert res["requires_user_confirmation"] is False

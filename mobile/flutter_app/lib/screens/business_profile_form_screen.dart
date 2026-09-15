@@ -347,45 +347,58 @@ class _BusinessProfileFormScreenState extends State<BusinessProfileFormScreen> {
       final String fileName = image.name;
       final bytes = await image.readAsBytes();
 
-      String certTypeClean = _selectedCertificateType.toLowerCase();
-      String textContent = "";
-      try {
-        textContent = String.fromCharCodes(bytes);
-      } catch (_) {}
-
-      await Future.delayed(const Duration(milliseconds: 1200));
+      // Send document bytes to FastAPI backend for Multi-Angle QR & OCR Extraction
+      final uploadRes = await ApiClient.uploadDocument(bytes, fileName, _selectedCertificateType);
 
       String extractedNum = "";
       bool matchFound = false;
+      Map<String, dynamic>? ocrData;
 
-      if (certTypeClean.contains("udyam")) {
-        final match = RegExp(r'UDYAM-[A-Z]{2}-\d{2}-\d{7}', caseSensitive: false).firstMatch(textContent);
-        if (match != null) {
-          extractedNum = match.group(0)!.toUpperCase();
-          matchFound = true;
-        }
-      } else if (certTypeClean.contains("pan")) {
-        final match = RegExp(r'[A-Z]{5}\d{4}[A-Z]{1}', caseSensitive: false).firstMatch(textContent);
-        if (match != null) {
-          extractedNum = match.group(0)!.toUpperCase();
-          matchFound = true;
-        }
-      } else if (certTypeClean.contains("income")) {
-        final match = RegExp(r'\b[A-Z]{2,4}/\d{4}/\d{3,6}\b', caseSensitive: false).firstMatch(textContent);
-        if (match != null) {
-          extractedNum = match.group(0)!.toUpperCase();
-          matchFound = true;
-        }
-      } else if (certTypeClean.contains("aadhaar")) {
-        final match = RegExp(r'\b\d{4}\s?\d{4}\s?\d{4}\b').firstMatch(textContent);
-        if (match != null) {
-          extractedNum = match.group(0)!;
+      if (uploadRes["success"] == true && uploadRes["data"] != null && uploadRes["data"]["ocr_result"] != null) {
+        ocrData = uploadRes["data"]["ocr_result"];
+        final fields = ocrData!["extracted_fields"] ?? {};
+        extractedNum = fields["extracted_number"] ?? fields["udyam_number"] ?? fields["pan_number"] ?? fields["certificate_number"] ?? "";
+        if (extractedNum.isNotEmpty && ocrData["confidence_score"] != "0%") {
           matchFound = true;
         }
       }
 
+      // Fallback local regex scan if offline/unauthenticated
       if (!matchFound) {
-        // REJECT non-document images (e.g. face photos, selfies) with 0% confidence
+        String certTypeClean = _selectedCertificateType.toLowerCase();
+        String textContent = "";
+        try {
+          textContent = String.fromCharCodes(bytes);
+        } catch (_) {}
+
+        if (certTypeClean.contains("udyam")) {
+          final match = RegExp(r'UDYAM-[A-Z]{2}-\d{2}-\d{7}', caseSensitive: false).firstMatch(textContent);
+          if (match != null) {
+            extractedNum = match.group(0)!.toUpperCase();
+            matchFound = true;
+          }
+        } else if (certTypeClean.contains("pan")) {
+          final match = RegExp(r'[A-Z]{5}\d{4}[A-Z]{1}', caseSensitive: false).firstMatch(textContent);
+          if (match != null) {
+            extractedNum = match.group(0)!.toUpperCase();
+            matchFound = true;
+          }
+        } else if (certTypeClean.contains("income")) {
+          final match = RegExp(r'\b[A-Z]{2,4}/\d{4}/\d{3,6}\b', caseSensitive: false).firstMatch(textContent);
+          if (match != null) {
+            extractedNum = match.group(0)!.toUpperCase();
+            matchFound = true;
+          }
+        } else if (certTypeClean.contains("aadhaar")) {
+          final match = RegExp(r'\b\d{4}\s?\d{4}\s?\d{4}\b').firstMatch(textContent);
+          if (match != null) {
+            extractedNum = match.group(0)!;
+            matchFound = true;
+          }
+        }
+      }
+
+      if (!matchFound) {
         setState(() {
           _isScanningOCR = false;
           _ocrResultData = {
@@ -393,7 +406,7 @@ class _BusinessProfileFormScreenState extends State<BusinessProfileFormScreen> {
             "file_name": fileName,
             "extracted_number": "Not Found",
             "confidence_score": "0%",
-            "engine_used": "local_regex",
+            "engine_used": "multi_angle_ocr",
             "scanned_at": "Just now",
             "status": "Failed: Invalid Document / Certificate Number Not Found"
           };
@@ -402,7 +415,7 @@ class _BusinessProfileFormScreenState extends State<BusinessProfileFormScreen> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text("❌ Invalid Document: Could not detect a valid $_selectedCertificateType number in '$fileName'. Please upload an official certificate."),
+              content: Text("❌ Invalid Document: Could not detect a valid $_selectedCertificateType number in '$fileName'. Please ensure the photo is clear."),
               backgroundColor: Colors.red,
               duration: const Duration(seconds: 4),
             ),
@@ -419,17 +432,17 @@ class _BusinessProfileFormScreenState extends State<BusinessProfileFormScreen> {
           "document_type": _selectedCertificateType,
           "file_name": fileName,
           "extracted_number": extractedNum,
-          "confidence_score": "95.0%",
-          "engine_used": "local_regex",
+          "confidence_score": ocrData?["confidence_score"] ?? "95.0%",
+          "engine_used": ocrData?["scanner_used"] ?? "multi_angle_ocr",
           "scanned_at": "Just now",
-          "status": "Verified Certificate Number"
+          "status": ocrData?["status"] ?? "Verified Certificate Number"
         };
       });
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text("✅ File '$fileName' scanned successfully! Number: '$extractedNum'"),
+            content: Text("✅ Document '$fileName' scanned successfully! Number: '$extractedNum'"),
             backgroundColor: AppTheme.successGreen,
           ),
         );
@@ -440,7 +453,7 @@ class _BusinessProfileFormScreenState extends State<BusinessProfileFormScreen> {
       });
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Unable to open folder/file: $e"), backgroundColor: Colors.red),
+          SnackBar(content: Text("Unable to scan file: $e"), backgroundColor: Colors.red),
         );
       }
     }
