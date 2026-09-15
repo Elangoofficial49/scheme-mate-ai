@@ -356,23 +356,62 @@ class _BusinessProfileFormScreenState extends State<BusinessProfileFormScreen> {
       await Future.delayed(const Duration(milliseconds: 1200));
 
       String extractedNum = "";
+      bool matchFound = false;
+
       if (certTypeClean.contains("udyam")) {
         final match = RegExp(r'UDYAM-[A-Z]{2}-\d{2}-\d{7}', caseSensitive: false).firstMatch(textContent);
-        extractedNum = match != null ? match.group(0)!.toUpperCase() : "UDYAM-TN-03-0012345";
+        if (match != null) {
+          extractedNum = match.group(0)!.toUpperCase();
+          matchFound = true;
+        }
       } else if (certTypeClean.contains("pan")) {
         final match = RegExp(r'[A-Z]{5}\d{4}[A-Z]{1}', caseSensitive: false).firstMatch(textContent);
-        extractedNum = match != null ? match.group(0)!.toUpperCase() : "ABCDE1234F";
+        if (match != null) {
+          extractedNum = match.group(0)!.toUpperCase();
+          matchFound = true;
+        }
       } else if (certTypeClean.contains("income")) {
-        extractedNum = "INC/2026/98231";
-      } else if (certTypeClean.contains("community") || certTypeClean.contains("caste")) {
-        extractedNum = "COMM-OBC-2024-9812";
+        final match = RegExp(r'\b[A-Z]{2,4}/\d{4}/\d{3,6}\b', caseSensitive: false).firstMatch(textContent);
+        if (match != null) {
+          extractedNum = match.group(0)!.toUpperCase();
+          matchFound = true;
+        }
       } else if (certTypeClean.contains("aadhaar")) {
         final match = RegExp(r'\b\d{4}\s?\d{4}\s?\d{4}\b').firstMatch(textContent);
-        extractedNum = match != null ? match.group(0)! : "3489 1204 9871";
-      } else {
-        extractedNum = "CERT/2026/77812";
+        if (match != null) {
+          extractedNum = match.group(0)!;
+          matchFound = true;
+        }
       }
 
+      if (!matchFound) {
+        // REJECT non-document images (e.g. face photos, selfies) with 0% confidence
+        setState(() {
+          _isScanningOCR = false;
+          _ocrResultData = {
+            "document_type": _selectedCertificateType,
+            "file_name": fileName,
+            "extracted_number": "Not Found",
+            "confidence_score": "0%",
+            "engine_used": "local_regex",
+            "scanned_at": "Just now",
+            "status": "Failed: Invalid Document / Certificate Number Not Found"
+          };
+        });
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text("❌ Invalid Document: Could not detect a valid $_selectedCertificateType number in '$fileName'. Please upload an official certificate."),
+              backgroundColor: Colors.red,
+              duration: const Duration(seconds: 4),
+            ),
+          );
+        }
+        return;
+      }
+
+      // Success branch: Certificate Number successfully detected
       setState(() {
         _certificateNumberController.text = extractedNum;
         _isScanningOCR = false;
@@ -380,17 +419,17 @@ class _BusinessProfileFormScreenState extends State<BusinessProfileFormScreen> {
           "document_type": _selectedCertificateType,
           "file_name": fileName,
           "extracted_number": extractedNum,
-          "confidence_score": "98.2%",
+          "confidence_score": "95.0%",
           "engine_used": "local_regex",
           "scanned_at": "Just now",
-          "status": "Verified via System Folder File Upload"
+          "status": "Verified Certificate Number"
         };
       });
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text("✅ File '$fileName' uploaded from folder & scanned! Number: '$extractedNum'"),
+            content: Text("✅ File '$fileName' scanned successfully! Number: '$extractedNum'"),
             backgroundColor: AppTheme.successGreen,
           ),
         );
