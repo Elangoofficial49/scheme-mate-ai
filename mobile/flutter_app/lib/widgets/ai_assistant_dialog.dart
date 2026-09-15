@@ -30,9 +30,9 @@ class _AiAssistantDialogState extends State<AiAssistantDialog> {
     _controller.clear();
 
     final localeProv = Provider.of<LocaleProvider>(context, listen: false);
-    final langCode = localeProv.locale.languageCode;
+    final langCode = localeProv.languageCode;
 
-    try:
+    try {
       final res = await ApiClient.post('/api/v1/assistant/chat', {
         'message': userMsg,
         'lang': langCode,
