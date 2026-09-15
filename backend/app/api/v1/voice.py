@@ -93,3 +93,4 @@ def stream_tts_audio(text: str = Query(..., description="Text to synthesize"), l
         return StreamingResponse(mp3_fp, media_type="audio/mpeg")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Audio streaming failed: {str(e)}")
+
