@@ -49,7 +49,6 @@ jobs:
       - name: 6. Flutter Static Analysis and Tests
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: "stable"
           channel: stable
 
       - name: Check Flutter project
