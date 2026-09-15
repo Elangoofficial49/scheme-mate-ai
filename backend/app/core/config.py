@@ -1,5 +1,6 @@
 import os
-from typing import List, Optional
+from typing import List, Optional, Union
+from pydantic import field_validator
 from pydantic_settings import BaseSettings
 from dotenv import load_dotenv
 
@@ -15,7 +16,19 @@ class Settings(BaseSettings):
     
     # Environment
     ENVIRONMENT: str = "development"
-    DEBUG: bool = True
+    DEBUG: Union[bool, str] = True
+
+    @field_validator("DEBUG", mode="before")
+    @classmethod
+    def parse_debug(cls, v):
+        if isinstance(v, bool):
+            return v
+        if isinstance(v, str):
+            if v.lower() in ("true", "1", "yes", "on"):
+                return True
+            if v.lower() in ("false", "0", "no", "off"):
+                return False
+        return True
     
     # Security
     JWT_SECRET: str = "schememate_ai_super_secret_jwt_key_2026_change_in_production"

@@ -105,3 +105,110 @@ def confirm_extraction(req: ConfirmExtractionRequest, payload: dict = Depends(ge
         "message": "Document details verified and updated in user profile.",
         "data": req.confirmed_data
     }
+
+class AutoFillProfileRequest(BaseModel):
+    document_type: str
+    extracted_fields: Dict[str, Any]
+
+@router.post("/auto-fill-profile")
+def auto_fill_profile_from_ocr(
+    req: AutoFillProfileRequest,
+    payload: dict = Depends(get_current_user_token),
+    db: Session = Depends(get_db)
+):
+    """
+    Applies OCR-extracted document fields directly to the entrepreneur profile.
+    Automatically syncs to SQLite database and MongoDB Atlas.
+    """
+    from app.models.profile import EntrepreneurProfile
+    from app.core.mongodb import sync_save_to_mongodb
+
+    user_id = payload.get("sub")
+    profile = db.query(EntrepreneurProfile).filter(EntrepreneurProfile.user_id == user_id).first()
+    if not profile:
+        profile = EntrepreneurProfile(user_id=user_id)
+        db.add(profile)
+
+    fields = req.extracted_fields
+    updated_keys = []
+
+    # Aadhaar fields
+    if fields.get("full_name"):
+        profile.full_name = fields["full_name"]
+        updated_keys.append("full_name")
+    if fields.get("gender"):
+        profile.gender = fields["gender"]
+        updated_keys.append("gender")
+    if fields.get("state"):
+        profile.state = fields["state"]
+        updated_keys.append("state")
+
+    # PAN / Certificate fields
+    if fields.get("pan_number"):
+        profile.certificate_number = fields["pan_number"]
+        profile.certificate_type = "PAN"
+        profile.certificate_uploaded = True
+        updated_keys.append("certificate_number")
+    elif fields.get("certificate_number"):
+        profile.certificate_number = fields["certificate_number"]
+        profile.certificate_uploaded = True
+        updated_keys.append("certificate_number")
+
+    # Udyam Registration fields
+    if fields.get("udyam_number"):
+        profile.has_udyam_registration = True
+        profile.certificate_number = fields["udyam_number"]
+        profile.certificate_type = "Udyam"
+        profile.certificate_uploaded = True
+        updated_keys.append("has_udyam_registration")
+    if fields.get("enterprise_name"):
+        profile.company_name = fields["enterprise_name"]
+        updated_keys.append("company_name")
+    if fields.get("major_activity"):
+        profile.business_type = fields["major_activity"]
+        updated_keys.append("business_type")
+
+    # Income Certificate fields
+    if fields.get("annual_family_income") is not None:
+        try:
+            profile.annual_income = float(fields["annual_family_income"])
+            updated_keys.append("annual_income")
+        except ValueError:
+            pass
+
+    db.commit()
+    db.refresh(profile)
+
+    # Sync profile to MongoDB Atlas automatically
+    sync_save_to_mongodb("entrepreneur_profiles", {
+        "id": profile.id,
+        "user_id": profile.user_id,
+        "full_name": profile.full_name,
+        "age": profile.age,
+        "gender": profile.gender,
+        "state": profile.state,
+        "district": profile.district,
+        "category": profile.category,
+        "company_name": profile.company_name,
+        "business_type": profile.business_type,
+        "annual_income": profile.annual_income,
+        "certificate_type": profile.certificate_type,
+        "certificate_number": profile.certificate_number,
+        "has_udyam_registration": profile.has_udyam_registration
+    }, query_filter={"user_id": profile.user_id})
+
+    AuditService.log_action(db, "PROFILE_AUTOFILL_OCR", user_id=user_id, details=f"Document: {req.document_type}, Updated: {', '.join(updated_keys)}")
+
+    return {
+        "success": True,
+        "message": f"Successfully auto-filled {len(updated_keys)} profile fields from your {req.document_type}!",
+        "updated_fields": updated_keys,
+        "data": {
+            "full_name": profile.full_name,
+            "company_name": profile.company_name,
+            "business_type": profile.business_type,
+            "annual_income": profile.annual_income,
+            "has_udyam_registration": profile.has_udyam_registration,
+            "certificate_number": profile.certificate_number
+        }
+    }
