@@ -1,11 +1,58 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 
 class ApiClient {
-  // Configured default local server URL
-  static String get baseUrl => kIsWeb ? "http://localhost:8000/api/v1" : "http://10.0.2.2:8000/api/v1";
+  static const _storage = FlutterSecureStorage();
+  static const _configuredBaseUrl = String.fromEnvironment('API_BASE_URL');
+  static String get baseUrl => _configuredBaseUrl.isNotEmpty
+      ? _configuredBaseUrl
+      : (kIsWeb ? "http://localhost:8000/api/v1" : "http://10.0.2.2:8000/api/v1");
   static String? authToken;
+  static String? refreshToken;
+
+  static Future<void> restoreSession() async {
+    authToken = await _storage.read(key: 'access_token');
+    refreshToken = await _storage.read(key: 'refresh_token');
+  }
+
+  static Future<void> _saveTokens(String access, String refresh) async {
+    authToken = access;
+    refreshToken = refresh;
+    await _storage.write(key: 'access_token', value: access);
+    await _storage.write(key: 'refresh_token', value: refresh);
+  }
+
+  static Future<void> saveTokens(String access, String refresh) async {
+    await _saveTokens(access, refresh);
+  }
+
+  static Future<void> clearSession() async {
+    authToken = null;
+    refreshToken = null;
+    await _storage.delete(key: 'access_token');
+    await _storage.delete(key: 'refresh_token');
+  }
+
+  static Future<bool> refreshSession() async {
+    if (refreshToken == null) return false;
+    try {
+      final response = await http.post(
+        Uri.parse("$baseUrl/auth/refresh"),
+        headers: {"Content-Type": "application/json", "Accept": "application/json"},
+        body: json.encode({"refresh_token": refreshToken}),
+      ).timeout(const Duration(seconds: 15));
+      final data = _processResponse(response);
+      if (data["success"] == true && data["data"] != null) {
+        await _saveTokens(data["data"]["access_token"], data["data"]["refresh_token"]);
+        return true;
+      }
+    } catch (_) {
+      return false;
+    }
+    return false;
+  }
 
   static Map<String, String> _headers() {
     Map<String, String> headers = {

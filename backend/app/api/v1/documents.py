@@ -2,8 +2,11 @@ from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form
 from pydantic import BaseModel
 from typing import Optional, Dict, Any
 from sqlalchemy.orm import Session
-import os, uuid
+import json
+import os
+import uuid
 from app.core.database import get_db
+from app.core.config import settings
 from app.models.document import Document, DocumentExtraction
 from app.services.ocr_service import OCRService
 from app.security.rbac import get_current_user_token
@@ -32,7 +35,7 @@ async def upload_document(
         raise HTTPException(status_code=400, detail={"code": "INVALID_FILE", "message": err_msg})
 
     # Save file safely to storage folder
-    storage_dir = os.path.join(os.path.dirname(__file__), "../../../uploads")
+    storage_dir = os.path.abspath(settings.UPLOAD_DIR)
     os.makedirs(storage_dir, exist_ok=True)
     file_id = str(uuid.uuid4())
     safe_filename = f"{file_id}_{os.path.basename(file.filename)}"
@@ -53,19 +56,13 @@ async def upload_document(
     db.add(doc)
     db.commit()
 
-    # 2. Run OCR extraction
-    text_content = ""
-    try:
-        text_content = contents.decode("utf-8", errors="ignore")
-    except Exception:
-        text_content = ""
-        
-    ocr_result = OCRService.process_document_ocr(document_type, text_content, contents)
+    # 2. Scan the proof QR code and verify its payload
+    ocr_result = OCRService.scan_qr_proof(document_type, contents)
 
     extraction = DocumentExtraction(
         document_id=doc.id,
-        extracted_text=text_content[:500],
-        extracted_data_json=str(ocr_result["extracted_fields"]),
+        extracted_text="",
+        extracted_data_json=json.dumps(ocr_result["extracted_fields"], ensure_ascii=True),
         confidence_score=ocr_result["confidence_score"]
     )
     db.add(extraction)
@@ -83,6 +80,24 @@ async def upload_document(
             "ocr_result": ocr_result
         }
     }
+
+@router.delete("/{document_id}")
+def delete_document(
+    document_id: str,
+    payload: dict = Depends(get_current_user_token),
+    db: Session = Depends(get_db)
+):
+    user_id = payload.get("sub")
+    doc = db.query(Document).filter(Document.id == document_id, Document.user_id == user_id).first()
+    if not doc:
+        raise HTTPException(status_code=404, detail={"code": "NOT_FOUND", "message": "Document record not found"})
+
+    if doc.file_path and os.path.isfile(doc.file_path):
+        os.remove(doc.file_path)
+    db.delete(doc)
+    db.commit()
+    AuditService.log_action(db, "DOCUMENT_DELETE", user_id=user_id, resource=document_id)
+    return {"success": True, "message": "Document deleted successfully"}
 
 @router.post("/confirm")
 def confirm_extraction(req: ConfirmExtractionRequest, payload: dict = Depends(get_current_user_token), db: Session = Depends(get_db)):

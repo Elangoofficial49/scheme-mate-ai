@@ -10,17 +10,26 @@ def test_file_validation_safety():
     assert invalid_exe is False
     assert "Unsupported file extension" in msg_exe or "Executable" in msg_exe
 
-def test_ocr_aadhaar_extraction():
-    res = OCRService.process_document_ocr("Aadhaar Card", "Name: Kavitha R, Aadhaar No: 3489 1204 9871")
-    assert "Extracted" in res["status"]
-    assert res["requires_user_confirmation"] is True
+def test_qr_proof_is_verified(monkeypatch):
+    monkeypatch.setattr(
+        OCRService,
+        "decode_qr_code",
+        lambda file_bytes: '<PrintLetterBarcodeData uid="348912049871" name="Kavitha R" />',
+    )
+
+    res = OCRService.scan_qr_proof("Aadhaar Card", b"qr image bytes")
+
+    assert res["status"] == "Verified QR Proof"
+    assert res["verified"] is True
+    assert res["scanner_used"] == "qr_code"
     assert res["extracted_fields"]["full_name"] == "Kavitha R"
 
-def test_qr_code_payload_parsing():
-    qr_payload = '<PrintLetterBarcodeData uid="987654321098" name="Senthil Kumar" gender="M" dob="15/08/1985"/>'
-    res = OCRService._parse_qr_payload(qr_payload, "Aadhaar Card")
-    assert res["extracted_number"] == "987654321098"
-    assert res["full_name"] == "Senthil Kumar"
-    assert res["gender"] == "Male"
-    assert res["verification_method"] == "Official Cryptographic QR Code"
 
+def test_qr_proof_without_identifier_is_unverified(monkeypatch):
+    monkeypatch.setattr(OCRService, "decode_qr_code", lambda file_bytes: "not a certificate proof")
+
+    res = OCRService.scan_qr_proof("Aadhaar Card", b"qr image bytes")
+
+    assert res["status"] == "Unverified - Invalid QR Proof"
+    assert res["verified"] is False
+    assert res["requires_user_confirmation"] is False

@@ -7,9 +7,7 @@ services:
     environment:
       POSTGRES_DB: schememate
       POSTGRES_USER: schememate_user
-      POSTGRES_PASSWORD: schememate_password
-    ports:
-      - "5432:5432"
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
     volumes:
       - pgdata:/var/lib/postgresql/data
       - ./infrastructure/docker/init_pgvector.sql:/docker-entrypoint-initdb.d/init_pgvector.sql
@@ -22,8 +20,6 @@ services:
   redis:
     image: redis:7-alpine
     container_name: schememate-redis
-    ports:
-      - "6379:6379"
 
   backend:
     build:
@@ -31,12 +27,17 @@ services:
       dockerfile: Dockerfile
     container_name: schememate-backend
     environment:
-      - DATABASE_URL=postgresql://schememate_user:schememate_password@postgres:5432/schememate
+      - DATABASE_URL=postgresql://schememate_user:${POSTGRES_PASSWORD}@postgres:5432/schememate
       - REDIS_URL=redis://redis:6379/0
-      - JWT_SECRET=schememate_ai_super_secret_jwt_key_2026_change_in_production
-      - JWT_REFRESH_SECRET=schememate_ai_super_secret_refresh_key_2026_change_in_production
+      - JWT_SECRET=${JWT_SECRET:?Set JWT_SECRET in .env}
+      - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET:?Set JWT_REFRESH_SECRET in .env}
+      - ENVIRONMENT=${ENVIRONMENT:-production}
+      - DEBUG=${DEBUG:-false}
       - AI_PROVIDER=local
       - OCR_PROVIDER=tesseract
+      - UPLOAD_DIR=/var/lib/schememate/uploads
+    volumes:
+      - uploads:/var/lib/schememate/uploads
     ports:
       - "8000:8000"
     depends_on:
@@ -44,6 +45,11 @@ services:
         condition: service_healthy
       redis:
         condition: service_started
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
 
   nginx:
     image: nginx:alpine
@@ -57,4 +63,5 @@ services:
 
 volumes:
   pgdata:
+  uploads:
 

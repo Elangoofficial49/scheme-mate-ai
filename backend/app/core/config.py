@@ -16,7 +16,7 @@ class Settings(BaseSettings):
     
     # Environment
     ENVIRONMENT: str = "development"
-    DEBUG: Union[bool, str] = True
+    DEBUG: Union[bool, str] = False
 
     @field_validator("DEBUG", mode="before")
     @classmethod
@@ -31,8 +31,8 @@ class Settings(BaseSettings):
         return True
     
     # Security
-    JWT_SECRET: str = "schememate_ai_super_secret_jwt_key_2026_change_in_production"
-    JWT_REFRESH_SECRET: str = "schememate_ai_super_secret_refresh_key_2026_change_in_production"
+    JWT_SECRET: str = ""
+    JWT_REFRESH_SECRET: str = ""
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
     REFRESH_TOKEN_EXPIRE_DAYS: int = 7
@@ -66,6 +66,8 @@ class Settings(BaseSettings):
     
     # OCR Provider
     OCR_PROVIDER: str = "local_regex"  # "tesseract", "paddleocr", "local_regex"
+    UPLOAD_DIR: str = "uploads"
+    MAX_UPLOAD_SIZE_BYTES: int = 5 * 1024 * 1024
     
     # Email / SMTP Service
     SMTP_HOST: Optional[str] = "smtp.gmail.com"
@@ -88,3 +90,9 @@ class Settings(BaseSettings):
         extra = "allow"
 
 settings = Settings()
+
+if settings.ENVIRONMENT.lower() in {"production", "staging"}:
+    if len(settings.JWT_SECRET) < 32 or len(settings.JWT_REFRESH_SECRET) < 32:
+        raise RuntimeError("JWT_SECRET and JWT_REFRESH_SECRET must be at least 32 characters in non-development environments")
+    if settings.DEBUG:
+        raise RuntimeError("DEBUG must be disabled in non-development environments")

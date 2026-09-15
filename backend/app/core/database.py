@@ -27,6 +27,7 @@ def get_db() -> Generator:
         db.close()
 
 def init_db():
+    import app.models
     Base.metadata.create_all(bind=engine)
     try:
         from sqlalchemy import text
@@ -56,6 +57,34 @@ def init_db():
                 db.commit()
             except Exception:
                 db.rollback()
+
+        # Sync existing registered users from MongoDB Atlas
+        try:
+            from app.core.mongodb import mongo_manager, init_mongodb
+            if mongo_manager.sync_client is None:
+                init_mongodb()
+            if mongo_manager.sync_client is not None:
+                sync_db = mongo_manager.sync_client[settings.MONGODB_DB_NAME]
+                mongo_users = list(sync_db["users"].find({}))
+                for m_user in mongo_users:
+                    m_email = m_user.get("email")
+                    if m_email and "hashed_password" in m_user:
+                        existing = db.query(User).filter(User.email == m_email.lower()).first()
+                        if not existing:
+                            synced_u = User(
+                                id=m_user.get("id", str(os.urandom(16).hex())),
+                                phone=m_user.get("phone", "0000000000"),
+                                email=m_email.lower(),
+                                aadhaar_number=m_user.get("aadhaar_number"),
+                                hashed_password=m_user["hashed_password"],
+                                full_name=m_user.get("full_name", "Entrepreneur"),
+                                is_active=bool(m_user.get("is_active", 1)),
+                                is_verified=bool(m_user.get("is_verified", 1))
+                            )
+                            db.add(synced_u)
+                db.commit()
+        except Exception as sync_err:
+            pass
 
         # Seed data if schemes table empty
         count = db.query(Scheme).count()

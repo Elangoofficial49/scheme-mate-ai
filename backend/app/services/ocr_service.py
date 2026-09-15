@@ -2,17 +2,11 @@ import os
 import re
 import io
 from typing import Dict, Any, Tuple, Optional
-from app.core.config import settings
 
 
 class OCRService:
     """
-    Document Intelligence and OCR processing module.
-    Supports multiple OCR engines via settings.OCR_PROVIDER:
-    - local_regex (Default - Regex and rule-based pattern matching)
-    - tesseract (Pytesseract OCR Engine for image files)
-    - paddleocr (Multilingual PaddleOCR Engine)
-    - gemini (Gemini 2.0 Flash Vision AI Engine)
+    QR proof scanning and document payload validation service.
     """
 
     ALLOWED_EXTENSIONS = {".jpg", ".jpeg", ".png", ".pdf"}
@@ -32,27 +26,6 @@ class OCRService:
             return False, "Executable files are strictly rejected for security"
 
         return True, "File valid"
-
-    @classmethod
-    def _run_tesseract(cls, file_bytes: bytes) -> Tuple[str, bool]:
-        """
-        Runs Tesseract OCR on image bytes.
-        Returns (extracted_text, ocr_succeeded).
-        """
-        try:
-            from PIL import Image
-            import pytesseract
-
-            tesseract_win_path = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
-            if os.path.exists(tesseract_win_path):
-                pytesseract.pytesseract.tesseract_cmd = tesseract_win_path
-
-            image = Image.open(io.BytesIO(file_bytes))
-            text = pytesseract.image_to_string(image)
-            return text, True
-        except Exception:
-            # Tesseract binary/wrapper not available, or image failed to decode
-            return "", False
 
     @classmethod
     def decode_qr_code(cls, file_bytes: bytes) -> Optional[str]:
@@ -94,7 +67,7 @@ class OCRService:
     @classmethod
     def _parse_qr_payload(cls, qr_data: str, document_type: str) -> Dict[str, Any]:
         """
-        Parses official Indian government QR code payloads:
+        Parses supported Indian government QR payload formats:
         - Aadhaar XML (<PrintLetterBarcodeData ...>)
         - Udyam Registration URL / QR payload
         - PAN / Income Certificate e-District payload
@@ -130,143 +103,83 @@ class OCRService:
                 "full_name": name_match.group(1).strip() if name_match else None,
                 "date_of_birth": dob_match.group(1) if dob_match else (yob_match.group(1) if yob_match else None),
                 "gender": gender_val,
-                "verification_method": "Official Cryptographic QR Code"
+                "verification_method": "QR payload identifier validation"
             }
         elif "udyam" in doc_type_clean or udyam_match:
             return {
                 "document_name": "Udyam Certificate (QR Verified)",
                 "udyam_number": udyam_match.group(0).upper() if udyam_match else None,
                 "enterprise_name": enterprise_match.group(1).strip() if enterprise_match else None,
-                "verification_method": "Official Cryptographic QR Code"
+                "verification_method": "QR payload identifier validation"
             }
         elif "pan" in doc_type_clean or pan_match:
             return {
                 "document_name": "PAN Card (QR Verified)",
                 "pan_number": pan_match.group(0).upper() if pan_match else None,
                 "full_name": name_match.group(1).strip() if name_match else None,
-                "verification_method": "Official Cryptographic QR Code"
+                "verification_method": "QR payload identifier validation"
             }
         elif "income" in doc_type_clean or income_cert_match:
             return {
                 "document_name": "Income Certificate (QR Verified)",
                 "certificate_number": income_cert_match.group(0) if income_cert_match else None,
                 "full_name": name_match.group(1).strip() if name_match else None,
-                "verification_method": "Official Cryptographic QR Code"
+                "verification_method": "QR payload identifier validation"
             }
         else:
             return {
                 "document_name": f"{document_type} (QR Verified)",
                 "qr_raw_data": qr_data[:300],
-                "verification_method": "Official Cryptographic QR Code"
+                "verification_method": "QR payload identifier validation"
             }
 
     @classmethod
-    def process_document_ocr(
+    def scan_qr_proof(
         cls,
         document_type: str,
-        file_content_text: str = "",
         file_bytes: bytes = b"",
     ) -> Dict[str, Any]:
         """
-        Executes OCR and QR code extraction based on settings.OCR_PROVIDER and returns extracted entity fields.
+        Scans an uploaded proof for a QR code and validates its document identifier.
+
+        Decoding a QR code alone is not proof verification. A payload is considered
+        verified only when it contains the identifier expected for the requested
+        document type.
         """
-        # Step 0: Primary Method - Attempt Official QR Code Extraction from file_bytes
-        if file_bytes:
-            qr_text = cls.decode_qr_code(file_bytes)
-            if qr_text:
-                qr_extracted = cls._parse_qr_payload(qr_text, document_type)
-                return {
-                    "document_type": document_type,
-                    "status": "Verified via Official QR Code",
-                    "confidence_score": "100%",
-                    "ocr_engine_used": "official_qr_code",
-                    "ocr_succeeded": True,
-                    "requires_user_confirmation": True,
-                    "display_prompt": "✅ Document successfully verified using official government cryptographic QR code. All details extracted with 100% confidence.",
-                    "extracted_fields": qr_extracted,
-                }
-
-        provider = settings.OCR_PROVIDER.lower() if hasattr(settings, "OCR_PROVIDER") else "local_regex"
-        doc_type_clean = document_type.lower()
-        extracted_raw_text = file_content_text
-        ocr_ran_successfully = bool(file_content_text)
-
-        # 1. Attempt image text extraction if Tesseract / Local provider is selected and image bytes supplied
-        if provider in ("tesseract", "local_tesseract") and file_bytes:
-            extracted_raw_text, ocr_ran_successfully = cls._run_tesseract(file_bytes)
-
-        # 2. Extract embedded URLs from OCR text if present
-        urls_found = re.findall(r'https?://\S+|www\.\S+', extracted_raw_text) if extracted_raw_text else []
-
-        # 3. Parse extracted text using Document Entity Parsers
-        primary_id_key = "extracted_number"
-        if "aadhaar" in doc_type_clean:
-            extracted_fields = cls._parse_aadhaar(extracted_raw_text)
-            primary_id_key = "extracted_number"
-        elif "pan" in doc_type_clean:
-            extracted_fields = cls._parse_pan(extracted_raw_text)
-            primary_id_key = "pan_number"
-        elif "udyam" in doc_type_clean:
-            extracted_fields = cls._parse_udyam(extracted_raw_text)
-            primary_id_key = "udyam_number"
-        elif "income" in doc_type_clean:
-            extracted_fields = cls._parse_income_certificate(extracted_raw_text)
-            primary_id_key = "certificate_number"
-        else:
-            extracted_fields = {
-                "document_name": document_type,
-                "raw_extracted_text": extracted_raw_text[:300] if extracted_raw_text else None,
+        qr_text = cls.decode_qr_code(file_bytes)
+        if not qr_text:
+            return {
+                "document_type": document_type,
+                "status": "Unverified - No QR Code Found",
+                "verified": False,
+                "confidence_score": "0%",
+                "scanner_used": "qr_code",
+                "scan_succeeded": False,
+                "requires_user_confirmation": False,
+                "display_prompt": "No QR code was detected. Upload a clear image of the official proof.",
+                "extracted_fields": {},
             }
-            primary_id_key = None
 
-        if urls_found:
-            extracted_fields["extracted_urls"] = urls_found
-
-        # 4. Strict Document Validation & Real Confidence Calculation
-        # Check if the primary certificate number was detected
-        primary_id_value = extracted_fields.get(primary_id_key) if primary_id_key else None
-        has_primary_id = bool(primary_id_value and str(primary_id_value).strip())
-
-        # Count extracted auxiliary fields
-        extracted_keys = [
-            k for k, v in extracted_fields.items()
-            if k != "document_name" and v is not None and v != [] and str(v).strip() != ""
-        ]
-        auxiliary_field_count = len([k for k in extracted_keys if k != primary_id_key])
-
-        # Mandatory Document Verification:
-        # A valid certificate MUST have a detected Certificate/ID Number and legible text.
-        if not extracted_raw_text or len(extracted_raw_text.strip()) < 10:
-            status = "Invalid Document - No Text or Official QR Code Detected"
-            confidence = "0%"
-            ocr_succeeded = False
-            display_prompt = "The uploaded file appears to be a personal photo, selfie, or blank image without a valid government QR code or readable certificate text. Please upload a clear copy of your official government certificate."
-        elif primary_id_key and not has_primary_id:
-            # Rejection rule: Certificate number is missing or illegible
-            status = "Invalid Document - No Official QR Code or Certificate Number Found"
-            confidence = "0%"
-            ocr_succeeded = False
-            display_prompt = f"Could not detect a valid QR code or {document_type} number on the uploaded file. Face images, selfies, and non-document photos are not accepted as official certificates."
-        else:
-            # Real confidence score calculation based on extracted field richness
-            status = "Extracted"
-            if auxiliary_field_count >= 2:
-                confidence = "95%"
-            elif auxiliary_field_count == 1:
-                confidence = "80%"
-            else:
-                confidence = "65%"
-            ocr_succeeded = True
-            display_prompt = "Please review and confirm the information detected from your document below before saving to your profile."
+        extracted_fields = cls._parse_qr_payload(qr_text, document_type)
+        primary_keys = {
+            "aadhaar": "extracted_number",
+            "pan": "pan_number",
+            "udyam": "udyam_number",
+            "income": "certificate_number",
+        }
+        document_key = next((key for key in primary_keys if key in document_type.lower()), None)
+        primary_value = extracted_fields.get(primary_keys[document_key]) if document_key else None
+        verified = bool(primary_value and str(primary_value).strip())
 
         return {
             "document_type": document_type,
-            "status": status,
-            "confidence_score": confidence,
-            "ocr_engine_used": provider,
-            "ocr_succeeded": ocr_succeeded,
-            "requires_user_confirmation": True,
-            "display_prompt": display_prompt,
+            "status": "Verified QR Proof" if verified else "Unverified - Invalid QR Proof",
+            "verified": verified,
+            "confidence_score": "100%" if verified else "0%",
+            "scanner_used": "qr_code",
+            "scan_succeeded": True,
+            "requires_user_confirmation": verified,
+            "display_prompt": "QR proof verified. Review the extracted details before saving." if verified else "The QR code does not contain a valid identifier for this proof type.",
             "extracted_fields": extracted_fields,
         }
 

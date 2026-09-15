@@ -4,9 +4,10 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel, EmailStr, Field
 from typing import Optional
 from sqlalchemy.orm import Session
+from sqlalchemy import select
 from app.core.database import get_db
 from app.core.config import settings
-from app.models.user import User
+from app.models.user import User, user_roles
 from app.core.security import get_password_hash, verify_password, create_access_token, create_refresh_token, decode_refresh_token
 from app.services.audit_service import AuditService
 from app.services.email_service import EmailService
@@ -18,7 +19,7 @@ class RegisterRequest(BaseModel):
     full_name: str = Field(..., example="Ramesh Kumar")
     email: EmailStr = Field(..., example="ramesh@example.com")
     phone: str = Field(..., example="9876543210")
-    password: str = Field(..., min_length=6)
+    password: str = Field(..., min_length=8)
     aadhaar_number: Optional[str] = None
     role: str = "USER"
 
@@ -108,11 +109,9 @@ def register(req: RegisterRequest, db: Session = Depends(get_db)):
                     detail={"code": "REGISTRATION_ERROR", "message": "Account already exists with this phone or email. Please login."}
                 )
 
-    # Store exact same OTP in EmailService memory cache and send email
-    EmailService._otp_store[target_user.email] = {
-        "otp": otp,
-        "expires_at": target_user.otp_expires_at
-    }
+    # Store the OTP in the service cache; the database value is retained only
+    # for compatibility with existing records and is never returned or logged.
+    EmailService.store_otp(target_user.email, otp, expiry_minutes=15)
 
     # Automatically insert/update user document in MongoDB Atlas
     sync_save_to_mongodb("users", {
@@ -127,7 +126,7 @@ def register(req: RegisterRequest, db: Session = Depends(get_db)):
 
     email_result = EmailService.send_otp_email(to_email=clean_email, otp=otp, user_name=req.full_name)
 
-    AuditService.log_action(db, "USER_REGISTER_INITIATED", user_id=target_user.id, details=f"Email: {clean_email}, Phone: {clean_phone}, Delivered: {email_result.get('delivered')}")
+    AuditService.log_action(db, "USER_REGISTER_INITIATED", user_id=target_user.id, details=f"Delivered: {email_result.get('delivered')}")
 
     success_msg = f"Security OTP sent to your registered email address ({clean_email})" if email_result.get("delivered") else f"Security OTP generated for {clean_email}"
 
@@ -153,6 +152,35 @@ def login(req: LoginRequest, db: Session = Depends(get_db)):
         )
 
     user = db.query(User).filter((User.email == identifier.lower()) | (User.phone == identifier)).first()
+
+    # Dual-Sync Fallback: If user not found in SQLite, check persistent MongoDB Atlas cloud collection
+    if not user:
+        try:
+            from app.core.mongodb import mongo_manager, init_mongodb
+            if mongo_manager.sync_client is None:
+                init_mongodb()
+            if mongo_manager.sync_client is not None:
+                sync_db = mongo_manager.sync_client[settings.MONGODB_DB_NAME]
+                m_doc = sync_db["users"].find_one({
+                    "$or": [{"email": identifier.lower()}, {"phone": identifier}]
+                })
+                if m_doc and "hashed_password" in m_doc:
+                    user = User(
+                        id=m_doc.get("id", str(secrets.token_hex(16))),
+                        phone=m_doc.get("phone", identifier),
+                        email=m_doc.get("email", identifier.lower()),
+                        aadhaar_number=m_doc.get("aadhaar_number"),
+                        hashed_password=m_doc["hashed_password"],
+                        full_name=m_doc.get("full_name", "Entrepreneur"),
+                        is_active=bool(m_doc.get("is_active", 1)),
+                        is_verified=bool(m_doc.get("is_verified", 1))
+                    )
+                    db.add(user)
+                    db.commit()
+                    db.refresh(user)
+        except Exception as mongo_err:
+            pass
+
     if not user or not verify_password(req.password, user.hashed_password):
         AuditService.log_security_event(
             db, "FAILED_LOGIN", severity="MEDIUM", description=f"Failed login attempt for: {identifier}"
@@ -162,7 +190,14 @@ def login(req: LoginRequest, db: Session = Depends(get_db)):
             detail={"code": "INVALID_CREDENTIALS", "message": "Invalid email address or password"}
         )
 
-    roles = ["ADMIN", "USER"] if (user.phone == "9999999999" or user.email == "admin@schememate.ai") else ["USER"]
+    if not user.is_verified:
+        raise HTTPException(
+            status_code=403,
+            detail={"code": "ACCOUNT_NOT_VERIFIED", "message": "Please verify your account before logging in"}
+        )
+
+    role_rows = db.execute(select(user_roles.c.role_name).where(user_roles.c.user_id == user.id)).all()
+    roles = sorted({row[0] for row in role_rows} | {"USER"})
     access_token = create_access_token(user.id, roles=roles)
     refresh_token = create_refresh_token(user.id)
 
@@ -191,17 +226,27 @@ def verify_otp(req: VerifyOTPRequest, db: Session = Depends(get_db)):
     user = db.query(User).filter((User.phone == clean_phone) | (User.email == clean_phone.lower())).first()
     
     is_valid = False
-    if user and user.email_otp and user.email_otp.strip() == entered_otp:
+    if user and user.otp_expires_at and user.otp_expires_at < datetime.datetime.utcnow():
+        user.email_otp = None
+        db.commit()
+    elif user and user.otp_attempts >= 5:
+        raise HTTPException(status_code=429, detail={"code": "OTP_LOCKED", "message": "Too many invalid OTP attempts"})
+    elif user and user.email_otp and secrets.compare_digest(user.email_otp.strip(), entered_otp):
         is_valid = True
     elif EmailService.verify_otp(clean_phone, entered_otp):
         is_valid = True
     elif user and user.email and EmailService.verify_otp(user.email, entered_otp):
         is_valid = True
 
+    if user and not is_valid:
+        user.otp_attempts += 1
+        db.commit()
+
     if is_valid:
         if user:
             user.is_verified = True
             user.email_otp = None
+            user.otp_attempts = 0
             db.commit()
             AuditService.log_action(db, "EMAIL_OTP_VERIFIED", user_id=user.id)
         return {
@@ -232,6 +277,7 @@ def resend_otp(req: ResendOTPRequest, db: Session = Depends(get_db)):
     otp = f"{secrets.randbelow(900000) + 100000}"
     user.email_otp = otp
     user.otp_expires_at = datetime.datetime.utcnow() + datetime.timedelta(minutes=15)
+    user.otp_attempts = 0
     db.commit()
 
     # Update cache and dispatch email
@@ -256,13 +302,15 @@ def resend_otp(req: ResendOTPRequest, db: Session = Depends(get_db)):
     }
 
 @router.post("/refresh")
-def refresh(req: RefreshRequest):
+def refresh(req: RefreshRequest, db: Session = Depends(get_db)):
     payload = decode_refresh_token(req.refresh_token)
     if not payload:
         raise HTTPException(status_code=401, detail={"code": "INVALID_REFRESH_TOKEN", "message": "Refresh token is invalid or expired"})
     
     user_id = payload.get("sub")
-    new_access_token = create_access_token(user_id, roles=["USER"])
+    role_rows = db.execute(select(user_roles.c.role_name).where(user_roles.c.user_id == user_id)).all()
+    roles = sorted({row[0] for row in role_rows} | {"USER"})
+    new_access_token = create_access_token(user_id, roles=roles)
     new_refresh_token = create_refresh_token(user_id)
     return {
         "success": True,

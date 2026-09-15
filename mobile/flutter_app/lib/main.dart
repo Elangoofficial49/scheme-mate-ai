@@ -9,8 +9,11 @@ import 'providers/auth_provider.dart';
 import 'providers/locale_provider.dart';
 import 'providers/scheme_provider.dart';
 import 'screens/home_screen.dart';
+import 'core/network/api_client.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await ApiClient.restoreSession();
   runApp(const SchemeMateApp());
 }
 

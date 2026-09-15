@@ -46,3 +46,17 @@ jobs:
         run: |
           docker build -t schememate-backend:latest ./backend
 
+      - name: 6. Flutter Static Analysis and Tests
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "stable"
+          channel: stable
+
+      - name: Check Flutter project
+        working-directory: mobile/flutter_app
+        run: |
+          flutter pub get
+          dart format --output=none --set-exit-if-changed lib test
+          flutter analyze
+          flutter test
+

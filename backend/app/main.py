@@ -1,8 +1,9 @@
 import time
+from sqlalchemy import text
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
-from app.core.database import init_db
+from app.core.database import init_db, engine
 from app.core.mongodb import init_mongodb, close_mongodb, get_mongodb
 from app.security.middleware import SecurityHeadersMiddleware, RateLimitMiddleware, global_exception_handler
 from app.api.v1 import auth, profile, schemes, matching, documents, action_plan, sync, notifications, admin, financial_calculator, partner_locator, voice, assistant
@@ -21,7 +22,6 @@ app.add_middleware(RateLimitMiddleware, max_requests=120, window_seconds=60)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.BACKEND_CORS_ORIGINS,
-    allow_origin_regex=r"https?://.*",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -66,10 +66,24 @@ def root():
 
 @app.get("/health")
 def health_check():
-    mongo_status = "connected" if get_mongodb() is not None else "ready"
+    database_status = "connected"
+    try:
+        with engine.connect() as connection:
+            connection.execute(text("SELECT 1"))
+    except Exception:
+        database_status = "unavailable"
+
+    mongo_status = "connected" if get_mongodb() is not None else "unavailable"
     return {
-        "status": "healthy",
+        "status": "healthy" if database_status == "connected" else "unhealthy",
         "timestamp": time.time(),
-        "database": "connected",
+        "database": database_status,
         "mongodb": mongo_status
     }
+
+@app.get("/ready")
+def readiness_check():
+    health = health_check()
+    if health["database"] != "connected":
+        return {"status": "not_ready", "checks": health}
+    return {"status": "ready", "checks": health}

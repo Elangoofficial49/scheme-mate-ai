@@ -60,11 +60,11 @@ class EmailService:
             {"delivered": bool, "reason": Optional[str]}
         so callers can safely use .get('delivered') without type errors.
         """
-        logger.info(f"📧 Sending Real Security OTP [{otp}] to email: {to_email}")
+        logger.info(f"Sending security OTP email to {to_email}")
 
         if not settings.SMTP_USER or not settings.SMTP_PASSWORD:
-            logger.info(f"⚡ [EMAIL SERVICE NOTICE] SMTP credentials not set in .env. Real OTP generated for {to_email}: {otp}")
-            return {"delivered": True, "reason": "smtp_not_configured"}
+            logger.warning("SMTP credentials are not configured; OTP delivery is disabled")
+            return {"delivered": False, "reason": "smtp_not_configured"}
 
         try:
             msg = MIMEMultipart("alternative")
@@ -118,5 +118,4 @@ class EmailService:
             return {"delivered": True, "otp": otp}
         except Exception as e:
             logger.warning(f"⚡ [EMAIL SERVICE NOTICE] SMTP email send error for {to_email}: {e}")
-            logger.info(f"🔑 Real security verification code generated for {to_email}: [{otp}]")
-            return {"delivered": False, "reason": str(e), "otp": otp}
+            return {"delivered": False, "reason": str(e)}

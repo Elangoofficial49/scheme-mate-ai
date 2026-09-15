@@ -30,7 +30,10 @@ class AuthProvider with ChangeNotifier {
       _phone = res["data"]["phone"];
       _fullName = res["data"]["full_name"];
       _roles = List<String>.from(res["data"]["roles"] ?? ["USER"]);
-      ApiClient.authToken = res["data"]["access_token"];
+      await ApiClient.saveTokens(
+        res["data"]["access_token"],
+        res["data"]["refresh_token"],
+      );
       notifyListeners();
       return true;
     }
@@ -71,14 +74,14 @@ class AuthProvider with ChangeNotifier {
     return res;
   }
 
-  void logout() {
+  Future<void> logout() async {
     _isLoggedIn = false;
     _userId = null;
     _email = null;
     _phone = null;
     _fullName = null;
     _roles = [];
-    ApiClient.authToken = null;
+    await ApiClient.clearSession();
     notifyListeners();
   }
 }
