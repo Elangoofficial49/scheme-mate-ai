@@ -39,7 +39,7 @@ class _AiAssistantDialogState extends State<AiAssistantDialog> {
         'lang': langCode,
       });
 
-      if (res['success'] == true) { 
+      if (res['success'] == true) {
         setState(() {
           _messages.add({
             "role": "assistant",
