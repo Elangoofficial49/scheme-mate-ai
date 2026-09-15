@@ -9,10 +9,12 @@ import '../widgets/gov_top_header.dart';
 class FinancialCalculatorScreen extends StatefulWidget {
   final Map<String, dynamic>? prefillScheme;
 
-  const FinancialCalculatorScreen({Key? key, this.prefillScheme}) : super(key: key);
+  const FinancialCalculatorScreen({Key? key, this.prefillScheme})
+      : super(key: key);
 
   @override
-  State<FinancialCalculatorScreen> createState() => _FinancialCalculatorScreenState();
+  State<FinancialCalculatorScreen> createState() =>
+      _FinancialCalculatorScreenState();
 }
 
 class _FinancialCalculatorScreenState extends State<FinancialCalculatorScreen> {
@@ -51,17 +53,19 @@ class _FinancialCalculatorScreenState extends State<FinancialCalculatorScreen> {
   Future<void> _runCalculation() async {
     setState(() => _isCalculating = true);
     try {
-      final response = await http.post(
-        Uri.parse("${ApiClient.baseUrl}/calculator/calculate"),
-        headers: {"Content-Type": "application/json"},
-        body: jsonEncode({
-          "loan_amount": _loanAmount,
-          "interest_rate": _interestRate,
-          "tenure_months": _tenureMonths,
-          "moratorium_months": _moratoriumMonths,
-          "subsidy_percentage": _subsidyPct,
-        }),
-      ).timeout(const Duration(seconds: 4));
+      final response = await http
+          .post(
+            Uri.parse("${ApiClient.baseUrl}/calculator/calculate"),
+            headers: {"Content-Type": "application/json"},
+            body: jsonEncode({
+              "loan_amount": _loanAmount,
+              "interest_rate": _interestRate,
+              "tenure_months": _tenureMonths,
+              "moratorium_months": _moratoriumMonths,
+              "subsidy_percentage": _subsidyPct,
+            }),
+          )
+          .timeout(const Duration(seconds: 4));
 
       if (response.statusCode == 200) {
         setState(() {
@@ -89,7 +93,8 @@ class _FinancialCalculatorScreenState extends State<FinancialCalculatorScreen> {
     }
 
     final moraMonthly = (r > 0 && _moratoriumMonths > 0) ? (netLoan * r) : 0.0;
-    final totalInterest = (moraMonthly * _moratoriumMonths) + (emi * repMonths) - netLoan;
+    final totalInterest =
+        (moraMonthly * _moratoriumMonths) + (emi * repMonths) - netLoan;
 
     setState(() {
       _calcResult = {
@@ -153,21 +158,24 @@ class _FinancialCalculatorScreenState extends State<FinancialCalculatorScreen> {
               child: Row(
                 children: [
                   ActionChip(
-                    avatar: const Icon(Icons.star, size: 16, color: Colors.orange),
+                    avatar:
+                        const Icon(Icons.star, size: 16, color: Colors.orange),
                     label: const Text('PMEGP (25% Subsidy, 8.5%, 6M Mora)'),
                     onPressed: () => _applyPreset(8.5, 25.0, 6, 60),
                     backgroundColor: Colors.orange.shade50,
                   ),
                   const SizedBox(width: 8),
                   ActionChip(
-                    avatar: const Icon(Icons.handyman, size: 16, color: Colors.deepPurple),
+                    avatar: const Icon(Icons.handyman,
+                        size: 16, color: Colors.deepPurple),
                     label: const Text('PM Vishwakarma (5% Rate, 3M Mora)'),
                     onPressed: () => _applyPreset(5.0, 0.0, 3, 36),
                     backgroundColor: Colors.purple.shade50,
                   ),
                   const SizedBox(width: 8),
                   ActionChip(
-                    avatar: const Icon(Icons.store, size: 16, color: Colors.blue),
+                    avatar:
+                        const Icon(Icons.store, size: 16, color: Colors.blue),
                     label: const Text('PM Mudra Kishore (9.0% Rate)'),
                     onPressed: () => _applyPreset(9.0, 0.0, 0, 48),
                     backgroundColor: Colors.blue.shade50,
@@ -180,7 +188,8 @@ class _FinancialCalculatorScreenState extends State<FinancialCalculatorScreen> {
             // 2. Input Controls Card
             Card(
               elevation: 2,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12)),
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
@@ -196,7 +205,10 @@ class _FinancialCalculatorScreenState extends State<FinancialCalculatorScreen> {
                         ),
                         Text(
                           '₹${_loanAmount.toStringAsFixed(0)}',
-                          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppTheme.primaryBlue),
+                          style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: AppTheme.primaryBlue),
                         ),
                       ],
                     ),
@@ -224,7 +236,10 @@ class _FinancialCalculatorScreenState extends State<FinancialCalculatorScreen> {
                         ),
                         Text(
                           '${_interestRate.toStringAsFixed(1)}%',
-                          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.deepOrange),
+                          style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.deepOrange),
                         ),
                       ],
                     ),
@@ -252,7 +267,10 @@ class _FinancialCalculatorScreenState extends State<FinancialCalculatorScreen> {
                         ),
                         Text(
                           '$_moratoriumMonths ${context.tr('months_suffix')}',
-                          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.purple),
+                          style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.purple),
                         ),
                       ],
                     ),
@@ -261,7 +279,8 @@ class _FinancialCalculatorScreenState extends State<FinancialCalculatorScreen> {
                       min: 0,
                       max: 18,
                       divisions: 18,
-                      label: '$_moratoriumMonths ${context.tr('months_suffix')}',
+                      label:
+                          '$_moratoriumMonths ${context.tr('months_suffix')}',
                       activeColor: Colors.purple,
                       onChanged: (val) {
                         setState(() => _moratoriumMonths = val.toInt());
@@ -280,7 +299,10 @@ class _FinancialCalculatorScreenState extends State<FinancialCalculatorScreen> {
                         ),
                         Text(
                           '$_tenureMonths ${context.tr('months_suffix')} (${(_tenureMonths / 12).toStringAsFixed(1)} Yrs)',
-                          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppTheme.successGreen),
+                          style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: AppTheme.successGreen),
                         ),
                       ],
                     ),
@@ -308,7 +330,10 @@ class _FinancialCalculatorScreenState extends State<FinancialCalculatorScreen> {
                         ),
                         Text(
                           '${_subsidyPct.toStringAsFixed(0)}%',
-                          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.teal),
+                          style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.teal),
                         ),
                       ],
                     ),
@@ -351,16 +376,23 @@ class _FinancialCalculatorScreenState extends State<FinancialCalculatorScreen> {
                           Text(
                             context.tr('calc_monthly_emi'),
                             textAlign: TextAlign.center,
-                            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.blue),
+                            style: const TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.blue),
                           ),
                           const SizedBox(height: 6),
                           Text(
                             '₹${(_calcResult!["regular_monthly_emi"] ?? 0).toStringAsFixed(0)}',
-                            style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: AppTheme.primaryBlue),
+                            style: const TextStyle(
+                                fontSize: 22,
+                                fontWeight: FontWeight.bold,
+                                color: AppTheme.primaryBlue),
                           ),
                           Text(
                             '${_calcResult!["repayment_months"]} ${context.tr('months_suffix')}',
-                            style: const TextStyle(fontSize: 11, color: Colors.grey),
+                            style: const TextStyle(
+                                fontSize: 11, color: Colors.grey),
                           ),
                         ],
                       ),
@@ -380,16 +412,23 @@ class _FinancialCalculatorScreenState extends State<FinancialCalculatorScreen> {
                           Text(
                             context.tr('calc_moratorium_monthly'),
                             textAlign: TextAlign.center,
-                            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.purple),
+                            style: const TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.purple),
                           ),
                           const SizedBox(height: 6),
                           Text(
                             '₹${(_calcResult!["moratorium_monthly_payment"] ?? 0).toStringAsFixed(0)}',
-                            style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.purple),
+                            style: const TextStyle(
+                                fontSize: 22,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.purple),
                           ),
                           Text(
                             '${_calcResult!["moratorium_months"]} ${context.tr('months_grace')}',
-                            style: const TextStyle(fontSize: 11, color: Colors.grey),
+                            style: const TextStyle(
+                                fontSize: 11, color: Colors.grey),
                           ),
                         ],
                       ),
@@ -411,7 +450,8 @@ class _FinancialCalculatorScreenState extends State<FinancialCalculatorScreen> {
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.savings_outlined, color: AppTheme.successGreen, size: 28),
+                    const Icon(Icons.savings_outlined,
+                        color: AppTheme.successGreen, size: 28),
                     const SizedBox(width: 12),
                     Expanded(
                       child: Column(
@@ -419,11 +459,17 @@ class _FinancialCalculatorScreenState extends State<FinancialCalculatorScreen> {
                         children: [
                           Text(
                             context.tr('calc_subsidy_credit'),
-                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppTheme.successGreen),
+                            style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 13,
+                                color: AppTheme.successGreen),
                           ),
                           Text(
                             '₹${(_calcResult!["subsidy_amount"] ?? 0).toStringAsFixed(0)} (${_subsidyPct.toStringAsFixed(0)}%)',
-                            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.green),
+                            style: const TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.green),
                           ),
                         ],
                       ),
@@ -437,18 +483,25 @@ class _FinancialCalculatorScreenState extends State<FinancialCalculatorScreen> {
               // Full Summary Breakdown
               Card(
                 elevation: 1,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10)),
                 child: Padding(
                   padding: const EdgeInsets.all(14.0),
                   child: Column(
                     children: [
-                      _buildSummaryRow(context.tr('calc_gross_loan'), '₹${_loanAmount.toStringAsFixed(0)}'),
+                      _buildSummaryRow(context.tr('calc_gross_loan'),
+                          '₹${_loanAmount.toStringAsFixed(0)}'),
                       const Divider(),
-                      _buildSummaryRow(context.tr('calc_net_loan'), '₹${(_calcResult!["net_loan_amount"] ?? 0).toStringAsFixed(0)}', isBold: true),
+                      _buildSummaryRow(context.tr('calc_net_loan'),
+                          '₹${(_calcResult!["net_loan_amount"] ?? 0).toStringAsFixed(0)}',
+                          isBold: true),
                       const Divider(),
-                      _buildSummaryRow(context.tr('calc_total_interest'), '₹${(_calcResult!["total_interest_payable"] ?? 0).toStringAsFixed(0)}'),
+                      _buildSummaryRow(context.tr('calc_total_interest'),
+                          '₹${(_calcResult!["total_interest_payable"] ?? 0).toStringAsFixed(0)}'),
                       const Divider(),
-                      _buildSummaryRow(context.tr('calc_total_outflow'), '₹${(_calcResult!["total_amount_payable"] ?? 0).toStringAsFixed(0)}', isBold: true),
+                      _buildSummaryRow(context.tr('calc_total_outflow'),
+                          '₹${(_calcResult!["total_amount_payable"] ?? 0).toStringAsFixed(0)}',
+                          isBold: true),
                     ],
                   ),
                 ),
@@ -466,8 +519,15 @@ class _FinancialCalculatorScreenState extends State<FinancialCalculatorScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: TextStyle(fontSize: 13, fontWeight: isBold ? FontWeight.bold : FontWeight.normal)),
-          Text(value, style: TextStyle(fontSize: 14, fontWeight: isBold ? FontWeight.bold : FontWeight.normal, color: isBold ? AppTheme.primaryBlue : Colors.black87)),
+          Text(label,
+              style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: isBold ? FontWeight.bold : FontWeight.normal)),
+          Text(value,
+              style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
+                  color: isBold ? AppTheme.primaryBlue : Colors.black87)),
         ],
       ),
     );

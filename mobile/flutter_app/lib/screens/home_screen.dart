@@ -18,7 +18,18 @@ class HomeScreen extends StatelessWidget {
     final currentLang = AppLanguages.getByCode(currentLangCode);
 
     // Featured popular languages on home card
-    final featuredCodes = ['en', 'hi', 'ta', 'te', 'kn', 'ml', 'mr', 'bn', 'gu', 'pa'];
+    final featuredCodes = [
+      'en',
+      'hi',
+      'ta',
+      'te',
+      'kn',
+      'ml',
+      'mr',
+      'bn',
+      'gu',
+      'pa'
+    ];
     final featuredLangs = AppLanguages.supportedLanguages
         .where((l) => featuredCodes.contains(l.code))
         .toList();
@@ -82,7 +93,8 @@ class HomeScreen extends StatelessWidget {
               ),
               child: Column(
                 children: [
-                  const Icon(Icons.account_balance_rounded, size: 54, color: Colors.white),
+                  const Icon(Icons.account_balance_rounded,
+                      size: 54, color: Colors.white),
                   const SizedBox(height: 12),
                   Text(
                     context.tr("home_title"),
@@ -112,7 +124,8 @@ class HomeScreen extends StatelessWidget {
             // Language Selection Card
             Card(
               elevation: 2,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14)),
               child: Padding(
                 padding: const EdgeInsets.all(18.0),
                 child: Column(
@@ -120,12 +133,14 @@ class HomeScreen extends StatelessWidget {
                   children: [
                     Row(
                       children: [
-                        const Icon(Icons.translate_rounded, color: AppTheme.primaryBlue, size: 22),
+                        const Icon(Icons.translate_rounded,
+                            color: AppTheme.primaryBlue, size: 22),
                         const SizedBox(width: 10),
                         Expanded(
                           child: Text(
                             context.tr("select_your_language"),
-                            style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
+                            style: const TextStyle(
+                                fontSize: 17, fontWeight: FontWeight.bold),
                           ),
                         ),
                       ],
@@ -133,7 +148,8 @@ class HomeScreen extends StatelessWidget {
                     const SizedBox(height: 6),
                     Text(
                       context.tr("select_language_subtitle"),
-                      style: TextStyle(fontSize: 13, color: Colors.grey.shade700),
+                      style:
+                          TextStyle(fontSize: 13, color: Colors.grey.shade700),
                     ),
                     const SizedBox(height: 16),
 
@@ -159,13 +175,15 @@ class HomeScreen extends StatelessWidget {
                         icon: const Icon(Icons.language_rounded, size: 18),
                         label: Text(
                           "🌐 ${context.tr('view_all_languages')}",
-                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                          style: const TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 13),
                         ),
                         style: OutlinedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 12),
                           foregroundColor: AppTheme.primaryBlue,
                           side: const BorderSide(color: AppTheme.primaryBlue),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10)),
                         ),
                       ),
                     ),
@@ -206,20 +224,23 @@ class HomeScreen extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => const AuthScreen(startInCreateAccountTab: true),
+                      builder: (context) =>
+                          const AuthScreen(startInCreateAccountTab: true),
                     ),
                   );
                 },
                 icon: const Icon(Icons.person_add_rounded),
                 label: Text(
                   context.tr("btn_create_account"),
-                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  style: const TextStyle(
+                      fontSize: 16, fontWeight: FontWeight.bold),
                 ),
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   backgroundColor: AppTheme.primaryBlue,
                   foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12)),
                 ),
               ),
             ),
@@ -232,20 +253,24 @@ class HomeScreen extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => const AuthScreen(startInCreateAccountTab: false),
+                      builder: (context) =>
+                          const AuthScreen(startInCreateAccountTab: false),
                     ),
                   );
                 },
                 icon: const Icon(Icons.login_rounded),
                 label: Text(
                   context.tr("btn_login"),
-                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  style: const TextStyle(
+                      fontSize: 16, fontWeight: FontWeight.bold),
                 ),
                 style: OutlinedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 15),
-                  side: const BorderSide(color: AppTheme.primaryBlue, width: 1.5),
+                  side:
+                      const BorderSide(color: AppTheme.primaryBlue, width: 1.5),
                   foregroundColor: AppTheme.primaryBlue,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12)),
                 ),
               ),
             ),
@@ -274,7 +299,9 @@ class HomeScreen extends StatelessWidget {
         duration: const Duration(milliseconds: 180),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
-          color: isSelected ? AppTheme.primaryBlue.withOpacity(0.08) : Colors.grey.shade50,
+          color: isSelected
+              ? AppTheme.primaryBlue.withOpacity(0.08)
+              : Colors.grey.shade50,
           border: Border.all(
             color: isSelected ? AppTheme.primaryBlue : Colors.grey.shade300,
             width: isSelected ? 2 : 1,
@@ -304,9 +331,11 @@ class HomeScreen extends StatelessWidget {
             ),
             const Spacer(),
             if (isSelected)
-              const Icon(Icons.check_circle_rounded, color: AppTheme.primaryBlue, size: 20)
+              const Icon(Icons.check_circle_rounded,
+                  color: AppTheme.primaryBlue, size: 20)
             else
-              Icon(Icons.radio_button_unchecked_rounded, color: Colors.grey.shade400, size: 20),
+              Icon(Icons.radio_button_unchecked_rounded,
+                  color: Colors.grey.shade400, size: 20),
           ],
         ),
       ),
@@ -341,7 +370,8 @@ class HomeScreen extends StatelessWidget {
               children: [
                 Text(
                   title,
-                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                  style: const TextStyle(
+                      fontSize: 14, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 3),
                 Text(

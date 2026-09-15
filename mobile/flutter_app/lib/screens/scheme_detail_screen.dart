@@ -33,32 +33,45 @@ class SchemeDetailScreen extends StatelessWidget {
               decoration: BoxDecoration(
                 color: AppTheme.primaryBlue.withOpacity(0.05),
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppTheme.primaryBlue.withOpacity(0.2)),
+                border:
+                    Border.all(color: AppTheme.primaryBlue.withOpacity(0.2)),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(match.schemeName, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+                  Text(match.schemeName,
+                      style: const TextStyle(
+                          fontSize: 22, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 6),
-                  Text(match.ministry, style: const TextStyle(fontSize: 14, color: Colors.grey)),
+                  Text(match.ministry,
+                      style: const TextStyle(fontSize: 14, color: Colors.grey)),
                   const SizedBox(height: 12),
                   Row(
                     children: [
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 10, vertical: 4),
                         decoration: BoxDecoration(
-                          color: match.matchScore >= 80 ? AppTheme.successGreen : AppTheme.warningOrange,
+                          color: match.matchScore >= 80
+                              ? AppTheme.successGreen
+                              : AppTheme.warningOrange,
                           borderRadius: BorderRadius.circular(20),
                         ),
-                        child: Text(match.matchLabel, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                        child: Text(match.matchLabel,
+                            style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold)),
                       ),
                       const SizedBox(width: 10),
-                      Text("Verified: ${match.lastVerified}", style: const TextStyle(fontSize: 12, color: Colors.grey)),
+                      Text("Verified: ${match.lastVerified}",
+                          style: const TextStyle(
+                              fontSize: 12, color: Colors.grey)),
                     ],
                   ),
                   const SizedBox(height: 10),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
                     decoration: BoxDecoration(
                       color: Colors.red.shade50,
                       borderRadius: BorderRadius.circular(8),
@@ -66,12 +79,16 @@ class SchemeDetailScreen extends StatelessWidget {
                     ),
                     child: Row(
                       children: [
-                        const Icon(Icons.event_available, color: Colors.red, size: 18),
+                        const Icon(Icons.event_available,
+                            color: Colors.red, size: 18),
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
                             "${context.tr('last_date')}: ${match.lastDateToApply}",
-                            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Colors.red),
+                            style: const TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.red),
                           ),
                         ),
                       ],
@@ -81,29 +98,39 @@ class SchemeDetailScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 20),
-            const Text("Why This Scheme Matches You", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            const Text("Why This Scheme Matches You",
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             const SizedBox(height: 10),
             ...match.whyMatches.map((reason) => Padding(
-              padding: const EdgeInsets.only(bottom: 6.0),
-              child: Text(reason, style: const TextStyle(fontSize: 15, color: AppTheme.successGreen, fontWeight: FontWeight.w600)),
-            )),
+                  padding: const EdgeInsets.only(bottom: 6.0),
+                  child: Text(reason,
+                      style: const TextStyle(
+                          fontSize: 15,
+                          color: AppTheme.successGreen,
+                          fontWeight: FontWeight.w600)),
+                )),
             if (match.whyNot.isNotEmpty) ...[
               const SizedBox(height: 16),
-              const Text("Important Verification Considerations", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              const Text("Important Verification Considerations",
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
               const SizedBox(height: 10),
               ...match.whyNot.map((note) => Padding(
-                padding: const EdgeInsets.only(bottom: 6.0),
-                child: Text(note, style: const TextStyle(fontSize: 15, color: AppTheme.warningOrange)),
-              )),
+                    padding: const EdgeInsets.only(bottom: 6.0),
+                    child: Text(note,
+                        style: const TextStyle(
+                            fontSize: 15, color: AppTheme.warningOrange)),
+                  )),
             ],
             const SizedBox(height: 20),
-            const Text("Required Document Checklist", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            const Text("Required Document Checklist",
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             const SizedBox(height: 10),
             if (match.requiredDocuments.isEmpty)
               const Text("Standard KYC documents (Aadhaar, PAN, Bank Passbook)")
             else
               ...match.requiredDocuments.map((doc) {
-                String docName = doc is Map ? doc["name"] ?? "" : doc.toString();
+                String docName =
+                    doc is Map ? doc["name"] ?? "" : doc.toString();
                 bool mandatory = doc is Map ? doc["mandatory"] == true : true;
                 return Container(
                   margin: const EdgeInsets.only(bottom: 8),
@@ -116,13 +143,21 @@ class SchemeDetailScreen extends StatelessWidget {
                   child: Row(
                     children: [
                       Icon(
-                        mandatory ? Icons.check_circle_outline : Icons.info_outline,
+                        mandatory
+                            ? Icons.check_circle_outline
+                            : Icons.info_outline,
                         color: mandatory ? AppTheme.successGreen : Colors.grey,
                       ),
                       const SizedBox(width: 10),
-                      Expanded(child: Text(docName, style: const TextStyle(fontSize: 15))),
+                      Expanded(
+                          child: Text(docName,
+                              style: const TextStyle(fontSize: 15))),
                       if (mandatory)
-                        const Text("Required", style: TextStyle(fontSize: 12, color: Colors.red, fontWeight: FontWeight.bold))
+                        const Text("Required",
+                            style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.red,
+                                fontWeight: FontWeight.bold))
                     ],
                   ),
                 );
@@ -154,4 +189,3 @@ class SchemeDetailScreen extends StatelessWidget {
     );
   }
 }
-

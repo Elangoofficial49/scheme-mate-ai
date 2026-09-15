@@ -11,7 +11,8 @@ import '../widgets/gov_top_header.dart';
 class PartnerLocatorScreen extends StatefulWidget {
   final String? initialSchemeName;
 
-  const PartnerLocatorScreen({Key? key, this.initialSchemeName}) : super(key: key);
+  const PartnerLocatorScreen({Key? key, this.initialSchemeName})
+      : super(key: key);
 
   @override
   State<PartnerLocatorScreen> createState() => _PartnerLocatorScreenState();
@@ -33,7 +34,15 @@ class _PartnerLocatorScreenState extends State<PartnerLocatorScreen> {
   bool _fallbackUsed = false;
   String? _fallbackMessage;
 
-  final List<String> _states = ['All', 'Tamil Nadu', 'Odisha', 'Delhi', 'Maharashtra', 'Karnataka', 'Telangana'];
+  final List<String> _states = [
+    'All',
+    'Tamil Nadu',
+    'Odisha',
+    'Delhi',
+    'Maharashtra',
+    'Karnataka',
+    'Telangana'
+  ];
 
   @override
   void initState() {
@@ -53,12 +62,14 @@ class _PartnerLocatorScreenState extends State<PartnerLocatorScreen> {
               _userLat = lat;
               _userLon = lon;
               _isUsingLiveGps = true;
-              _locationStatusText = "Live GPS: ${lat.toStringAsFixed(4)}° N, ${lon.toStringAsFixed(4)}° E";
+              _locationStatusText =
+                  "Live GPS: ${lat.toStringAsFixed(4)}° N, ${lon.toStringAsFixed(4)}° E";
             });
             _fetchNearestPartners();
           }
         }).catchError((err) {
-          setState(() => _locationStatusText = "GPS Permission Denied. Using Default Coordinates.");
+          setState(() => _locationStatusText =
+              "GPS Permission Denied. Using Default Coordinates.");
           _fetchNearestPartners();
         });
       } else {
@@ -72,11 +83,15 @@ class _PartnerLocatorScreenState extends State<PartnerLocatorScreen> {
   Future<void> _fetchNearestPartners() async {
     setState(() => _isLoading = true);
     try {
-      String url = "${ApiClient.baseUrl}/partners/nearest?lat=$_userLat&lon=$_userLon&max_distance_km=$_searchRadiusKm";
-      if (_selectedState != 'All') url += "&state=${Uri.encodeComponent(_selectedState)}";
-      if (_selectedDistrict != 'All') url += "&district=${Uri.encodeComponent(_selectedDistrict)}";
+      String url =
+          "${ApiClient.baseUrl}/partners/nearest?lat=$_userLat&lon=$_userLon&max_distance_km=$_searchRadiusKm";
+      if (_selectedState != 'All')
+        url += "&state=${Uri.encodeComponent(_selectedState)}";
+      if (_selectedDistrict != 'All')
+        url += "&district=${Uri.encodeComponent(_selectedDistrict)}";
 
-      final response = await http.get(Uri.parse(url)).timeout(const Duration(seconds: 4));
+      final response =
+          await http.get(Uri.parse(url)).timeout(const Duration(seconds: 4));
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         setState(() {
@@ -97,7 +112,8 @@ class _PartnerLocatorScreenState extends State<PartnerLocatorScreen> {
       _partners = [
         {
           "id": 1,
-          "name": "Tamil Nadu Backward Classes Economic Development Corporation (TABCEDCO)",
+          "name":
+              "Tamil Nadu Backward Classes Economic Development Corporation (TABCEDCO)",
           "partner_type": "State Channelizing Agency (SCA)",
           "branch_name": "Head Office - Chennai",
           "state": "Tamil Nadu",
@@ -111,7 +127,8 @@ class _PartnerLocatorScreenState extends State<PartnerLocatorScreen> {
           "address": "No. 735, Anna Salai, Chennai, Tamil Nadu 600006",
           "distance_km": 2.4,
           "is_next_nearest_fallback": false,
-          "maps_navigation_url": "https://www.google.com/maps/dir/?api=1&destination=13.0604,80.2496"
+          "maps_navigation_url":
+              "https://www.google.com/maps/dir/?api=1&destination=13.0604,80.2496"
         },
         {
           "id": 2,
@@ -126,10 +143,12 @@ class _PartnerLocatorScreenState extends State<PartnerLocatorScreen> {
           "status_label": "Eligible - Healthy Fund Quota",
           "contact_phone": "+91 44 2250 0812",
           "contact_email": "sbi.01824@sbi.co.in",
-          "address": "SIDCO Industrial Estate, Guindy, Chennai, Tamil Nadu 600032",
+          "address":
+              "SIDCO Industrial Estate, Guindy, Chennai, Tamil Nadu 600032",
           "distance_km": 5.1,
           "is_next_nearest_fallback": false,
-          "maps_navigation_url": "https://www.google.com/maps/dir/?api=1&destination=13.0102,80.2084"
+          "maps_navigation_url":
+              "https://www.google.com/maps/dir/?api=1&destination=13.0102,80.2084"
         },
         {
           "id": 3,
@@ -147,7 +166,8 @@ class _PartnerLocatorScreenState extends State<PartnerLocatorScreen> {
           "address": "Parrys Corner, Chennai, Tamil Nadu 600001",
           "distance_km": 7.8,
           "is_next_nearest_fallback": false,
-          "maps_navigation_url": "https://www.google.com/maps/dir/?api=1&destination=13.0827,80.2707"
+          "maps_navigation_url":
+              "https://www.google.com/maps/dir/?api=1&destination=13.0827,80.2707"
         }
       ];
       _eligibleCount = 2;
@@ -164,10 +184,13 @@ class _PartnerLocatorScreenState extends State<PartnerLocatorScreen> {
     final String state = (partner["state"] ?? "").toString();
 
     // Query combines exact Name, Branch, and Address so Google Maps pins the exact Bank Branch!
-    final String queryStr = "$name, $branch, $address, $state".replaceAll(RegExp(r'\s+'), ' ').trim();
+    final String queryStr = "$name, $branch, $address, $state"
+        .replaceAll(RegExp(r'\s+'), ' ')
+        .trim();
     final String encodedDest = Uri.encodeComponent(queryStr);
 
-    final String mapsUrl = "https://www.google.com/maps/dir/?api=1&origin=$_userLat,$_userLon&destination=$encodedDest&travelmode=driving";
+    final String mapsUrl =
+        "https://www.google.com/maps/dir/?api=1&origin=$_userLat,$_userLon&destination=$encodedDest&travelmode=driving";
     html.window.open(mapsUrl, '_blank');
   }
 
@@ -196,8 +219,12 @@ class _PartnerLocatorScreenState extends State<PartnerLocatorScreen> {
                 Row(
                   children: [
                     Icon(
-                      _isUsingLiveGps ? Icons.gps_fixed : Icons.location_on_outlined,
-                      color: _isUsingLiveGps ? AppTheme.successGreen : AppTheme.primaryBlue,
+                      _isUsingLiveGps
+                          ? Icons.gps_fixed
+                          : Icons.location_on_outlined,
+                      color: _isUsingLiveGps
+                          ? AppTheme.successGreen
+                          : AppTheme.primaryBlue,
                       size: 20,
                     ),
                     const SizedBox(width: 8),
@@ -207,25 +234,32 @@ class _PartnerLocatorScreenState extends State<PartnerLocatorScreen> {
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 13,
-                          color: _isUsingLiveGps ? AppTheme.successGreen : AppTheme.primaryBlue,
+                          color: _isUsingLiveGps
+                              ? AppTheme.successGreen
+                              : AppTheme.primaryBlue,
                         ),
                       ),
                     ),
                     InkWell(
                       onTap: _requestLiveGpsLocation,
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
                           color: AppTheme.primaryBlue.withOpacity(0.1),
                           borderRadius: BorderRadius.circular(6),
                         ),
                         child: Row(
                           children: [
-                            const Icon(Icons.refresh, size: 14, color: AppTheme.primaryBlue),
+                            const Icon(Icons.refresh,
+                                size: 14, color: AppTheme.primaryBlue),
                             const SizedBox(width: 4),
                             Text(
                               context.tr('gps_update'),
-                              style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppTheme.primaryBlue),
+                              style: const TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppTheme.primaryBlue),
                             ),
                           ],
                         ),
@@ -251,7 +285,12 @@ class _PartnerLocatorScreenState extends State<PartnerLocatorScreen> {
                           child: DropdownButton<String>(
                             value: _selectedState,
                             isExpanded: true,
-                            items: _states.map((s) => DropdownMenuItem(value: s, child: Text(s, style: const TextStyle(fontSize: 13)))).toList(),
+                            items: _states
+                                .map((s) => DropdownMenuItem(
+                                    value: s,
+                                    child: Text(s,
+                                        style: const TextStyle(fontSize: 13))))
+                                .toList(),
                             onChanged: (val) {
                               if (val != null) {
                                 setState(() => _selectedState = val);
@@ -271,24 +310,34 @@ class _PartnerLocatorScreenState extends State<PartnerLocatorScreen> {
                         _fetchNearestPartners();
                       },
                       itemBuilder: (context) => [
-                        const PopupMenuItem(value: 25.0, child: Text('Radius: 25 km')),
-                        const PopupMenuItem(value: 50.0, child: Text('Radius: 50 km (Default)')),
-                        const PopupMenuItem(value: 100.0, child: Text('Radius: 100 km')),
-                        const PopupMenuItem(value: 250.0, child: Text('Radius: 250 km')),
+                        const PopupMenuItem(
+                            value: 25.0, child: Text('Radius: 25 km')),
+                        const PopupMenuItem(
+                            value: 50.0,
+                            child: Text('Radius: 50 km (Default)')),
+                        const PopupMenuItem(
+                            value: 100.0, child: Text('Radius: 100 km')),
+                        const PopupMenuItem(
+                            value: 250.0, child: Text('Radius: 250 km')),
                       ],
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 10),
                         decoration: BoxDecoration(
                           color: AppTheme.primaryBlue,
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Row(
                           children: [
-                            const Icon(Icons.tune, color: Colors.white, size: 16),
+                            const Icon(Icons.tune,
+                                color: Colors.white, size: 16),
                             const SizedBox(width: 4),
                             Text(
                               '${_searchRadiusKm.toStringAsFixed(0)} km',
-                              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
+                              style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 13),
                             ),
                           ],
                         ),
@@ -308,12 +357,16 @@ class _PartnerLocatorScreenState extends State<PartnerLocatorScreen> {
               color: Colors.orange.shade50,
               child: Row(
                 children: [
-                  const Icon(Icons.error_outline, color: Colors.deepOrange, size: 20),
+                  const Icon(Icons.error_outline,
+                      color: Colors.deepOrange, size: 20),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
                       _fallbackMessage!,
-                      style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.deepOrange),
+                      style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.deepOrange),
                     ),
                   ),
                 ],
@@ -328,17 +381,24 @@ class _PartnerLocatorScreenState extends State<PartnerLocatorScreen> {
               children: [
                 Text(
                   '${_partners.length} ${context.tr('partners_found')}',
-                  style: TextStyle(color: Colors.grey.shade700, fontWeight: FontWeight.bold, fontSize: 13),
+                  style: TextStyle(
+                      color: Colors.grey.shade700,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 13),
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
                     color: Colors.green.shade100,
                     borderRadius: BorderRadius.circular(6),
                   ),
                   child: Text(
                     '$_eligibleCount ${context.tr('eligible_healthy')}',
-                    style: const TextStyle(color: AppTheme.successGreen, fontWeight: FontWeight.bold, fontSize: 12),
+                    style: const TextStyle(
+                        color: AppTheme.successGreen,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 12),
                   ),
                 ),
               ],
@@ -354,9 +414,12 @@ class _PartnerLocatorScreenState extends State<PartnerLocatorScreen> {
                     itemCount: _partners.length,
                     itemBuilder: (context, index) {
                       final item = _partners[index];
-                      final bool isEligible = item["is_eligible_for_routing"] == true;
-                      final bool isFallback = item["is_next_nearest_fallback"] == true;
-                      final double dist = (item["distance_km"] as num? ?? 0.0).toDouble();
+                      final bool isEligible =
+                          item["is_eligible_for_routing"] == true;
+                      final bool isFallback =
+                          item["is_next_nearest_fallback"] == true;
+                      final double dist =
+                          (item["distance_km"] as num? ?? 0.0).toDouble();
 
                       return Card(
                         margin: const EdgeInsets.only(bottom: 12),
@@ -366,7 +429,9 @@ class _PartnerLocatorScreenState extends State<PartnerLocatorScreen> {
                           side: BorderSide(
                             color: isFallback
                                 ? Colors.orange
-                                : (isEligible ? AppTheme.successGreen.withOpacity(0.4) : Colors.red.withOpacity(0.4)),
+                                : (isEligible
+                                    ? AppTheme.successGreen.withOpacity(0.4)
+                                    : Colors.red.withOpacity(0.4)),
                           ),
                         ),
                         child: Padding(
@@ -379,35 +444,49 @@ class _PartnerLocatorScreenState extends State<PartnerLocatorScreen> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   CircleAvatar(
-                                    backgroundColor: isEligible ? Colors.green.shade100 : Colors.red.shade100,
+                                    backgroundColor: isEligible
+                                        ? Colors.green.shade100
+                                        : Colors.red.shade100,
                                     child: Icon(
-                                      isEligible ? Icons.account_balance : Icons.block,
-                                      color: isEligible ? AppTheme.successGreen : Colors.red,
+                                      isEligible
+                                          ? Icons.account_balance
+                                          : Icons.block,
+                                      color: isEligible
+                                          ? AppTheme.successGreen
+                                          : Colors.red,
                                       size: 22,
                                     ),
                                   ),
                                   const SizedBox(width: 10),
                                   Expanded(
                                     child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
                                         Text(
                                           item["name"] ?? "",
-                                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                                          style: const TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 15),
                                         ),
                                         const SizedBox(height: 2),
                                         Text(
                                           "${item["partner_type"]} • ${item["branch_name"]}",
-                                          style: TextStyle(color: Colors.grey.shade700, fontSize: 12),
+                                          style: TextStyle(
+                                              color: Colors.grey.shade700,
+                                              fontSize: 12),
                                         ),
                                       ],
                                     ),
                                   ),
                                   // Distance Tag
                                   Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 8, vertical: 4),
                                     decoration: BoxDecoration(
-                                      color: isFallback ? Colors.orange.shade50 : Colors.blue.shade50,
+                                      color: isFallback
+                                          ? Colors.orange.shade50
+                                          : Colors.blue.shade50,
                                       borderRadius: BorderRadius.circular(6),
                                     ),
                                     child: Text(
@@ -415,7 +494,9 @@ class _PartnerLocatorScreenState extends State<PartnerLocatorScreen> {
                                       style: TextStyle(
                                         fontWeight: FontWeight.bold,
                                         fontSize: 12,
-                                        color: isFallback ? Colors.deepOrange : AppTheme.primaryBlue,
+                                        color: isFallback
+                                            ? Colors.deepOrange
+                                            : AppTheme.primaryBlue,
                                       ),
                                     ),
                                   ),
@@ -427,17 +508,24 @@ class _PartnerLocatorScreenState extends State<PartnerLocatorScreen> {
                               // Health & NPA Eligibility Badge
                               Container(
                                 width: double.infinity,
-                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 10, vertical: 6),
                                 decoration: BoxDecoration(
-                                  color: isEligible ? Colors.green.shade50 : Colors.red.shade50,
+                                  color: isEligible
+                                      ? Colors.green.shade50
+                                      : Colors.red.shade50,
                                   borderRadius: BorderRadius.circular(6),
                                 ),
                                 child: Row(
                                   children: [
                                     Icon(
-                                      isEligible ? Icons.verified_user : Icons.warning_amber_rounded,
+                                      isEligible
+                                          ? Icons.verified_user
+                                          : Icons.warning_amber_rounded,
                                       size: 16,
-                                      color: isEligible ? AppTheme.successGreen : Colors.red,
+                                      color: isEligible
+                                          ? AppTheme.successGreen
+                                          : Colors.red,
                                     ),
                                     const SizedBox(width: 6),
                                     Expanded(
@@ -448,7 +536,9 @@ class _PartnerLocatorScreenState extends State<PartnerLocatorScreen> {
                                         style: TextStyle(
                                           fontSize: 12,
                                           fontWeight: FontWeight.bold,
-                                          color: isEligible ? AppTheme.successGreen : Colors.red,
+                                          color: isEligible
+                                              ? AppTheme.successGreen
+                                              : Colors.red,
                                         ),
                                       ),
                                     ),
@@ -462,7 +552,9 @@ class _PartnerLocatorScreenState extends State<PartnerLocatorScreen> {
                               if ((item["address"] ?? "").toString().isNotEmpty)
                                 Text(
                                   item["address"].toString(),
-                                  style: TextStyle(fontSize: 12, color: Colors.grey.shade700),
+                                  style: TextStyle(
+                                      fontSize: 12,
+                                      color: Colors.grey.shade700),
                                 ),
 
                               const SizedBox(height: 12),
@@ -471,7 +563,9 @@ class _PartnerLocatorScreenState extends State<PartnerLocatorScreen> {
                               SizedBox(
                                 width: double.infinity,
                                 child: ElevatedButton.icon(
-                                  onPressed: isEligible ? () => _openMapForPartner(item) : null,
+                                  onPressed: isEligible
+                                      ? () => _openMapForPartner(item)
+                                      : null,
                                   icon: const Icon(Icons.directions, size: 18),
                                   label: Text(
                                     isEligible
@@ -479,9 +573,12 @@ class _PartnerLocatorScreenState extends State<PartnerLocatorScreen> {
                                         : context.tr('routing_disabled'),
                                   ),
                                   style: ElevatedButton.styleFrom(
-                                    backgroundColor: isEligible ? AppTheme.primaryBlue : Colors.grey.shade400,
+                                    backgroundColor: isEligible
+                                        ? AppTheme.primaryBlue
+                                        : Colors.grey.shade400,
                                     foregroundColor: Colors.white,
-                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(8)),
                                   ),
                                 ),
                               ),

@@ -15,11 +15,14 @@ import 'partner_locator_screen.dart';
 class SchemeRequirementsScreen extends StatelessWidget {
   final Map<String, dynamic> scheme;
 
-  const SchemeRequirementsScreen({Key? key, required this.scheme}) : super(key: key);
+  const SchemeRequirementsScreen({Key? key, required this.scheme})
+      : super(key: key);
 
   void _applyForScheme(BuildContext context) {
-    final String url = (scheme['official_application_url'] ?? '').toString().trim();
-    final String fallback = (scheme['official_source_url'] ?? '').toString().trim();
+    final String url =
+        (scheme['official_application_url'] ?? '').toString().trim();
+    final String fallback =
+        (scheme['official_source_url'] ?? '').toString().trim();
     final String portalUrl = url.isNotEmpty ? url : fallback;
 
     if (portalUrl.isEmpty) {
@@ -46,9 +49,11 @@ class SchemeRequirementsScreen extends StatelessWidget {
 
     final String schemeName = scheme['scheme_name'] ?? '';
     final String ministry = scheme['ministry'] ?? '';
-    final String benefits = (scheme['key_benefits'] ?? scheme['benefits'] ?? '').toString();
+    final String benefits =
+        (scheme['key_benefits'] ?? scheme['benefits'] ?? '').toString();
     final String eligibility = (scheme['eligibility_summary'] ?? '').toString();
-    final List<dynamic> whyMatches = scheme['why_matches'] as List<dynamic>? ?? [];
+    final List<dynamic> whyMatches =
+        scheme['why_matches'] as List<dynamic>? ?? [];
 
     // Parse required documents
     List<dynamic> requiredDocs = [];
@@ -73,14 +78,16 @@ class SchemeRequirementsScreen extends StatelessWidget {
               decoration: BoxDecoration(
                 color: AppTheme.primaryBlue.withOpacity(0.06),
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppTheme.primaryBlue.withOpacity(0.2)),
+                border:
+                    Border.all(color: AppTheme.primaryBlue.withOpacity(0.2)),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     schemeName,
-                    style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                        fontSize: 20, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 4),
                   Text(
@@ -91,19 +98,22 @@ class SchemeRequirementsScreen extends StatelessWidget {
                     const SizedBox(height: 10),
                     Text(
                       _localizeReqText(benefits, currentLang),
-                      style: const TextStyle(fontSize: 13, color: Colors.black87),
+                      style:
+                          const TextStyle(fontSize: 13, color: Colors.black87),
                     ),
                   ],
                   if (eligibility.isNotEmpty) ...[
                     const SizedBox(height: 6),
                     Text(
                       _localizeReqText(eligibility, currentLang),
-                      style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
+                      style:
+                          TextStyle(fontSize: 13, color: Colors.grey.shade600),
                     ),
                   ],
                   const SizedBox(height: 12),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
                     decoration: BoxDecoration(
                       color: Colors.red.shade50,
                       borderRadius: BorderRadius.circular(8),
@@ -111,12 +121,16 @@ class SchemeRequirementsScreen extends StatelessWidget {
                     ),
                     child: Row(
                       children: [
-                        const Icon(Icons.event_available, color: Colors.red, size: 18),
+                        const Icon(Icons.event_available,
+                            color: Colors.red, size: 18),
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
                             "${context.tr('last_date')}: ${_localizeReqText(scheme['last_date_to_apply'] ?? '31 Dec 2026 (Open Year-Round)', currentLang)}",
-                            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Colors.red),
+                            style: const TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.red),
                           ),
                         ),
                       ],
@@ -131,14 +145,19 @@ class SchemeRequirementsScreen extends StatelessWidget {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => FinancialCalculatorScreen(prefillScheme: scheme),
+                                builder: (context) => FinancialCalculatorScreen(
+                                    prefillScheme: scheme),
                               ),
                             );
                           },
-                          icon: const Icon(Icons.calculate, size: 16, color: AppTheme.primaryBlue),
+                          icon: const Icon(Icons.calculate,
+                              size: 16, color: AppTheme.primaryBlue),
                           label: Text(
                             context.tr('calculate_emi'),
-                            style: const TextStyle(fontSize: 12, color: AppTheme.primaryBlue, fontWeight: FontWeight.bold),
+                            style: const TextStyle(
+                                fontSize: 12,
+                                color: AppTheme.primaryBlue,
+                                fontWeight: FontWeight.bold),
                           ),
                           style: OutlinedButton.styleFrom(
                             side: const BorderSide(color: AppTheme.primaryBlue),
@@ -153,17 +172,23 @@ class SchemeRequirementsScreen extends StatelessWidget {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => PartnerLocatorScreen(initialSchemeName: schemeName),
+                                builder: (context) => PartnerLocatorScreen(
+                                    initialSchemeName: schemeName),
                               ),
                             );
                           },
-                          icon: const Icon(Icons.near_me, size: 16, color: AppTheme.successGreen),
+                          icon: const Icon(Icons.near_me,
+                              size: 16, color: AppTheme.successGreen),
                           label: Text(
                             context.tr('locate_partner'),
-                            style: const TextStyle(fontSize: 12, color: AppTheme.successGreen, fontWeight: FontWeight.bold),
+                            style: const TextStyle(
+                                fontSize: 12,
+                                color: AppTheme.successGreen,
+                                fontWeight: FontWeight.bold),
                           ),
                           style: OutlinedButton.styleFrom(
-                            side: const BorderSide(color: AppTheme.successGreen),
+                            side:
+                                const BorderSide(color: AppTheme.successGreen),
                             padding: const EdgeInsets.symmetric(vertical: 8),
                           ),
                         ),
@@ -179,7 +204,8 @@ class SchemeRequirementsScreen extends StatelessWidget {
             if (whyMatches.isNotEmpty) ...[
               Text(
                 context.tr("why_matches_heading"),
-                style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
+                style:
+                    const TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 10),
               ...whyMatches.map((w) => Padding(
@@ -187,7 +213,8 @@ class SchemeRequirementsScreen extends StatelessWidget {
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Icon(Icons.check_circle, color: AppTheme.successGreen, size: 18),
+                        const Icon(Icons.check_circle,
+                            color: AppTheme.successGreen, size: 18),
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
@@ -233,9 +260,13 @@ class SchemeRequirementsScreen extends StatelessWidget {
             else
               ...requiredDocs.asMap().entries.map((entry) {
                 final doc = entry.value;
-                final String docName = doc is Map ? (doc['name'] ?? '').toString() : doc.toString();
-                final String docType = doc is Map ? (doc['type'] ?? '').toString() : '';
-                final bool mandatory = doc is Map ? doc['mandatory'] == true : true;
+                final String docName = doc is Map
+                    ? (doc['name'] ?? '').toString()
+                    : doc.toString();
+                final String docType =
+                    doc is Map ? (doc['type'] ?? '').toString() : '';
+                final bool mandatory =
+                    doc is Map ? doc['mandatory'] == true : true;
 
                 return Container(
                   margin: const EdgeInsets.only(bottom: 10),
@@ -244,7 +275,9 @@ class SchemeRequirementsScreen extends StatelessWidget {
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(10),
                     border: Border.all(
-                      color: mandatory ? AppTheme.primaryBlue.withOpacity(0.3) : Colors.grey.shade300,
+                      color: mandatory
+                          ? AppTheme.primaryBlue.withOpacity(0.3)
+                          : Colors.grey.shade300,
                     ),
                     boxShadow: [
                       BoxShadow(
@@ -258,7 +291,9 @@ class SchemeRequirementsScreen extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Icon(
-                        mandatory ? Icons.description_rounded : Icons.description_outlined,
+                        mandatory
+                            ? Icons.description_rounded
+                            : Icons.description_outlined,
                         color: mandatory ? AppTheme.primaryBlue : Colors.grey,
                         size: 22,
                       ),
@@ -269,20 +304,23 @@ class SchemeRequirementsScreen extends StatelessWidget {
                           children: [
                             Text(
                               _localizeReqText(docName, currentLang),
-                              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+                              style: const TextStyle(
+                                  fontSize: 15, fontWeight: FontWeight.w600),
                             ),
                             if (docType.isNotEmpty) ...[
                               const SizedBox(height: 2),
                               Text(
                                 _localizeReqText(docType, currentLang),
-                                style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                                style: TextStyle(
+                                    fontSize: 12, color: Colors.grey.shade600),
                               ),
                             ],
                           ],
                         ),
                       ),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 3),
                         decoration: BoxDecoration(
                           color: mandatory
                               ? Colors.red.shade50
@@ -290,11 +328,14 @@ class SchemeRequirementsScreen extends StatelessWidget {
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Text(
-                          mandatory ? context.tr("badge_required") : context.tr("badge_optional"),
+                          mandatory
+                              ? context.tr("badge_required")
+                              : context.tr("badge_optional"),
                           style: TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.bold,
-                            color: mandatory ? Colors.red.shade700 : Colors.grey,
+                            color:
+                                mandatory ? Colors.red.shade700 : Colors.grey,
                           ),
                         ),
                       ),
@@ -313,13 +354,15 @@ class SchemeRequirementsScreen extends StatelessWidget {
                 icon: const Icon(Icons.launch_rounded),
                 label: Text(
                   context.tr("apply_online_btn"),
-                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  style: const TextStyle(
+                      fontSize: 16, fontWeight: FontWeight.bold),
                 ),
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   backgroundColor: AppTheme.primaryBlue,
                   foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12)),
                 ),
               ),
             ),

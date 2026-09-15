@@ -72,7 +72,8 @@ class _OCRScanScreenState extends State<OCRScanScreen> {
       updatePayload["full_name"] = _extractedData?["Name"] ?? "Kavitha R";
       updatePayload["state"] = _extractedData?["State"] ?? "Tamil Nadu";
     } else if (_selectedDocType == "Udyam") {
-      updatePayload["company_name"] = _extractedData?["Enterprise"] ?? "Kavitha Tailoring";
+      updatePayload["company_name"] =
+          _extractedData?["Enterprise"] ?? "Kavitha Tailoring";
       updatePayload["has_udyam_registration"] = true;
       updatePayload["business_type"] = "Manufacturing";
     } else if (_selectedDocType == "Income") {
@@ -84,7 +85,8 @@ class _OCRScanScreenState extends State<OCRScanScreen> {
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text("✓ $_selectedDocType details verified and updated in user profile!"),
+          content: Text(
+              "✓ $_selectedDocType details verified and updated in user profile!"),
           backgroundColor: AppTheme.successGreen,
         ),
       );
@@ -106,7 +108,8 @@ class _OCRScanScreenState extends State<OCRScanScreen> {
             } else {
               Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(builder: (context) => const DashboardScreen()),
+                MaterialPageRoute(
+                    builder: (context) => const DashboardScreen()),
               );
             }
           },
@@ -117,13 +120,15 @@ class _OCRScanScreenState extends State<OCRScanScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text("Select Document Type to Scan", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            const Text("Select Document Type to Scan",
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             const SizedBox(height: 10),
             DropdownButtonFormField<String>(
               value: _selectedDocType,
               decoration: const InputDecoration(border: OutlineInputBorder()),
               items: ["Aadhaar", "PAN", "Udyam", "Income"]
-                  .map((type) => DropdownMenuItem(value: type, child: Text(type)))
+                  .map((type) =>
+                      DropdownMenuItem(value: type, child: Text(type)))
                   .toList(),
               onChanged: (val) => setState(() => _selectedDocType = val!),
             ),
@@ -134,15 +139,18 @@ class _OCRScanScreenState extends State<OCRScanScreen> {
               decoration: BoxDecoration(
                 color: Colors.grey.shade200,
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.grey.shade400, style: BorderStyle.solid),
+                border: Border.all(
+                    color: Colors.grey.shade400, style: BorderStyle.solid),
               ),
               child: Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.camera_alt_outlined, size: 50, color: Colors.grey.shade700),
+                    Icon(Icons.camera_alt_outlined,
+                        size: 50, color: Colors.grey.shade700),
                     const SizedBox(height: 10),
-                    const Text("Capture or Upload Document Photo", style: TextStyle(color: Colors.grey)),
+                    const Text("Capture or Upload Document Photo",
+                        style: TextStyle(color: Colors.grey)),
                   ],
                 ),
               ),
@@ -153,7 +161,8 @@ class _OCRScanScreenState extends State<OCRScanScreen> {
               child: ElevatedButton.icon(
                 onPressed: _isProcessing ? null : _simulateScan,
                 icon: const Icon(Icons.document_scanner),
-                label: Text(_isProcessing ? "Scanning OCR..." : "Start OCR Extraction"),
+                label: Text(
+                    _isProcessing ? "Scanning OCR..." : "Start OCR Extraction"),
               ),
             ),
             const SizedBox(height: 24),
@@ -176,20 +185,23 @@ class _OCRScanScreenState extends State<OCRScanScreen> {
                         SizedBox(width: 8),
                         Text(
                           "Information Detected (User Confirmation Required)",
-                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 15),
                         ),
                       ],
                     ),
                     const Divider(height: 20),
                     ..._extractedData!.entries.map((entry) => Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 4),
-                      child: Row(
-                        children: [
-                          Text("${entry.key}: ", style: const TextStyle(fontWeight: FontWeight.bold)),
-                          Expanded(child: Text(entry.value.toString())),
-                        ],
-                      ),
-                    )),
+                          padding: const EdgeInsets.symmetric(vertical: 4),
+                          child: Row(
+                            children: [
+                              Text("${entry.key}: ",
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.bold)),
+                              Expanded(child: Text(entry.value.toString())),
+                            ],
+                          ),
+                        )),
                   ],
                 ),
               ),
@@ -218,4 +230,3 @@ class _OCRScanScreenState extends State<OCRScanScreen> {
     );
   }
 }
-

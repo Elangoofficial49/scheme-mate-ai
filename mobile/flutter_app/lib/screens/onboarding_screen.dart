@@ -14,7 +14,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   final List<Map<String, String>> _messages = [
     {
       "sender": "ai",
-      "text": "Hello! Welcome to SchemeMate AI. What type of business or enterprise do you run or plan to start?"
+      "text":
+          "Hello! Welcome to SchemeMate AI. What type of business or enterprise do you run or plan to start?"
     }
   ];
 
@@ -30,12 +31,12 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       _textController.clear();
     });
 
-    final res = await ApiClient.post("/profile/onboard-dialogue", {
-      "user_message": text
-    });
+    final res = await ApiClient.post(
+        "/profile/onboard-dialogue", {"user_message": text});
 
     if (res["success"] == true && res["data"] != null) {
-      String aiResp = res["data"]["ai_response"] ?? "Thank you for the response.";
+      String aiResp =
+          res["data"]["ai_response"] ?? "Thank you for the response.";
       String nextQ = res["data"]["next_question"] ?? "";
       setState(() {
         _messages.add({"sender": "ai", "text": "$aiResp\n\n$nextQ"});
@@ -50,14 +51,17 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
     if (_isListeningVoice) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("🎤 Listening... Speak now (Tamil / Hindi / English supported)")),
+        const SnackBar(
+            content: Text(
+                "🎤 Listening... Speak now (Tamil / Hindi / English supported)")),
       );
       Future.delayed(const Duration(seconds: 3), () {
         if (mounted && _isListeningVoice) {
           setState(() {
             _isListeningVoice = false;
           });
-          _sendMessage("I run a small tailoring shop in Tamil Nadu requiring 2 Lakhs loan.");
+          _sendMessage(
+              "I run a small tailoring shop in Tamil Nadu requiring 2 Lakhs loan.");
         }
       });
     }
@@ -73,10 +77,12 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             onPressed: () {
               Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(builder: (context) => const DashboardScreen()),
+                MaterialPageRoute(
+                    builder: (context) => const DashboardScreen()),
               );
             },
-            child: const Text("Skip to Dashboard", style: TextStyle(color: Colors.white)),
+            child: const Text("Skip to Dashboard",
+                style: TextStyle(color: Colors.white)),
           )
         ],
       ),
@@ -106,12 +112,14 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 final msg = _messages[index];
                 bool isUser = msg["sender"] == "user";
                 return Align(
-                  alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
+                  alignment:
+                      isUser ? Alignment.centerRight : Alignment.centerLeft,
                   child: Container(
                     margin: const EdgeInsets.symmetric(vertical: 6),
                     padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
-                      color: isUser ? AppTheme.primaryBlue : Colors.grey.shade200,
+                      color:
+                          isUser ? AppTheme.primaryBlue : Colors.grey.shade200,
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
@@ -133,8 +141,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               children: [
                 IconButton(
                   icon: Icon(
-                    _isListeningVoice ? Icons.mic_rounded : Icons.mic_none_rounded,
-                    color: _isListeningVoice ? Colors.red : AppTheme.primaryBlue,
+                    _isListeningVoice
+                        ? Icons.mic_rounded
+                        : Icons.mic_none_rounded,
+                    color:
+                        _isListeningVoice ? Colors.red : AppTheme.primaryBlue,
                     size: 30,
                   ),
                   onPressed: _toggleVoiceMic,
@@ -149,7 +160,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   ),
                 ),
                 IconButton(
-                  icon: const Icon(Icons.send_rounded, color: AppTheme.primaryBlue),
+                  icon: const Icon(Icons.send_rounded,
+                      color: AppTheme.primaryBlue),
                   onPressed: () => _sendMessage(),
                 )
               ],
@@ -163,7 +175,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 onPressed: () {
                   Navigator.pushReplacement(
                     context,
-                    MaterialPageRoute(builder: (context) => const DashboardScreen()),
+                    MaterialPageRoute(
+                        builder: (context) => const DashboardScreen()),
                   );
                 },
                 child: const Text("View My Matched Schemes ->"),
@@ -175,4 +188,3 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     );
   }
 }
-

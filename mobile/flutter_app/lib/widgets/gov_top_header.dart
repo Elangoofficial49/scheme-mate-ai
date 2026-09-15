@@ -32,7 +32,8 @@ class GovTopHeader extends StatelessWidget implements PreferredSizeWidget {
         // 1. National Tricolor Line (Saffron, White, Green)
         Row(
           children: [
-            Expanded(child: Container(height: 3, color: AppTheme.accentSaffron)),
+            Expanded(
+                child: Container(height: 3, color: AppTheme.accentSaffron)),
             Expanded(child: Container(height: 3, color: Colors.white)),
             Expanded(child: Container(height: 3, color: AppTheme.govGreen)),
           ],
@@ -50,18 +51,21 @@ class GovTopHeader extends StatelessWidget implements PreferredSizeWidget {
                 children: [
                   if (showBackButton)
                     InkWell(
-                      onTap: onBackPressed ?? () {
-                        if (Navigator.canPop(context)) {
-                          Navigator.pop(context);
-                        } else {
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(builder: (context) => const HomeScreen()),
-                          );
-                        }
-                      },
+                      onTap: onBackPressed ??
+                          () {
+                            if (Navigator.canPop(context)) {
+                              Navigator.pop(context);
+                            } else {
+                              Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => const HomeScreen()),
+                              );
+                            }
+                          },
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 2),
                         margin: const EdgeInsets.only(right: 8),
                         decoration: BoxDecoration(
                           color: AppTheme.accentSaffron,
@@ -70,17 +74,22 @@ class GovTopHeader extends StatelessWidget implements PreferredSizeWidget {
                         child: const Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Icon(Icons.arrow_back, color: Colors.white, size: 12),
+                            Icon(Icons.arrow_back,
+                                color: Colors.white, size: 12),
                             SizedBox(width: 4),
                             Text(
                               "BACK",
-                              style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.bold),
                             ),
                           ],
                         ),
                       ),
                     ),
-                  const Icon(Icons.account_balance, color: AppTheme.accentSaffron, size: 14),
+                  const Icon(Icons.account_balance,
+                      color: AppTheme.accentSaffron, size: 14),
                   const SizedBox(width: 6),
                   const Text(
                     "भारत सरकार | GOVERNMENT OF INDIA",
@@ -116,7 +125,8 @@ class GovTopHeader extends StatelessWidget implements PreferredSizeWidget {
                       );
                     },
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 2),
                       decoration: BoxDecoration(
                         color: Colors.white.withOpacity(0.12),
                         borderRadius: BorderRadius.circular(4),
@@ -124,7 +134,8 @@ class GovTopHeader extends StatelessWidget implements PreferredSizeWidget {
                       ),
                       child: Row(
                         children: [
-                          const Icon(Icons.g_translate, color: Colors.white, size: 12),
+                          const Icon(Icons.g_translate,
+                              color: Colors.white, size: 12),
                           const SizedBox(width: 4),
                           Text(
                             localeProv.currentLanguageName,
@@ -134,7 +145,8 @@ class GovTopHeader extends StatelessWidget implements PreferredSizeWidget {
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                          const Icon(Icons.arrow_drop_down, color: Colors.white, size: 14),
+                          const Icon(Icons.arrow_drop_down,
+                              color: Colors.white, size: 14),
                         ],
                       ),
                     ),
@@ -163,30 +175,37 @@ class GovTopHeader extends StatelessWidget implements PreferredSizeWidget {
                   child: Material(
                     color: Colors.transparent,
                     child: InkWell(
-                      onTap: onBackPressed ?? () {
-                        if (Navigator.canPop(context)) {
-                          Navigator.pop(context);
-                        } else {
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(builder: (context) => const HomeScreen()),
-                          );
-                        }
-                      },
+                      onTap: onBackPressed ??
+                          () {
+                            if (Navigator.canPop(context)) {
+                              Navigator.pop(context);
+                            } else {
+                              Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => const HomeScreen()),
+                              );
+                            }
+                          },
                       borderRadius: BorderRadius.circular(8),
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 8),
                         decoration: BoxDecoration(
                           color: AppTheme.accentSaffron,
                           borderRadius: BorderRadius.circular(8),
                           boxShadow: const [
-                            BoxShadow(color: Colors.black26, blurRadius: 4, offset: Offset(0, 2)),
+                            BoxShadow(
+                                color: Colors.black26,
+                                blurRadius: 4,
+                                offset: Offset(0, 2)),
                           ],
                         ),
                         child: const Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Icon(Icons.arrow_back, color: Colors.white, size: 20),
+                            Icon(Icons.arrow_back,
+                                color: Colors.white, size: 20),
                             SizedBox(width: 6),
                             Text(
                               "BACK",
@@ -210,7 +229,9 @@ class GovTopHeader extends StatelessWidget implements PreferredSizeWidget {
                 decoration: BoxDecoration(
                   color: Colors.white.withOpacity(0.1),
                   shape: BoxShape.circle,
-                  border: Border.all(color: AppTheme.accentSaffron.withOpacity(0.5), width: 1.5),
+                  border: Border.all(
+                      color: AppTheme.accentSaffron.withOpacity(0.5),
+                      width: 1.5),
                 ),
                 child: const Icon(
                   Icons.verified,
@@ -239,7 +260,8 @@ class GovTopHeader extends StatelessWidget implements PreferredSizeWidget {
                         ),
                         const SizedBox(width: 8),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 6, vertical: 2),
                           decoration: BoxDecoration(
                             color: AppTheme.govGreen,
                             borderRadius: BorderRadius.circular(4),
@@ -279,4 +301,3 @@ class GovTopHeader extends StatelessWidget implements PreferredSizeWidget {
     );
   }
 }
-

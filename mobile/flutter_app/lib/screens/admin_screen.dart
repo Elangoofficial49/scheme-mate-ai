@@ -45,7 +45,8 @@ class _AdminScreenState extends State<AdminScreen> {
             } else {
               Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(builder: (context) => const DashboardScreen()),
+                MaterialPageRoute(
+                    builder: (context) => const DashboardScreen()),
               );
             }
           },
@@ -56,7 +57,8 @@ class _AdminScreenState extends State<AdminScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text("System Audit Trail & Security Events", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            const Text("System Audit Trail & Security Events",
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             const SizedBox(height: 10),
             if (_isLoading)
               const Center(child: CircularProgressIndicator())
@@ -70,10 +72,13 @@ class _AdminScreenState extends State<AdminScreen> {
                     final log = _auditLogs[index];
                     return Card(
                       child: ListTile(
-                        leading: const Icon(Icons.shield_outlined, color: AppTheme.primaryBlue),
+                        leading: const Icon(Icons.shield_outlined,
+                            color: AppTheme.primaryBlue),
                         title: Text(log["action"] ?? "ACTION"),
-                        subtitle: Text("User: ${log['user_id'] ?? 'Anonymous'} | ${log['created_at']}"),
-                        trailing: const Icon(Icons.check_circle, color: AppTheme.successGreen, size: 18),
+                        subtitle: Text(
+                            "User: ${log['user_id'] ?? 'Anonymous'} | ${log['created_at']}"),
+                        trailing: const Icon(Icons.check_circle,
+                            color: AppTheme.successGreen, size: 18),
                       ),
                     );
                   },
@@ -85,4 +90,3 @@ class _AdminScreenState extends State<AdminScreen> {
     );
   }
 }
-

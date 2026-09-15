@@ -13,7 +13,8 @@ class AppLocalizations {
     return Localizations.of<AppLocalizations>(context, AppLocalizations);
   }
 
-  static const LocalizationsDelegate<AppLocalizations> delegate = _AppLocalizationsDelegate();
+  static const LocalizationsDelegate<AppLocalizations> delegate =
+      _AppLocalizationsDelegate();
 
   Map<String, String> _localizedStrings = {};
 
@@ -30,7 +31,8 @@ class AppLocalizations {
     // 2. Load requested language JSON if available and merge
     if (locale.languageCode != 'en') {
       try {
-        String langJson = await rootBundle.loadString('assets/i18n/${locale.languageCode}.json');
+        String langJson = await rootBundle
+            .loadString('assets/i18n/${locale.languageCode}.json');
         Map<String, dynamic> langMap = json.decode(langJson);
         langMap.forEach((key, value) {
           if (value != null && value.toString().isNotEmpty) {
@@ -49,7 +51,8 @@ class AppLocalizations {
   }
 }
 
-class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
+class _AppLocalizationsDelegate
+    extends LocalizationsDelegate<AppLocalizations> {
   const _AppLocalizationsDelegate();
 
   @override
@@ -68,7 +71,8 @@ class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> 
   bool shouldReload(_AppLocalizationsDelegate old) => true;
 }
 
-class FallbackMaterialLocalizationsDelegate extends LocalizationsDelegate<MaterialLocalizations> {
+class FallbackMaterialLocalizationsDelegate
+    extends LocalizationsDelegate<MaterialLocalizations> {
   const FallbackMaterialLocalizationsDelegate();
 
   @override
@@ -76,14 +80,16 @@ class FallbackMaterialLocalizationsDelegate extends LocalizationsDelegate<Materi
 
   @override
   Future<MaterialLocalizations> load(Locale locale) async {
-    return await GlobalMaterialLocalizations.delegate.load(const Locale('en', ''));
+    return await GlobalMaterialLocalizations.delegate
+        .load(const Locale('en', ''));
   }
 
   @override
   bool shouldReload(FallbackMaterialLocalizationsDelegate old) => false;
 }
 
-class FallbackCupertinoLocalizationsDelegate extends LocalizationsDelegate<CupertinoLocalizations> {
+class FallbackCupertinoLocalizationsDelegate
+    extends LocalizationsDelegate<CupertinoLocalizations> {
   const FallbackCupertinoLocalizationsDelegate();
 
   @override
@@ -91,7 +97,8 @@ class FallbackCupertinoLocalizationsDelegate extends LocalizationsDelegate<Cuper
 
   @override
   Future<CupertinoLocalizations> load(Locale locale) async {
-    return await GlobalCupertinoLocalizations.delegate.load(const Locale('en', ''));
+    return await GlobalCupertinoLocalizations.delegate
+        .load(const Locale('en', ''));
   }
 
   @override

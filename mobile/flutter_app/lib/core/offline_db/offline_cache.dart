@@ -48,4 +48,3 @@ class OfflineCache {
     return null;
   }
 }
-

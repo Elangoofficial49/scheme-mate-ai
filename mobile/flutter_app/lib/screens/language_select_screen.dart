@@ -85,7 +85,8 @@ class _LanguageSelectScreenState extends State<LanguageSelectScreen> {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: isSelected ? AppTheme.primaryBlue.withOpacity(0.1) : Colors.white,
+          color:
+              isSelected ? AppTheme.primaryBlue.withOpacity(0.1) : Colors.white,
           border: Border.all(
             color: isSelected ? AppTheme.primaryBlue : Colors.grey.shade300,
             width: isSelected ? 2 : 1,
@@ -94,15 +95,18 @@ class _LanguageSelectScreenState extends State<LanguageSelectScreen> {
         ),
         child: Row(
           children: [
-            Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            Text(title,
+                style:
+                    const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             const Spacer(),
-            Text(subtitle, style: const TextStyle(fontSize: 14, color: Colors.grey)),
+            Text(subtitle,
+                style: const TextStyle(fontSize: 14, color: Colors.grey)),
             const SizedBox(width: 10),
-            if (isSelected) const Icon(Icons.check_circle, color: AppTheme.primaryBlue),
+            if (isSelected)
+              const Icon(Icons.check_circle, color: AppTheme.primaryBlue),
           ],
         ),
       ),
     );
   }
 }
-

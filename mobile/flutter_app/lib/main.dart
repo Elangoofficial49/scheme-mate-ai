@@ -35,7 +35,9 @@ class SchemeMateApp extends StatelessWidget {
             debugShowCheckedModeBanner: false,
             theme: AppTheme.lightTheme,
             locale: localeProv.currentLocale,
-            supportedLocales: AppLanguages.supportedCodes.map((code) => Locale(code, '')).toList(),
+            supportedLocales: AppLanguages.supportedCodes
+                .map((code) => Locale(code, ''))
+                .toList(),
             localizationsDelegates: const [
               AppLocalizations.delegate,
               FallbackMaterialLocalizationsDelegate(),

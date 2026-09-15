@@ -60,12 +60,14 @@ class _LanguageSelectorSheetState extends State<LanguageSelectorSheet> {
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
             child: Row(
               children: [
-                const Icon(Icons.language_rounded, color: AppTheme.primaryBlue, size: 24),
+                const Icon(Icons.language_rounded,
+                    color: AppTheme.primaryBlue, size: 24),
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text(
                     context.tr("select_your_language"),
-                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                        fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                 ),
                 IconButton(
@@ -84,8 +86,10 @@ class _LanguageSelectorSheetState extends State<LanguageSelectorSheet> {
               decoration: InputDecoration(
                 hintText: "Search language / भाषा खोजें / மொழியைத் தேடுக...",
                 prefixIcon: const Icon(Icons.search_rounded),
-                contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 14),
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                contentPadding:
+                    const EdgeInsets.symmetric(vertical: 10, horizontal: 14),
+                border:
+                    OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                 filled: true,
                 fillColor: Colors.grey.shade50,
               ),
@@ -100,7 +104,8 @@ class _LanguageSelectorSheetState extends State<LanguageSelectorSheet> {
                     child: Text("No language found matching search"),
                   )
                 : ListView.builder(
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
                     itemCount: filteredLangs.length,
                     itemBuilder: (context, index) {
                       final lang = filteredLangs[index];
@@ -111,28 +116,36 @@ class _LanguageSelectorSheetState extends State<LanguageSelectorSheet> {
                         child: InkWell(
                           onTap: () {
                             localeProv.setLocale(lang.code);
-                            final schemeProv = Provider.of<SchemeProvider>(context, listen: false);
-                            schemeProv.fetchGeminiSuggestions(preferredLanguage: lang.code);
-                            schemeProv.fetchRecommendations(preferredLanguage: lang.code);
+                            final schemeProv = Provider.of<SchemeProvider>(
+                                context,
+                                listen: false);
+                            schemeProv.fetchGeminiSuggestions(
+                                preferredLanguage: lang.code);
+                            schemeProv.fetchRecommendations(
+                                preferredLanguage: lang.code);
                             Navigator.pop(context);
                           },
                           borderRadius: BorderRadius.circular(10),
                           child: AnimatedContainer(
                             duration: const Duration(milliseconds: 150),
-                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 16, vertical: 12),
                             decoration: BoxDecoration(
                               color: isSelected
                                   ? AppTheme.primaryBlue.withOpacity(0.08)
                                   : Colors.grey.shade50,
                               border: Border.all(
-                                color: isSelected ? AppTheme.primaryBlue : Colors.grey.shade300,
+                                color: isSelected
+                                    ? AppTheme.primaryBlue
+                                    : Colors.grey.shade300,
                                 width: isSelected ? 2 : 1,
                               ),
                               borderRadius: BorderRadius.circular(10),
                             ),
                             child: Row(
                               children: [
-                                Text(lang.flag, style: const TextStyle(fontSize: 20)),
+                                Text(lang.flag,
+                                    style: const TextStyle(fontSize: 20)),
                                 const SizedBox(width: 14),
                                 Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -141,19 +154,26 @@ class _LanguageSelectorSheetState extends State<LanguageSelectorSheet> {
                                       lang.nativeName,
                                       style: TextStyle(
                                         fontSize: 16,
-                                        fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
-                                        color: isSelected ? AppTheme.primaryBlue : Colors.black87,
+                                        fontWeight: isSelected
+                                            ? FontWeight.bold
+                                            : FontWeight.w600,
+                                        color: isSelected
+                                            ? AppTheme.primaryBlue
+                                            : Colors.black87,
                                       ),
                                     ),
                                     Text(
                                       lang.name,
-                                      style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                                      style: TextStyle(
+                                          fontSize: 12,
+                                          color: Colors.grey.shade600),
                                     ),
                                   ],
                                 ),
                                 const Spacer(),
                                 if (isSelected)
-                                  const Icon(Icons.check_circle_rounded, color: AppTheme.primaryBlue, size: 22)
+                                  const Icon(Icons.check_circle_rounded,
+                                      color: AppTheme.primaryBlue, size: 22)
                                 else
                                   Icon(Icons.radio_button_unchecked_rounded,
                                       color: Colors.grey.shade400, size: 22),

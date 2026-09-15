@@ -62,7 +62,8 @@ class GovFooter extends StatelessWidget {
       children: [
         Text(
           title,
-          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
+          style: const TextStyle(
+              color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
         ),
         const SizedBox(height: 2),
         Text(
@@ -83,9 +84,11 @@ class GovFooter extends StatelessWidget {
       ),
       child: Text(
         text,
-        style: const TextStyle(color: Colors.white70, fontSize: 11, decoration: TextDecoration.underline),
+        style: const TextStyle(
+            color: Colors.white70,
+            fontSize: 11,
+            decoration: TextDecoration.underline),
       ),
     );
   }
 }
-

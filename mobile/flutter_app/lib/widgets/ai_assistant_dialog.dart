@@ -15,7 +15,8 @@ class _AiAssistantDialogState extends State<AiAssistantDialog> {
   final List<Map<String, String>> _messages = [
     {
       "role": "assistant",
-      "content": "Namaste! 🙏 I am SchemeMate AI, your multilingual scheme advisor. How can I assist you today with government schemes, eligibility, or subsidies?"
+      "content":
+          "Namaste! 🙏 I am SchemeMate AI, your multilingual scheme advisor. How can I assist you today with government schemes, eligibility, or subsidies?"
     }
   ];
   bool _isLoading = false;
@@ -42,14 +43,16 @@ class _AiAssistantDialogState extends State<AiAssistantDialog> {
         setState(() {
           _messages.add({
             "role": "assistant",
-            "content": res['reply'] ?? "I am here to guide you with government schemes!"
+            "content": res['reply'] ??
+                "I am here to guide you with government schemes!"
           });
         });
       } else {
         setState(() {
           _messages.add({
             "role": "assistant",
-            "content": "You are eligible for PMEGP (up to 35% subsidy) and MUDRA loans! Would you like step-by-step guidance on how to apply?"
+            "content":
+                "You are eligible for PMEGP (up to 35% subsidy) and MUDRA loans! Would you like step-by-step guidance on how to apply?"
           });
         });
       }
@@ -57,7 +60,8 @@ class _AiAssistantDialogState extends State<AiAssistantDialog> {
       setState(() {
         _messages.add({
           "role": "assistant",
-          "content": "I am analyzing your profile! You can explore PMEGP (up to 35% margin money subsidy), MUDRA loans, and PM Vishwakarma. What business would you like to start?"
+          "content":
+              "I am analyzing your profile! You can explore PMEGP (up to 35% margin money subsidy), MUDRA loans, and PM Vishwakarma. What business would you like to start?"
         });
       });
     } finally {
@@ -91,7 +95,10 @@ class _AiAssistantDialogState extends State<AiAssistantDialog> {
                     children: const [
                       Text(
                         'SchemeMate AI Assistant',
-                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Color(0xFF003366)),
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                            color: Color(0xFF003366)),
                       ),
                       Text(
                         'Real-time Multilingual Guidance',
@@ -117,15 +124,19 @@ class _AiAssistantDialogState extends State<AiAssistantDialog> {
                   final msg = _messages[index];
                   final isUser = msg["role"] == "user";
                   return Align(
-                    alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
+                    alignment:
+                        isUser ? Alignment.centerRight : Alignment.centerLeft,
                     child: Container(
                       margin: const EdgeInsets.symmetric(vertical: 4),
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: isUser ? const Color(0xFF003366) : Colors.grey[200],
+                        color:
+                            isUser ? const Color(0xFF003366) : Colors.grey[200],
                         borderRadius: BorderRadius.circular(16).copyWith(
-                          bottomRight: isUser ? Radius.zero : const Radius.circular(16),
-                          bottomLeft: !isUser ? Radius.zero : const Radius.circular(16),
+                          bottomRight:
+                              isUser ? Radius.zero : const Radius.circular(16),
+                          bottomLeft:
+                              !isUser ? Radius.zero : const Radius.circular(16),
                         ),
                       ),
                       child: Text(
@@ -168,8 +179,10 @@ class _AiAssistantDialogState extends State<AiAssistantDialog> {
                     controller: _controller,
                     decoration: InputDecoration(
                       hintText: 'Type your question in any language...',
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(24)),
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(24)),
+                      contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 12),
                     ),
                     onSubmitted: _sendMessage,
                   ),

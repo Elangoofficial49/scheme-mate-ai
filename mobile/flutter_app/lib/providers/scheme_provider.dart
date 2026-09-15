@@ -37,14 +37,16 @@ class SchemeProvider with ChangeNotifier {
     if (res["success"] == true && res["data"] != null) {
       _isOffline = false;
       List<dynamic> list = res["data"];
-      _recommendations = list.map((item) => MatchResultModel.fromJson(item)).toList();
+      _recommendations =
+          list.map((item) => MatchResultModel.fromJson(item)).toList();
       await OfflineCache.cacheSchemes(list);
     } else {
       // Fallback to local offline cache
       _isOffline = true;
       List<dynamic> cached = await OfflineCache.getCachedSchemes();
       if (cached.isNotEmpty) {
-        _recommendations = cached.map((item) => MatchResultModel.fromJson(item)).toList();
+        _recommendations =
+            cached.map((item) => MatchResultModel.fromJson(item)).toList();
       }
     }
 
@@ -68,7 +70,8 @@ class SchemeProvider with ChangeNotifier {
 
     if (res["success"] == true && res["data"] != null) {
       List<dynamic> rawList = res["data"];
-      _geminiSuggestions = rawList.map((e) => Map<String, dynamic>.from(e as Map)).toList();
+      _geminiSuggestions =
+          rawList.map((e) => Map<String, dynamic>.from(e as Map)).toList();
       _geminiSummary = res["ai_analysis_summary"]?.toString();
       _geminiProvider = res["provider"]?.toString();
     }
@@ -86,4 +89,3 @@ class SchemeProvider with ChangeNotifier {
     }
   }
 }
-

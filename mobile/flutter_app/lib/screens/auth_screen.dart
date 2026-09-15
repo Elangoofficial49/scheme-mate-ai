@@ -12,7 +12,8 @@ import 'business_profile_form_screen.dart';
 
 class AuthScreen extends StatefulWidget {
   final bool startInCreateAccountTab;
-  const AuthScreen({Key? key, this.startInCreateAccountTab = false}) : super(key: key);
+  const AuthScreen({Key? key, this.startInCreateAccountTab = false})
+      : super(key: key);
 
   @override
   State<AuthScreen> createState() => _AuthScreenState();
@@ -38,26 +39,32 @@ class _AuthScreenState extends State<AuthScreen> {
     final auth = Provider.of<AuthProvider>(context, listen: false);
 
     if (_isLoginTab) {
-      if (_emailController.text.trim().isEmpty || _passwordController.text.trim().isEmpty) {
+      if (_emailController.text.trim().isEmpty ||
+          _passwordController.text.trim().isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Please enter your registered email address and password.")),
+          const SnackBar(
+              content: Text(
+                  "Please enter your registered email address and password.")),
         );
         return;
       }
 
       setState(() => _isLoading = true);
-      bool success = await auth.login(_emailController.text.trim(), _passwordController.text.trim());
+      bool success = await auth.login(
+          _emailController.text.trim(), _passwordController.text.trim());
       setState(() => _isLoading = false);
 
       if (success && mounted) {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => const BusinessProfileFormScreen()),
+          MaterialPageRoute(
+              builder: (context) => const BusinessProfileFormScreen()),
         );
       } else if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text("Authentication failed. Invalid email address or password."),
+            content: Text(
+                "Authentication failed. Invalid email address or password."),
             backgroundColor: AppTheme.warningOrange,
           ),
         );
@@ -69,7 +76,9 @@ class _AuthScreenState extends State<AuthScreen> {
           _phoneController.text.trim().isEmpty ||
           _passwordController.text.trim().isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Please fill all required fields to create your account.")),
+          const SnackBar(
+              content: Text(
+                  "Please fill all required fields to create your account.")),
         );
         return;
       }
@@ -94,7 +103,8 @@ class _AuthScreenState extends State<AuthScreen> {
       } else if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(res["message"] ?? "Registration failed. Email or phone number might already be registered."),
+            content: Text(res["message"] ??
+                "Registration failed. Email or phone number might already be registered."),
             backgroundColor: AppTheme.warningOrange,
           ),
         );
@@ -115,7 +125,8 @@ class _AuthScreenState extends State<AuthScreen> {
       builder: (ctx) {
         return StatefulBuilder(
           builder: (context, setModalState) {
-            countdownTimer ??= Timer.periodic(const Duration(seconds: 1), (timer) {
+            countdownTimer ??=
+                Timer.periodic(const Duration(seconds: 1), (timer) {
               if (secondsRemaining > 0) {
                 setModalState(() => secondsRemaining--);
               } else {
@@ -124,14 +135,19 @@ class _AuthScreenState extends State<AuthScreen> {
             });
 
             return AlertDialog(
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12)),
               title: Row(
                 children: [
-                  const Icon(Icons.mark_email_read_rounded, color: AppTheme.primaryNavy),
+                  const Icon(Icons.mark_email_read_rounded,
+                      color: AppTheme.primaryNavy),
                   const SizedBox(width: 8),
                   Text(
                     context.tr("verify_email_otp_title"),
-                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: AppTheme.primaryNavy),
+                    style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                        color: AppTheme.primaryNavy),
                   ),
                 ],
               ),
@@ -142,18 +158,23 @@ class _AuthScreenState extends State<AuthScreen> {
                   children: [
                     Text(
                       context.tr("otp_subtitle"),
-                      style: const TextStyle(fontSize: 14, color: Colors.black87),
+                      style:
+                          const TextStyle(fontSize: 14, color: Colors.black87),
                     ),
                     const SizedBox(height: 4),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 4),
                       decoration: BoxDecoration(
                         color: AppTheme.primaryNavy.withOpacity(0.08),
                         borderRadius: BorderRadius.circular(6),
                       ),
                       child: Text(
                         email,
-                        style: const TextStyle(fontWeight: FontWeight.bold, color: AppTheme.primaryNavy, fontSize: 13),
+                        style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: AppTheme.primaryNavy,
+                            fontSize: 13),
                       ),
                     ),
                     const SizedBox(height: 16),
@@ -162,13 +183,18 @@ class _AuthScreenState extends State<AuthScreen> {
                       keyboardType: TextInputType.number,
                       maxLength: 6,
                       textAlign: TextAlign.center,
-                      style: const TextStyle(fontSize: 22, letterSpacing: 8, fontWeight: FontWeight.bold),
+                      style: const TextStyle(
+                          fontSize: 22,
+                          letterSpacing: 8,
+                          fontWeight: FontWeight.bold),
                       decoration: InputDecoration(
                         hintText: "• • • • • •",
                         hintStyle: const TextStyle(letterSpacing: 4),
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10)),
                         counterText: "",
-                        contentPadding: const EdgeInsets.symmetric(vertical: 12),
+                        contentPadding:
+                            const EdgeInsets.symmetric(vertical: 12),
                       ),
                     ),
                     const SizedBox(height: 12),
@@ -179,15 +205,19 @@ class _AuthScreenState extends State<AuthScreen> {
                           onPressed: secondsRemaining == 0 && !isResending
                               ? () async {
                                   setModalState(() => isResending = true);
-                                  final auth = Provider.of<AuthProvider>(context, listen: false);
-                                  final res = await auth.resendOtp(phone, email: email);
+                                  final auth = Provider.of<AuthProvider>(
+                                      context,
+                                      listen: false);
+                                  final res =
+                                      await auth.resendOtp(phone, email: email);
                                   setModalState(() {
                                     isResending = false;
                                     secondsRemaining = 15;
                                   });
 
                                   countdownTimer?.cancel();
-                                  countdownTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+                                  countdownTimer = Timer.periodic(
+                                      const Duration(seconds: 1), (timer) {
                                     if (secondsRemaining > 0) {
                                       setModalState(() => secondsRemaining--);
                                     } else {
@@ -198,7 +228,8 @@ class _AuthScreenState extends State<AuthScreen> {
                                   if (res["success"] == true && mounted) {
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
-                                        content: Text("Dispatched 6-digit OTP to $email!"),
+                                        content: Text(
+                                            "Dispatched 6-digit OTP to $email!"),
                                         backgroundColor: AppTheme.primaryNavy,
                                       ),
                                     );
@@ -206,20 +237,29 @@ class _AuthScreenState extends State<AuthScreen> {
                                 }
                               : null,
                           icon: isResending
-                              ? const SizedBox(width: 12, height: 12, child: CircularProgressIndicator(strokeWidth: 2))
+                              ? const SizedBox(
+                                  width: 12,
+                                  height: 12,
+                                  child:
+                                      CircularProgressIndicator(strokeWidth: 2))
                               : Icon(
                                   Icons.replay_rounded,
                                   size: 16,
-                                  color: secondsRemaining == 0 ? AppTheme.primaryNavy : Colors.grey,
+                                  color: secondsRemaining == 0
+                                      ? AppTheme.primaryNavy
+                                      : Colors.grey,
                                 ),
                           label: Text(
                             secondsRemaining > 0
-                                ? context.tr("resend_in", {"seconds": "$secondsRemaining"})
+                                ? context.tr("resend_in",
+                                    {"seconds": "$secondsRemaining"})
                                 : context.tr("resend_otp"),
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 13,
-                              color: secondsRemaining == 0 ? AppTheme.primaryNavy : Colors.grey,
+                              color: secondsRemaining == 0
+                                  ? AppTheme.primaryNavy
+                                  : Colors.grey,
                             ),
                           ),
                         ),
@@ -240,11 +280,13 @@ class _AuthScreenState extends State<AuthScreen> {
                   onPressed: isVerifying
                       ? null
                       : () async {
-                          final cleanEnteredOtp = otpController.text.replaceAll(" ", "").trim();
+                          final cleanEnteredOtp =
+                              otpController.text.replaceAll(" ", "").trim();
                           if (cleanEnteredOtp.length != 6) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
-                                content: Text("Please enter the complete 6-digit OTP code."),
+                                content: Text(
+                                    "Please enter the complete 6-digit OTP code."),
                                 backgroundColor: AppTheme.warningOrange,
                               ),
                             );
@@ -252,8 +294,10 @@ class _AuthScreenState extends State<AuthScreen> {
                           }
 
                           setModalState(() => isVerifying = true);
-                          final auth = Provider.of<AuthProvider>(context, listen: false);
-                          final bool success = await auth.verifyOtp(phone, cleanEnteredOtp);
+                          final auth =
+                              Provider.of<AuthProvider>(context, listen: false);
+                          final bool success =
+                              await auth.verifyOtp(phone, cleanEnteredOtp);
                           setModalState(() => isVerifying = false);
 
                           if (success && mounted) {
@@ -262,7 +306,8 @@ class _AuthScreenState extends State<AuthScreen> {
 
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
-                                content: Text("Account verified successfully! You can now log in."),
+                                content: Text(
+                                    "Account verified successfully! You can now log in."),
                                 backgroundColor: AppTheme.govGreen,
                               ),
                             );
@@ -275,7 +320,8 @@ class _AuthScreenState extends State<AuthScreen> {
                           } else if (mounted) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
-                                content: Text("Invalid OTP code. Please check the code sent to your email."),
+                                content: Text(
+                                    "Invalid OTP code. Please check the code sent to your email."),
                                 backgroundColor: AppTheme.warningOrange,
                               ),
                             );
@@ -283,13 +329,15 @@ class _AuthScreenState extends State<AuthScreen> {
                         },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppTheme.govGreen,
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 12),
                   ),
                   child: isVerifying
                       ? const SizedBox(
                           width: 20,
                           height: 20,
-                          child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                          child: CircularProgressIndicator(
+                              color: Colors.white, strokeWidth: 2),
                         )
                       : Text(context.tr("verify_otp_btn")),
                 ),
@@ -305,13 +353,16 @@ class _AuthScreenState extends State<AuthScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: GovTopHeader(
-        title: _isLoginTab ? context.tr("login_title") : context.tr("create_account_title"),
+        title: _isLoginTab
+            ? context.tr("login_title")
+            : context.tr("create_account_title"),
       ),
       body: Column(
         children: [
           Expanded(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 28.0),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 16.0, vertical: 28.0),
               child: Center(
                 child: ConstrainedBox(
                   constraints: const BoxConstraints(maxWidth: 500),
@@ -319,25 +370,31 @@ class _AuthScreenState extends State<AuthScreen> {
                     elevation: 3,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
-                      side: const BorderSide(color: AppTheme.primaryNavy, width: 1.2),
+                      side: const BorderSide(
+                          color: AppTheme.primaryNavy, width: 1.2),
                     ),
                     child: Column(
                       children: [
                         // Card Header Ribbon
                         Container(
                           width: double.infinity,
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 12),
                           decoration: const BoxDecoration(
                             color: AppTheme.primaryNavy,
-                            borderRadius: BorderRadius.vertical(top: Radius.circular(10)),
+                            borderRadius:
+                                BorderRadius.vertical(top: Radius.circular(10)),
                           ),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              const Icon(Icons.shield_outlined, color: AppTheme.accentSaffron, size: 18),
+                              const Icon(Icons.shield_outlined,
+                                  color: AppTheme.accentSaffron, size: 18),
                               const SizedBox(width: 8),
                               Text(
-                                _isLoginTab ? "CITIZEN PORTAL SINGLE SIGN-ON (SSO)" : "NATIONAL ENTREPRENEUR REGISTRATION",
+                                _isLoginTab
+                                    ? "CITIZEN PORTAL SINGLE SIGN-ON (SSO)"
+                                    : "NATIONAL ENTREPRENEUR REGISTRATION",
                                 style: const TextStyle(
                                   color: Colors.white,
                                   fontWeight: FontWeight.bold,
@@ -359,22 +416,35 @@ class _AuthScreenState extends State<AuthScreen> {
                                 children: [
                                   ChoiceChip(
                                     label: Padding(
-                                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                                      child: Text(context.tr("tab_login"), style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 12, vertical: 4),
+                                      child: Text(context.tr("tab_login"),
+                                          style: const TextStyle(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.bold)),
                                     ),
                                     selected: _isLoginTab,
-                                    selectedColor: AppTheme.primaryNavy.withOpacity(0.12),
-                                    onSelected: (val) => setState(() => _isLoginTab = true),
+                                    selectedColor:
+                                        AppTheme.primaryNavy.withOpacity(0.12),
+                                    onSelected: (val) =>
+                                        setState(() => _isLoginTab = true),
                                   ),
                                   const SizedBox(width: 16),
                                   ChoiceChip(
                                     label: Padding(
-                                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                                      child: Text(context.tr("tab_create_account"), style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 12, vertical: 4),
+                                      child: Text(
+                                          context.tr("tab_create_account"),
+                                          style: const TextStyle(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.bold)),
                                     ),
                                     selected: !_isLoginTab,
-                                    selectedColor: AppTheme.primaryNavy.withOpacity(0.12),
-                                    onSelected: (val) => setState(() => _isLoginTab = false),
+                                    selectedColor:
+                                        AppTheme.primaryNavy.withOpacity(0.12),
+                                    onSelected: (val) =>
+                                        setState(() => _isLoginTab = false),
                                   ),
                                 ],
                               ),
@@ -387,7 +457,8 @@ class _AuthScreenState extends State<AuthScreen> {
                                   decoration: InputDecoration(
                                     labelText: context.tr("registered_email"),
                                     hintText: context.tr("email_hint"),
-                                    prefixIcon: const Icon(Icons.email_outlined, color: AppTheme.primaryNavy),
+                                    prefixIcon: const Icon(Icons.email_outlined,
+                                        color: AppTheme.primaryNavy),
                                     border: const OutlineInputBorder(),
                                   ),
                                 ),
@@ -398,31 +469,32 @@ class _AuthScreenState extends State<AuthScreen> {
                                   decoration: InputDecoration(
                                     labelText: context.tr("full_name"),
                                     hintText: context.tr("full_name_hint"),
-                                    prefixIcon: const Icon(Icons.person_outline, color: AppTheme.primaryNavy),
+                                    prefixIcon: const Icon(Icons.person_outline,
+                                        color: AppTheme.primaryNavy),
                                     border: const OutlineInputBorder(),
                                   ),
                                 ),
                                 const SizedBox(height: 16),
-
                                 TextField(
                                   controller: _emailController,
                                   keyboardType: TextInputType.emailAddress,
                                   decoration: InputDecoration(
                                     labelText: context.tr("registered_email"),
                                     hintText: context.tr("email_hint"),
-                                    prefixIcon: const Icon(Icons.email_outlined, color: AppTheme.primaryNavy),
+                                    prefixIcon: const Icon(Icons.email_outlined,
+                                        color: AppTheme.primaryNavy),
                                     border: const OutlineInputBorder(),
                                   ),
                                 ),
                                 const SizedBox(height: 16),
-
                                 TextField(
                                   controller: _phoneController,
                                   keyboardType: TextInputType.phone,
                                   decoration: InputDecoration(
                                     labelText: context.tr("phone_number"),
                                     hintText: context.tr("phone_hint"),
-                                    prefixIcon: const Icon(Icons.phone_outlined, color: AppTheme.primaryNavy),
+                                    prefixIcon: const Icon(Icons.phone_outlined,
+                                        color: AppTheme.primaryNavy),
                                     border: const OutlineInputBorder(),
                                   ),
                                 ),
@@ -434,8 +506,11 @@ class _AuthScreenState extends State<AuthScreen> {
                                 obscureText: true,
                                 decoration: InputDecoration(
                                   labelText: context.tr("password"),
-                                  hintText: _isLoginTab ? context.tr("password_hint") : context.tr("password_min_hint"),
-                                  prefixIcon: const Icon(Icons.lock_outline, color: AppTheme.primaryNavy),
+                                  hintText: _isLoginTab
+                                      ? context.tr("password_hint")
+                                      : context.tr("password_min_hint"),
+                                  prefixIcon: const Icon(Icons.lock_outline,
+                                      color: AppTheme.primaryNavy),
                                   border: const OutlineInputBorder(),
                                 ),
                               ),
@@ -446,14 +521,21 @@ class _AuthScreenState extends State<AuthScreen> {
                                 child: ElevatedButton(
                                   onPressed: _isLoading ? null : _submit,
                                   style: ElevatedButton.styleFrom(
-                                    padding: const EdgeInsets.symmetric(vertical: 14),
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 14),
                                     backgroundColor: AppTheme.primaryNavy,
                                   ),
                                   child: _isLoading
-                                      ? const CircularProgressIndicator(color: Colors.white)
+                                      ? const CircularProgressIndicator(
+                                          color: Colors.white)
                                       : Text(
-                                          _isLoginTab ? context.tr("btn_login_submit") : context.tr("btn_register_submit"),
-                                          style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                                          _isLoginTab
+                                              ? context.tr("btn_login_submit")
+                                              : context
+                                                  .tr("btn_register_submit"),
+                                          style: const TextStyle(
+                                              fontSize: 15,
+                                              fontWeight: FontWeight.bold),
                                         ),
                                 ),
                               ),
@@ -462,12 +544,16 @@ class _AuthScreenState extends State<AuthScreen> {
                               if (_isLoginTab)
                                 TextButton(
                                   onPressed: () {
-                                    _emailController.text = "ramesh@example.com";
+                                    _emailController.text =
+                                        "ramesh@example.com";
                                     _passwordController.text = "123456";
                                   },
                                   child: const Text(
                                     "⚡ Quick Demo Login (Ramesh Kumar)",
-                                    style: TextStyle(color: AppTheme.primaryNavy, fontWeight: FontWeight.bold, fontSize: 13),
+                                    style: TextStyle(
+                                        color: AppTheme.primaryNavy,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 13),
                                   ),
                                 ),
                             ],

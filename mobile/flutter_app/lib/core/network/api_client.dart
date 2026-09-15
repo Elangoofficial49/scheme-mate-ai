@@ -8,7 +8,9 @@ class ApiClient {
   static const _configuredBaseUrl = String.fromEnvironment('API_BASE_URL');
   static String get baseUrl => _configuredBaseUrl.isNotEmpty
       ? _configuredBaseUrl
-      : (kIsWeb ? "http://localhost:8000/api/v1" : "http://10.0.2.2:8000/api/v1");
+      : (kIsWeb
+          ? "http://localhost:8000/api/v1"
+          : "http://10.0.2.2:8000/api/v1");
   static String? authToken;
   static String? refreshToken;
 
@@ -38,14 +40,20 @@ class ApiClient {
   static Future<bool> refreshSession() async {
     if (refreshToken == null) return false;
     try {
-      final response = await http.post(
-        Uri.parse("$baseUrl/auth/refresh"),
-        headers: {"Content-Type": "application/json", "Accept": "application/json"},
-        body: json.encode({"refresh_token": refreshToken}),
-      ).timeout(const Duration(seconds: 15));
+      final response = await http
+          .post(
+            Uri.parse("$baseUrl/auth/refresh"),
+            headers: {
+              "Content-Type": "application/json",
+              "Accept": "application/json"
+            },
+            body: json.encode({"refresh_token": refreshToken}),
+          )
+          .timeout(const Duration(seconds: 15));
       final data = _processResponse(response);
       if (data["success"] == true && data["data"] != null) {
-        await _saveTokens(data["data"]["access_token"], data["data"]["refresh_token"]);
+        await _saveTokens(
+            data["data"]["access_token"], data["data"]["refresh_token"]);
         return true;
       }
     } catch (_) {
@@ -67,43 +75,61 @@ class ApiClient {
 
   static Future<Map<String, dynamic>> get(String endpoint) async {
     try {
-      final response = await http.get(
-        Uri.parse("$baseUrl$endpoint"),
-        headers: _headers(),
-      ).timeout(const Duration(seconds: 35));
+      final response = await http
+          .get(
+            Uri.parse("$baseUrl$endpoint"),
+            headers: _headers(),
+          )
+          .timeout(const Duration(seconds: 35));
       return _processResponse(response);
     } catch (e) {
-      return {"success": false, "error": {"message": "Network error or server offline: $e"}};
+      return {
+        "success": false,
+        "error": {"message": "Network error or server offline: $e"}
+      };
     }
   }
 
-  static Future<Map<String, dynamic>> post(String endpoint, Map<String, dynamic> body) async {
+  static Future<Map<String, dynamic>> post(
+      String endpoint, Map<String, dynamic> body) async {
     try {
-      final response = await http.post(
-        Uri.parse("$baseUrl$endpoint"),
-        headers: _headers(),
-        body: json.encode(body),
-      ).timeout(const Duration(seconds: 35));
+      final response = await http
+          .post(
+            Uri.parse("$baseUrl$endpoint"),
+            headers: _headers(),
+            body: json.encode(body),
+          )
+          .timeout(const Duration(seconds: 35));
       return _processResponse(response);
     } catch (e) {
-      return {"success": false, "error": {"message": "Network error or server offline: $e"}};
+      return {
+        "success": false,
+        "error": {"message": "Network error or server offline: $e"}
+      };
     }
   }
 
-  static Future<Map<String, dynamic>> put(String endpoint, Map<String, dynamic> body) async {
+  static Future<Map<String, dynamic>> put(
+      String endpoint, Map<String, dynamic> body) async {
     try {
-      final response = await http.put(
-        Uri.parse("$baseUrl$endpoint"),
-        headers: _headers(),
-        body: json.encode(body),
-      ).timeout(const Duration(seconds: 35));
+      final response = await http
+          .put(
+            Uri.parse("$baseUrl$endpoint"),
+            headers: _headers(),
+            body: json.encode(body),
+          )
+          .timeout(const Duration(seconds: 35));
       return _processResponse(response);
     } catch (e) {
-      return {"success": false, "error": {"message": "Network error or server offline: $e"}};
+      return {
+        "success": false,
+        "error": {"message": "Network error or server offline: $e"}
+      };
     }
   }
 
-  static Future<Map<String, dynamic>> uploadDocument(List<int> bytes, String fileName, String documentType) async {
+  static Future<Map<String, dynamic>> uploadDocument(
+      List<int> bytes, String fileName, String documentType) async {
     try {
       final uri = Uri.parse("$baseUrl/documents/upload");
       var request = http.MultipartRequest('POST', uri);
@@ -121,11 +147,15 @@ class ApiClient {
         ),
       );
 
-      var streamedResponse = await request.send().timeout(const Duration(seconds: 45));
+      var streamedResponse =
+          await request.send().timeout(const Duration(seconds: 45));
       var response = await http.Response.fromStream(streamedResponse);
       return _processResponse(response);
     } catch (e) {
-      return {"success": false, "error": {"message": "Upload error: $e"}};
+      return {
+        "success": false,
+        "error": {"message": "Upload error: $e"}
+      };
     }
   }
 
@@ -135,10 +165,17 @@ class ApiClient {
       if (response.statusCode >= 200 && response.statusCode < 300) {
         return data;
       }
-      return data is Map<String, dynamic> ? data : {"success": false, "error": {"message": "Error ${response.statusCode}"}};
+      return data is Map<String, dynamic>
+          ? data
+          : {
+              "success": false,
+              "error": {"message": "Error ${response.statusCode}"}
+            };
     } catch (_) {
-      return {"success": false, "error": {"message": "Server returned status ${response.statusCode}"}};
+      return {
+        "success": false,
+        "error": {"message": "Server returned status ${response.statusCode}"}
+      };
     }
   }
 }
-

@@ -46,8 +46,8 @@ class MatchResultModel {
       officialApplicationUrl: json['official_application_url'] ?? '',
       officialSourceUrl: json['official_source_url'] ?? '',
       lastVerified: json['last_verified'] ?? '',
-      lastDateToApply: json['last_date_to_apply'] ?? '31 Dec 2026 (Open Year-Round)',
+      lastDateToApply:
+          json['last_date_to_apply'] ?? '31 Dec 2026 (Open Year-Round)',
     );
   }
 }
-
