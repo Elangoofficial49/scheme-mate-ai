@@ -1,15 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:provider/provider.dart';
 import '../core/i18n/app_localizations.dart';
 import '../core/network/api_client.dart';
 import '../core/theme/app_theme.dart';
-import '../providers/locale_provider.dart';
 import '../widgets/language_selector_sheet.dart';
 import 'dashboard_screen.dart';
 
 class BusinessProfileFormScreen extends StatefulWidget {
-  const BusinessProfileFormScreen({Key? key}) : super(key: key);
+  const BusinessProfileFormScreen({super.key});
 
   @override
   State<BusinessProfileFormScreen> createState() =>
@@ -292,7 +290,7 @@ class _BusinessProfileFormScreenState extends State<BusinessProfileFormScreen> {
                 children: [
                   Expanded(
                     child: Text(
-                      "Upload ${_selectedCertificateType}",
+                      "Upload $_selectedCertificateType",
                       style: const TextStyle(
                           fontSize: 16, fontWeight: FontWeight.bold),
                       overflow: TextOverflow.ellipsis,
@@ -673,10 +671,11 @@ class _BusinessProfileFormScreenState extends State<BusinessProfileFormScreen> {
                       Container(
                         padding: const EdgeInsets.all(14),
                         decoration: BoxDecoration(
-                          color: AppTheme.primaryBlue.withOpacity(0.08),
+                          color: AppTheme.primaryBlue.withValues(alpha: 0.08),
                           borderRadius: BorderRadius.circular(10),
                           border: Border.all(
-                              color: AppTheme.primaryBlue.withOpacity(0.3)),
+                              color:
+                                  AppTheme.primaryBlue.withValues(alpha: 0.3)),
                         ),
                         child: Row(
                           children: [
@@ -746,7 +745,7 @@ class _BusinessProfileFormScreenState extends State<BusinessProfileFormScreen> {
                                         fontWeight: FontWeight.bold)),
                                 const SizedBox(height: 6),
                                 DropdownButtonFormField<String>(
-                                  value: _selectedBusinessType,
+                                  initialValue: _selectedBusinessType,
                                   isExpanded: true,
                                   decoration: const InputDecoration(
                                     border: OutlineInputBorder(),
@@ -784,7 +783,7 @@ class _BusinessProfileFormScreenState extends State<BusinessProfileFormScreen> {
                                         fontWeight: FontWeight.bold)),
                                 const SizedBox(height: 6),
                                 DropdownButtonFormField<String>(
-                                  value: _selectedState,
+                                  initialValue: _selectedState,
                                   isExpanded: true,
                                   decoration: const InputDecoration(
                                     border: OutlineInputBorder(),
@@ -917,7 +916,7 @@ class _BusinessProfileFormScreenState extends State<BusinessProfileFormScreen> {
                               fontSize: 15, fontWeight: FontWeight.bold)),
                       const SizedBox(height: 6),
                       DropdownButtonFormField<String>(
-                        value: _selectedIncomeSource,
+                        initialValue: _selectedIncomeSource,
                         decoration: const InputDecoration(
                           prefixIcon: Icon(Icons.account_balance_wallet),
                           border: OutlineInputBorder(),
@@ -937,7 +936,7 @@ class _BusinessProfileFormScreenState extends State<BusinessProfileFormScreen> {
                               fontSize: 15, fontWeight: FontWeight.bold)),
                       const SizedBox(height: 6),
                       DropdownButtonFormField<String>(
-                        value: _selectedCategory,
+                        initialValue: _selectedCategory,
                         decoration: const InputDecoration(
                           prefixIcon: Icon(Icons.people_alt_outlined),
                           border: OutlineInputBorder(),
@@ -1013,7 +1012,7 @@ class _BusinessProfileFormScreenState extends State<BusinessProfileFormScreen> {
                                     fontSize: 13, fontWeight: FontWeight.w600)),
                             const SizedBox(height: 6),
                             DropdownButtonFormField<String>(
-                              value: _selectedCertificateType,
+                              initialValue: _selectedCertificateType,
                               decoration: const InputDecoration(
                                 prefixIcon:
                                     Icon(Icons.assignment_turned_in_outlined),

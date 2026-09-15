@@ -9,7 +9,7 @@ import '../widgets/language_selector_sheet.dart';
 import 'auth_screen.dart';
 
 class HomeScreen extends StatelessWidget {
-  const HomeScreen({Key? key}) : super(key: key);
+  const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -85,7 +85,7 @@ class HomeScreen extends StatelessWidget {
                 borderRadius: BorderRadius.circular(16),
                 boxShadow: [
                   BoxShadow(
-                    color: AppTheme.primaryBlue.withOpacity(0.25),
+                    color: AppTheme.primaryBlue.withValues(alpha: 0.25),
                     blurRadius: 10,
                     offset: const Offset(0, 4),
                   ),
@@ -165,7 +165,7 @@ class HomeScreen extends StatelessWidget {
                           isSelected: isSelected,
                         ),
                       );
-                    }).toList(),
+                    }),
 
                     const SizedBox(height: 8),
                     SizedBox(
@@ -300,7 +300,7 @@ class HomeScreen extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
           color: isSelected
-              ? AppTheme.primaryBlue.withOpacity(0.08)
+              ? AppTheme.primaryBlue.withValues(alpha: 0.08)
               : Colors.grey.shade50,
           border: Border.all(
             color: isSelected ? AppTheme.primaryBlue : Colors.grey.shade300,
@@ -360,7 +360,7 @@ class HomeScreen extends StatelessWidget {
         children: [
           CircleAvatar(
             radius: 18,
-            backgroundColor: color.withOpacity(0.12),
+            backgroundColor: color.withValues(alpha: 0.12),
             child: Icon(icon, color: color, size: 20),
           ),
           const SizedBox(width: 12),

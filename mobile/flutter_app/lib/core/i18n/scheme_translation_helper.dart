@@ -1,5 +1,3 @@
-import 'app_localizations.dart';
-
 class SchemeTranslationHelper {
   static String localize(String input, String langCode) {
     if (input.isEmpty || langCode == 'en') return input;

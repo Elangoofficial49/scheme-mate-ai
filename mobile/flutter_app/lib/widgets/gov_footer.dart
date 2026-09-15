@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../core/theme/app_theme.dart';
 
 class GovFooter extends StatelessWidget {
-  const GovFooter({Key? key}) : super(key: key);
+  const GovFooter({super.key});
 
   @override
   Widget build(BuildContext context) {

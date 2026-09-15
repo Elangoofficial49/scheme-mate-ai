@@ -11,8 +11,7 @@ import '../widgets/gov_top_header.dart';
 class PartnerLocatorScreen extends StatefulWidget {
   final String? initialSchemeName;
 
-  const PartnerLocatorScreen({Key? key, this.initialSchemeName})
-      : super(key: key);
+  const PartnerLocatorScreen({super.key, this.initialSchemeName});
 
   @override
   State<PartnerLocatorScreen> createState() => _PartnerLocatorScreenState();
@@ -26,7 +25,7 @@ class _PartnerLocatorScreenState extends State<PartnerLocatorScreen> {
 
   double _searchRadiusKm = 50.0; // Default 50 km radius
   String _selectedState = 'All';
-  String _selectedDistrict = 'All';
+  final String _selectedDistrict = 'All';
 
   bool _isLoading = false;
   List<dynamic> _partners = [];
@@ -52,29 +51,25 @@ class _PartnerLocatorScreenState extends State<PartnerLocatorScreen> {
 
   void _requestLiveGpsLocation() {
     try {
-      if (html.window.navigator.geolocation != null) {
-        setState(() => _locationStatusText = "Acquiring Live GPS Location...");
-        html.window.navigator.geolocation.getCurrentPosition().then((pos) {
-          if (pos.coords != null) {
-            final lat = pos.coords!.latitude?.toDouble() ?? 13.0827;
-            final lon = pos.coords!.longitude?.toDouble() ?? 80.2707;
-            setState(() {
-              _userLat = lat;
-              _userLon = lon;
-              _isUsingLiveGps = true;
-              _locationStatusText =
-                  "Live GPS: ${lat.toStringAsFixed(4)}° N, ${lon.toStringAsFixed(4)}° E";
-            });
-            _fetchNearestPartners();
-          }
-        }).catchError((err) {
-          setState(() => _locationStatusText =
-              "GPS Permission Denied. Using Default Coordinates.");
+      setState(() => _locationStatusText = "Acquiring Live GPS Location...");
+      html.window.navigator.geolocation.getCurrentPosition().then((pos) {
+        if (pos.coords != null) {
+          final lat = pos.coords!.latitude?.toDouble() ?? 13.0827;
+          final lon = pos.coords!.longitude?.toDouble() ?? 80.2707;
+          setState(() {
+            _userLat = lat;
+            _userLon = lon;
+            _isUsingLiveGps = true;
+            _locationStatusText =
+                "Live GPS: ${lat.toStringAsFixed(4)}° N, ${lon.toStringAsFixed(4)}° E";
+          });
           _fetchNearestPartners();
-        });
-      } else {
+        }
+      }).catchError((err) {
+        setState(() => _locationStatusText =
+            "GPS Permission Denied. Using Default Coordinates.");
         _fetchNearestPartners();
-      }
+      });
     } catch (e) {
       _fetchNearestPartners();
     }
@@ -85,10 +80,12 @@ class _PartnerLocatorScreenState extends State<PartnerLocatorScreen> {
     try {
       String url =
           "${ApiClient.baseUrl}/partners/nearest?lat=$_userLat&lon=$_userLon&max_distance_km=$_searchRadiusKm";
-      if (_selectedState != 'All')
+      if (_selectedState != 'All') {
         url += "&state=${Uri.encodeComponent(_selectedState)}";
-      if (_selectedDistrict != 'All')
+      }
+      if (_selectedDistrict != 'All') {
         url += "&district=${Uri.encodeComponent(_selectedDistrict)}";
+      }
 
       final response =
           await http.get(Uri.parse(url)).timeout(const Duration(seconds: 4));
@@ -246,7 +243,7 @@ class _PartnerLocatorScreenState extends State<PartnerLocatorScreen> {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
-                          color: AppTheme.primaryBlue.withOpacity(0.1),
+                          color: AppTheme.primaryBlue.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(6),
                         ),
                         child: Row(
@@ -430,8 +427,9 @@ class _PartnerLocatorScreenState extends State<PartnerLocatorScreen> {
                             color: isFallback
                                 ? Colors.orange
                                 : (isEligible
-                                    ? AppTheme.successGreen.withOpacity(0.4)
-                                    : Colors.red.withOpacity(0.4)),
+                                    ? AppTheme.successGreen
+                                        .withValues(alpha: 0.4)
+                                    : Colors.red.withValues(alpha: 0.4)),
                           ),
                         ),
                         child: Padding(

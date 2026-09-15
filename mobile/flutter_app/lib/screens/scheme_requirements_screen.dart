@@ -7,16 +7,13 @@ import '../core/i18n/scheme_translation_helper.dart';
 import '../core/theme/app_theme.dart';
 import '../providers/locale_provider.dart';
 import '../widgets/gov_top_header.dart';
-import '../widgets/gov_footer.dart';
-import '../widgets/language_selector_sheet.dart';
 import 'financial_calculator_screen.dart';
 import 'partner_locator_screen.dart';
 
 class SchemeRequirementsScreen extends StatelessWidget {
   final Map<String, dynamic> scheme;
 
-  const SchemeRequirementsScreen({Key? key, required this.scheme})
-      : super(key: key);
+  const SchemeRequirementsScreen({super.key, required this.scheme});
 
   void _applyForScheme(BuildContext context) {
     final String url =
@@ -76,10 +73,10 @@ class SchemeRequirementsScreen extends StatelessWidget {
               width: double.infinity,
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: AppTheme.primaryBlue.withOpacity(0.06),
+                color: AppTheme.primaryBlue.withValues(alpha: 0.06),
                 borderRadius: BorderRadius.circular(12),
-                border:
-                    Border.all(color: AppTheme.primaryBlue.withOpacity(0.2)),
+                border: Border.all(
+                    color: AppTheme.primaryBlue.withValues(alpha: 0.2)),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -276,12 +273,12 @@ class SchemeRequirementsScreen extends StatelessWidget {
                     borderRadius: BorderRadius.circular(10),
                     border: Border.all(
                       color: mandatory
-                          ? AppTheme.primaryBlue.withOpacity(0.3)
+                          ? AppTheme.primaryBlue.withValues(alpha: 0.3)
                           : Colors.grey.shade300,
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.04),
+                        color: Colors.black.withValues(alpha: 0.04),
                         blurRadius: 4,
                         offset: const Offset(0, 2),
                       ),

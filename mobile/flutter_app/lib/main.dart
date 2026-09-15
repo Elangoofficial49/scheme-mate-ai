@@ -18,7 +18,7 @@ Future<void> main() async {
 }
 
 class SchemeMateApp extends StatelessWidget {
-  const SchemeMateApp({Key? key}) : super(key: key);
+  const SchemeMateApp({super.key});
 
   @override
   Widget build(BuildContext context) {

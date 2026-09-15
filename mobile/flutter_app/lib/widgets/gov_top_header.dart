@@ -12,12 +12,12 @@ class GovTopHeader extends StatelessWidget implements PreferredSizeWidget {
   final VoidCallback? onBackPressed;
 
   const GovTopHeader({
-    Key? key,
+    super.key,
     required this.title,
     this.actions,
     this.showBackButton = true,
     this.onBackPressed,
-  }) : super(key: key);
+  });
 
   @override
   Size get preferredSize => const Size.fromHeight(105.0);
@@ -128,7 +128,7 @@ class GovTopHeader extends StatelessWidget implements PreferredSizeWidget {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 8, vertical: 2),
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.12),
+                        color: Colors.white.withValues(alpha: 0.12),
                         borderRadius: BorderRadius.circular(4),
                         border: Border.all(color: Colors.white24, width: 0.8),
                       ),
@@ -227,10 +227,10 @@ class GovTopHeader extends StatelessWidget implements PreferredSizeWidget {
               Container(
                 padding: const EdgeInsets.all(6),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.1),
+                  color: Colors.white.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                   border: Border.all(
-                      color: AppTheme.accentSaffron.withOpacity(0.5),
+                      color: AppTheme.accentSaffron.withValues(alpha: 0.5),
                       width: 1.5),
                 ),
                 child: const Icon(

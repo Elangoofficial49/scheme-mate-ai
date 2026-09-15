@@ -4,7 +4,7 @@ import '../core/theme/app_theme.dart';
 import 'dashboard_screen.dart';
 
 class OCRScanScreen extends StatefulWidget {
-  const OCRScanScreen({Key? key}) : super(key: key);
+  const OCRScanScreen({super.key});
 
   @override
   State<OCRScanScreen> createState() => _OCRScanScreenState();
@@ -66,7 +66,7 @@ class _OCRScanScreenState extends State<OCRScanScreen> {
       "certificate_uploaded": true,
       "certificate_type": _selectedDocType == "Udyam"
           ? "Udyam Registration Certificate"
-          : "${_selectedDocType} Document",
+          : "$_selectedDocType Document",
     };
     if (_selectedDocType == "Aadhaar") {
       updatePayload["full_name"] = _extractedData?["Name"] ?? "Kavitha R";
@@ -124,7 +124,7 @@ class _OCRScanScreenState extends State<OCRScanScreen> {
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             const SizedBox(height: 10),
             DropdownButtonFormField<String>(
-              value: _selectedDocType,
+              initialValue: _selectedDocType,
               decoration: const InputDecoration(border: OutlineInputBorder()),
               items: ["Aadhaar", "PAN", "Udyam", "Income"]
                   .map((type) =>

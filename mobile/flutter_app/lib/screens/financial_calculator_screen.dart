@@ -9,8 +9,7 @@ import '../widgets/gov_top_header.dart';
 class FinancialCalculatorScreen extends StatefulWidget {
   final Map<String, dynamic>? prefillScheme;
 
-  const FinancialCalculatorScreen({Key? key, this.prefillScheme})
-      : super(key: key);
+  const FinancialCalculatorScreen({super.key, this.prefillScheme});
 
   @override
   State<FinancialCalculatorScreen> createState() =>

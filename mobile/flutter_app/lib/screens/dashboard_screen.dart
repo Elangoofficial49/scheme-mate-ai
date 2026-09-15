@@ -9,7 +9,6 @@ import '../providers/locale_provider.dart';
 import '../providers/scheme_provider.dart';
 import '../widgets/gov_top_header.dart';
 import '../widgets/gov_footer.dart';
-import '../widgets/language_selector_sheet.dart';
 import 'business_profile_form_screen.dart';
 import 'ocr_scan_screen.dart';
 import 'scheme_requirements_screen.dart';
@@ -19,7 +18,7 @@ import 'partner_locator_screen.dart';
 import '../widgets/ai_assistant_dialog.dart';
 
 class DashboardScreen extends StatefulWidget {
-  const DashboardScreen({Key? key}) : super(key: key);
+  const DashboardScreen({super.key});
 
   @override
   State<DashboardScreen> createState() => _DashboardScreenState();
@@ -81,14 +80,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
   int _calculateProfileCompletion() {
     if (_userProfile == null) return 50;
     int score = 20;
-    if ((_userProfile!["company_name"] ?? "").toString().isNotEmpty)
+    if ((_userProfile!["company_name"] ?? "").toString().isNotEmpty) {
       score += 15;
-    if ((_userProfile!["business_description"] ?? "").toString().isNotEmpty)
+    }
+    if ((_userProfile!["business_description"] ?? "").toString().isNotEmpty) {
       score += 15;
+    }
     if (_userProfile!["age"] != null) score += 10;
     if ((_userProfile!["category"] ?? "").toString().isNotEmpty) score += 15;
-    if ((_userProfile!["source_of_income"] ?? "").toString().isNotEmpty)
+    if ((_userProfile!["source_of_income"] ?? "").toString().isNotEmpty) {
       score += 10;
+    }
     if (_userProfile!["annual_income"] != null) score += 10;
     final hasCert = (_userProfile!["certificate_uploaded"] == true) ||
         ((_userProfile!["certificate_number"] ?? "")
@@ -375,12 +377,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                             horizontal: 10, vertical: 6),
                                         decoration: BoxDecoration(
                                           color: AppTheme.govGreen
-                                              .withOpacity(0.1),
+                                              .withValues(alpha: 0.1),
                                           borderRadius:
                                               BorderRadius.circular(6),
                                           border: Border.all(
                                               color: AppTheme.govGreen
-                                                  .withOpacity(0.3)),
+                                                  .withValues(alpha: 0.3)),
                                         ),
                                         child: Row(
                                           mainAxisSize: MainAxisSize.min,
@@ -643,15 +645,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                                         vertical: 4),
                                                     decoration: BoxDecoration(
                                                       color: AppTheme.govGreen
-                                                          .withOpacity(0.08),
+                                                          .withValues(
+                                                              alpha: 0.08),
                                                       borderRadius:
                                                           BorderRadius.circular(
                                                               4),
                                                       border: Border.all(
                                                           color: AppTheme
                                                               .govGreen
-                                                              .withOpacity(
-                                                                  0.3)),
+                                                              .withValues(
+                                                                  alpha: 0.3)),
                                                     ),
                                                     child: Text(
                                                       "✔ ${_localizeText(w.toString(), currentLang)}",

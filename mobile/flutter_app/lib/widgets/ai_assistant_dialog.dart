@@ -4,10 +4,10 @@ import '../providers/locale_provider.dart';
 import '../core/network/api_client.dart';
 
 class AiAssistantDialog extends StatefulWidget {
-  const AiAssistantDialog({Key? key}) : super(key: key);
+  const AiAssistantDialog({super.key});
 
   @override
-  _AiAssistantDialogState createState() => _AiAssistantDialogState();
+  State<AiAssistantDialog> createState() => _AiAssistantDialogState();
 }
 
 class _AiAssistantDialogState extends State<AiAssistantDialog> {
@@ -89,10 +89,10 @@ class _AiAssistantDialogState extends State<AiAssistantDialog> {
                   child: Icon(Icons.smart_toy, color: Colors.amber),
                 ),
                 const SizedBox(width: 12),
-                Expanded(
+                const Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: const [
+                    children: [
                       Text(
                         'SchemeMate AI Assistant',
                         style: TextStyle(

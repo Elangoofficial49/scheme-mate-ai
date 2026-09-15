@@ -6,7 +6,7 @@ import 'action_plan_screen.dart';
 
 class SchemeDetailScreen extends StatelessWidget {
   final MatchResultModel match;
-  const SchemeDetailScreen({Key? key, required this.match}) : super(key: key);
+  const SchemeDetailScreen({super.key, required this.match});
 
   @override
   Widget build(BuildContext context) {
@@ -31,10 +31,10 @@ class SchemeDetailScreen extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: AppTheme.primaryBlue.withOpacity(0.05),
+                color: AppTheme.primaryBlue.withValues(alpha: 0.05),
                 borderRadius: BorderRadius.circular(12),
-                border:
-                    Border.all(color: AppTheme.primaryBlue.withOpacity(0.2)),
+                border: Border.all(
+                    color: AppTheme.primaryBlue.withValues(alpha: 0.2)),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,

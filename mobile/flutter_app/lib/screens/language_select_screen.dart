@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
-import '../core/i18n/app_localizations.dart';
 import '../core/offline_db/offline_cache.dart';
 import '../core/theme/app_theme.dart';
 import 'auth_screen.dart';
 
 class LanguageSelectScreen extends StatefulWidget {
-  const LanguageSelectScreen({Key? key}) : super(key: key);
+  const LanguageSelectScreen({super.key});
 
   @override
   State<LanguageSelectScreen> createState() => _LanguageSelectScreenState();
@@ -85,8 +84,9 @@ class _LanguageSelectScreenState extends State<LanguageSelectScreen> {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color:
-              isSelected ? AppTheme.primaryBlue.withOpacity(0.1) : Colors.white,
+          color: isSelected
+              ? AppTheme.primaryBlue.withValues(alpha: 0.1)
+              : Colors.white,
           border: Border.all(
             color: isSelected ? AppTheme.primaryBlue : Colors.grey.shade300,
             width: isSelected ? 2 : 1,

@@ -1,16 +1,14 @@
 // ignore: avoid_web_libraries_in_flutter
 import 'dart:html' as html;
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import '../core/i18n/app_localizations.dart';
 import '../core/theme/app_theme.dart';
 import '../models/match_result_model.dart';
-import '../providers/locale_provider.dart';
 import '../widgets/language_selector_sheet.dart';
 
 class ActionPlanScreen extends StatelessWidget {
   final MatchResultModel match;
-  const ActionPlanScreen({Key? key, required this.match}) : super(key: key);
+  const ActionPlanScreen({super.key, required this.match});
 
   void _launchUrl(BuildContext context, String urlString) {
     if (urlString.isEmpty) {

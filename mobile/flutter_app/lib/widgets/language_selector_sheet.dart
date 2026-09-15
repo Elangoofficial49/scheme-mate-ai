@@ -7,7 +7,7 @@ import '../providers/locale_provider.dart';
 import '../providers/scheme_provider.dart';
 
 class LanguageSelectorSheet extends StatefulWidget {
-  const LanguageSelectorSheet({Key? key}) : super(key: key);
+  const LanguageSelectorSheet({super.key});
 
   static Future<void> show(BuildContext context) {
     return showModalBottomSheet(
@@ -132,7 +132,7 @@ class _LanguageSelectorSheetState extends State<LanguageSelectorSheet> {
                                 horizontal: 16, vertical: 12),
                             decoration: BoxDecoration(
                               color: isSelected
-                                  ? AppTheme.primaryBlue.withOpacity(0.08)
+                                  ? AppTheme.primaryBlue.withValues(alpha: 0.08)
                                   : Colors.grey.shade50,
                               border: Border.all(
                                 color: isSelected

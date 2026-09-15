@@ -4,16 +4,13 @@ import 'package:provider/provider.dart';
 import '../core/i18n/app_localizations.dart';
 import '../core/theme/app_theme.dart';
 import '../providers/auth_provider.dart';
-import '../providers/locale_provider.dart';
 import '../widgets/gov_top_header.dart';
 import '../widgets/gov_footer.dart';
-import '../widgets/language_selector_sheet.dart';
 import 'business_profile_form_screen.dart';
 
 class AuthScreen extends StatefulWidget {
   final bool startInCreateAccountTab;
-  const AuthScreen({Key? key, this.startInCreateAccountTab = false})
-      : super(key: key);
+  const AuthScreen({super.key, this.startInCreateAccountTab = false});
 
   @override
   State<AuthScreen> createState() => _AuthScreenState();
@@ -54,13 +51,13 @@ class _AuthScreenState extends State<AuthScreen> {
           _emailController.text.trim(), _passwordController.text.trim());
       setState(() => _isLoading = false);
 
-      if (success && mounted) {
+      if (success && context.mounted) {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
               builder: (context) => const BusinessProfileFormScreen()),
         );
-      } else if (mounted) {
+      } else if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text(
@@ -95,12 +92,12 @@ class _AuthScreenState extends State<AuthScreen> {
 
       setState(() => _isLoading = false);
 
-      if (res["success"] == true && mounted) {
+      if (res["success"] == true && context.mounted) {
         _showEmailOTPDialog(
           phone: _phoneController.text.trim(),
           email: _emailController.text.trim(),
         );
-      } else if (mounted) {
+      } else if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(res["message"] ??
@@ -166,7 +163,7 @@ class _AuthScreenState extends State<AuthScreen> {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 10, vertical: 4),
                       decoration: BoxDecoration(
-                        color: AppTheme.primaryNavy.withOpacity(0.08),
+                        color: AppTheme.primaryNavy.withValues(alpha: 0.08),
                         borderRadius: BorderRadius.circular(6),
                       ),
                       child: Text(
@@ -225,7 +222,8 @@ class _AuthScreenState extends State<AuthScreen> {
                                     }
                                   });
 
-                                  if (res["success"] == true && mounted) {
+                                  if (res["success"] == true &&
+                                      context.mounted) {
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
                                         content: Text(
@@ -300,7 +298,7 @@ class _AuthScreenState extends State<AuthScreen> {
                               await auth.verifyOtp(phone, cleanEnteredOtp);
                           setModalState(() => isVerifying = false);
 
-                          if (success && mounted) {
+                          if (success && context.mounted) {
                             countdownTimer?.cancel();
                             Navigator.pop(ctx);
 
@@ -317,7 +315,7 @@ class _AuthScreenState extends State<AuthScreen> {
                               _emailController.text = email;
                               _passwordController.clear();
                             });
-                          } else if (mounted) {
+                          } else if (context.mounted) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
                                 content: Text(
@@ -424,8 +422,8 @@ class _AuthScreenState extends State<AuthScreen> {
                                               fontWeight: FontWeight.bold)),
                                     ),
                                     selected: _isLoginTab,
-                                    selectedColor:
-                                        AppTheme.primaryNavy.withOpacity(0.12),
+                                    selectedColor: AppTheme.primaryNavy
+                                        .withValues(alpha: 0.12),
                                     onSelected: (val) =>
                                         setState(() => _isLoginTab = true),
                                   ),
@@ -441,8 +439,8 @@ class _AuthScreenState extends State<AuthScreen> {
                                               fontWeight: FontWeight.bold)),
                                     ),
                                     selected: !_isLoginTab,
-                                    selectedColor:
-                                        AppTheme.primaryNavy.withOpacity(0.12),
+                                    selectedColor: AppTheme.primaryNavy
+                                        .withValues(alpha: 0.12),
                                     onSelected: (val) =>
                                         setState(() => _isLoginTab = false),
                                   ),

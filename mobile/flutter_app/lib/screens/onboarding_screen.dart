@@ -4,7 +4,7 @@ import '../core/theme/app_theme.dart';
 import 'dashboard_screen.dart';
 
 class OnboardingScreen extends StatefulWidget {
-  const OnboardingScreen({Key? key}) : super(key: key);
+  const OnboardingScreen({super.key});
 
   @override
   State<OnboardingScreen> createState() => _OnboardingScreenState();
@@ -90,7 +90,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         children: [
           Container(
             padding: const EdgeInsets.all(12),
-            color: AppTheme.primaryBlue.withOpacity(0.08),
+            color: AppTheme.primaryBlue.withValues(alpha: 0.08),
             child: const Row(
               children: [
                 Icon(Icons.lightbulb_outline, color: AppTheme.primaryBlue),
