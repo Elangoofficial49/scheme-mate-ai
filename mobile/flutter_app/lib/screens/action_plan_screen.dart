@@ -1,6 +1,5 @@
-// ignore: avoid_web_libraries_in_flutter
-import 'dart:html' as html;
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../core/i18n/app_localizations.dart';
 import '../core/theme/app_theme.dart';
 import '../models/match_result_model.dart';
@@ -10,7 +9,7 @@ class ActionPlanScreen extends StatelessWidget {
   final MatchResultModel match;
   const ActionPlanScreen({super.key, required this.match});
 
-  void _launchUrl(BuildContext context, String urlString) {
+  Future<void> _launchUrl(BuildContext context, String urlString) async {
     if (urlString.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -20,8 +19,19 @@ class ActionPlanScreen extends StatelessWidget {
       );
       return;
     }
-    // Open the URL in a new browser tab
-    html.window.open(urlString, '_blank');
+
+    final uri = Uri.parse(urlString);
+    final launched = await canLaunchUrl(uri) &&
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+
+    if (!launched && context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(context.tr("no_portal_url")),
+          backgroundColor: Colors.orange,
+        ),
+      );
+    }
   }
 
   @override

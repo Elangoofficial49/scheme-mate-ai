@@ -90,22 +90,24 @@ class _AuthScreenState extends State<AuthScreen> {
         password: _passwordController.text.trim(),
       );
 
-      setState(() => _isLoading = false);
+     setState(() => _isLoading = false);
 
-      if (res["success"] == true && context.mounted) {
-        _showEmailOTPDialog(
-          phone: _phoneController.text.trim(),
-          email: _emailController.text.trim(),
-        );
-      } else if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(res["message"] ??
-                "Registration failed. Email or phone number might already be registered."),
-            backgroundColor: AppTheme.warningOrange,
-          ),
-        );
-      }
+if (!mounted) return;
+
+if (res["success"] == true) {
+  _showEmailOTPDialog(
+    phone: _phoneController.text.trim(),
+    email: _emailController.text.trim(),
+  );
+} else {
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(
+      content: Text(res["message"] ??
+          "Registration failed. Email or phone number might already be registered."),
+      backgroundColor: AppTheme.warningOrange,
+    ),
+  );
+}
     }
   }
 

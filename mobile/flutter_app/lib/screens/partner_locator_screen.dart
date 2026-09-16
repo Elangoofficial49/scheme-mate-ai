@@ -1,8 +1,8 @@
-// ignore: avoid_web_libraries_in_flutter
-import 'dart:html' as html;
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
+import 'package:url_launcher/url_launcher.dart';
 import '../core/i18n/app_localizations.dart';
 import '../core/network/api_client.dart';
 import '../core/theme/app_theme.dart';
@@ -49,28 +49,48 @@ class _PartnerLocatorScreenState extends State<PartnerLocatorScreen> {
     _requestLiveGpsLocation();
   }
 
-  void _requestLiveGpsLocation() {
+  Future<void> _requestLiveGpsLocation() async {
+    setState(() => _locationStatusText = "Acquiring Live GPS Location...");
+
     try {
-      setState(() => _locationStatusText = "Acquiring Live GPS Location...");
-      html.window.navigator.geolocation.getCurrentPosition().then((pos) {
-        if (pos.coords != null) {
-          final lat = pos.coords!.latitude?.toDouble() ?? 13.0827;
-          final lon = pos.coords!.longitude?.toDouble() ?? 80.2707;
-          setState(() {
-            _userLat = lat;
-            _userLon = lon;
-            _isUsingLiveGps = true;
-            _locationStatusText =
-                "Live GPS: ${lat.toStringAsFixed(4)}° N, ${lon.toStringAsFixed(4)}° E";
-          });
-          _fetchNearestPartners();
-        }
-      }).catchError((err) {
+      final bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) {
+        if (!mounted) return;
+        setState(() => _locationStatusText =
+            "Location Services Disabled. Using Default Coordinates.");
+        _fetchNearestPartners();
+        return;
+      }
+
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+      }
+
+      if (permission == LocationPermission.denied ||
+          permission == LocationPermission.deniedForever) {
+        if (!mounted) return;
         setState(() => _locationStatusText =
             "GPS Permission Denied. Using Default Coordinates.");
         _fetchNearestPartners();
+        return;
+      }
+
+      final Position pos = await Geolocator.getCurrentPosition();
+
+      if (!mounted) return;
+      setState(() {
+        _userLat = pos.latitude;
+        _userLon = pos.longitude;
+        _isUsingLiveGps = true;
+        _locationStatusText =
+            "Live GPS: ${pos.latitude.toStringAsFixed(4)}° N, ${pos.longitude.toStringAsFixed(4)}° E";
       });
+      _fetchNearestPartners();
     } catch (e) {
+      if (!mounted) return;
+      setState(() => _locationStatusText =
+          "GPS Permission Denied. Using Default Coordinates.");
       _fetchNearestPartners();
     }
   }
@@ -91,6 +111,7 @@ class _PartnerLocatorScreenState extends State<PartnerLocatorScreen> {
           await http.get(Uri.parse(url)).timeout(const Duration(seconds: 4));
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
+        if (!mounted) return;
         setState(() {
           _partners = data["partners"] ?? [];
           _eligibleCount = data["eligible_count"] ?? 0;
@@ -103,6 +124,8 @@ class _PartnerLocatorScreenState extends State<PartnerLocatorScreen> {
     } catch (e) {
       // Local fallback calculation if backend disconnected
     }
+
+    if (!mounted) return;
 
     // Local Fallback Simulation
     setState(() {
@@ -173,7 +196,7 @@ class _PartnerLocatorScreenState extends State<PartnerLocatorScreen> {
     });
   }
 
-  void _openMapForPartner(dynamic item) {
+  Future<void> _openMapForPartner(dynamic item) async {
     final Map<String, dynamic> partner = Map<String, dynamic>.from(item as Map);
     final String name = (partner["name"] ?? "").toString();
     final String branch = (partner["branch_name"] ?? "").toString();
@@ -188,7 +211,11 @@ class _PartnerLocatorScreenState extends State<PartnerLocatorScreen> {
 
     final String mapsUrl =
         "https://www.google.com/maps/dir/?api=1&origin=$_userLat,$_userLon&destination=$encodedDest&travelmode=driving";
-    html.window.open(mapsUrl, '_blank');
+
+    final uri = Uri.parse(mapsUrl);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    }
   }
 
   @override
