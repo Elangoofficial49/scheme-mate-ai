@@ -18,19 +18,59 @@
     "eligibility_rules": {
       "minimum_age": 18,
       "minimum_education": "8th Pass for projects above 10 Lakhs in manufacturing",
-      "eligible_business_types": ["Manufacturing", "Service", "Trading"],
+      "eligible_business_types": [
+        "Manufacturing",
+        "Service",
+        "Trading"
+      ],
       "max_project_cost_manufacturing": 5000000,
       "max_project_cost_service": 2000000,
-      "allowed_categories": ["General", "OBC", "SC", "ST", "Minority", "Women", "Ex-Servicemen", "PH"],
-      "urban_rural_eligible": ["Urban", "Rural"]
+      "allowed_categories": [
+        "General",
+        "OBC",
+        "SC",
+        "ST",
+        "Minority",
+        "Women",
+        "Ex-Servicemen",
+        "PH"
+      ],
+      "urban_rural_eligible": [
+        "Urban",
+        "Rural"
+      ]
     },
     "required_documents": [
-      {"name": "Aadhaar Card", "type": "Identity / Address", "mandatory": true},
-      {"name": "PAN Card", "type": "Identity", "mandatory": true},
-      {"name": "Project Report / Detailed Business Plan", "type": "Business", "mandatory": true},
-      {"name": "Caste / Category Certificate", "type": "Category", "mandatory": false},
-      {"name": "Educational Qualification Certificate", "type": "Qualification", "mandatory": true},
-      {"name": "Rural Area Certificate (if applicable)", "type": "Location", "mandatory": false}
+      {
+        "name": "Aadhaar Card",
+        "type": "Identity / Address",
+        "mandatory": true
+      },
+      {
+        "name": "PAN Card",
+        "type": "Identity",
+        "mandatory": true
+      },
+      {
+        "name": "Project Report / Detailed Business Plan",
+        "type": "Business",
+        "mandatory": true
+      },
+      {
+        "name": "Caste / Category Certificate",
+        "type": "Category",
+        "mandatory": false
+      },
+      {
+        "name": "Educational Qualification Certificate",
+        "type": "Qualification",
+        "mandatory": true
+      },
+      {
+        "name": "Rural Area Certificate (if applicable)",
+        "type": "Location",
+        "mandatory": false
+      }
     ]
   },
   {
@@ -52,14 +92,38 @@
     "eligibility_rules": {
       "minimum_age": 18,
       "max_loan_amount": 50000,
-      "eligible_business_types": ["Micro Enterprise", "Retail Trading", "Small Service", "Agriculture Allied"],
-      "urban_rural_eligible": ["Urban", "Rural"]
+      "eligible_business_types": [
+        "Micro Enterprise",
+        "Retail Trading",
+        "Small Service",
+        "Agriculture Allied"
+      ],
+      "urban_rural_eligible": [
+        "Urban",
+        "Rural"
+      ]
     },
     "required_documents": [
-      {"name": "Aadhaar Card", "type": "Identity", "mandatory": true},
-      {"name": "Voter ID / Driving License", "type": "Address", "mandatory": true},
-      {"name": "Quotation of Machinery / Items to be purchased", "type": "Business", "mandatory": true},
-      {"name": "2 Passport size photographs", "type": "Photo", "mandatory": true}
+      {
+        "name": "Aadhaar Card",
+        "type": "Identity",
+        "mandatory": true
+      },
+      {
+        "name": "Voter ID / Driving License",
+        "type": "Address",
+        "mandatory": true
+      },
+      {
+        "name": "Quotation of Machinery / Items to be purchased",
+        "type": "Business",
+        "mandatory": true
+      },
+      {
+        "name": "2 Passport size photographs",
+        "type": "Photo",
+        "mandatory": true
+      }
     ]
   },
   {
@@ -82,14 +146,39 @@
       "minimum_age": 18,
       "min_loan_amount": 50001,
       "max_loan_amount": 500000,
-      "eligible_business_types": ["Manufacturing", "Service", "Trading", "Textile", "Food Processing"],
-      "urban_rural_eligible": ["Urban", "Rural"]
+      "eligible_business_types": [
+        "Manufacturing",
+        "Service",
+        "Trading",
+        "Textile",
+        "Food Processing"
+      ],
+      "urban_rural_eligible": [
+        "Urban",
+        "Rural"
+      ]
     },
     "required_documents": [
-      {"name": "Aadhaar Card & PAN Card", "type": "Identity", "mandatory": true},
-      {"name": "Bank Statement of last 6 months", "type": "Financial", "mandatory": true},
-      {"name": "Proof of Business Establishment (GST/Udyam/Trade License)", "type": "Business", "mandatory": true},
-      {"name": "Balance Sheet & Profit/Loss statement", "type": "Financial", "mandatory": false}
+      {
+        "name": "Aadhaar Card & PAN Card",
+        "type": "Identity",
+        "mandatory": true
+      },
+      {
+        "name": "Bank Statement of last 6 months",
+        "type": "Financial",
+        "mandatory": true
+      },
+      {
+        "name": "Proof of Business Establishment (GST/Udyam/Trade License)",
+        "type": "Business",
+        "mandatory": true
+      },
+      {
+        "name": "Balance Sheet & Profit/Loss statement",
+        "type": "Financial",
+        "mandatory": false
+      }
     ]
   },
   {
@@ -112,14 +201,39 @@
       "minimum_age": 18,
       "min_loan_amount": 500001,
       "max_loan_amount": 1000000,
-      "eligible_business_types": ["Manufacturing", "Service", "Trading", "Logistics", "Technology"],
-      "urban_rural_eligible": ["Urban", "Rural"]
+      "eligible_business_types": [
+        "Manufacturing",
+        "Service",
+        "Trading",
+        "Logistics",
+        "Technology"
+      ],
+      "urban_rural_eligible": [
+        "Urban",
+        "Rural"
+      ]
     },
     "required_documents": [
-      {"name": "Aadhaar & PAN Card", "type": "Identity", "mandatory": true},
-      {"name": "IT Returns for last 2 years", "type": "Financial", "mandatory": true},
-      {"name": "Udyam Registration Certificate", "type": "Business", "mandatory": true},
-      {"name": "Project report & 12-month projected financials", "type": "Business", "mandatory": true}
+      {
+        "name": "Aadhaar & PAN Card",
+        "type": "Identity",
+        "mandatory": true
+      },
+      {
+        "name": "IT Returns for last 2 years",
+        "type": "Financial",
+        "mandatory": true
+      },
+      {
+        "name": "Udyam Registration Certificate",
+        "type": "Business",
+        "mandatory": true
+      },
+      {
+        "name": "Project report & 12-month projected financials",
+        "type": "Business",
+        "mandatory": true
+      }
     ]
   },
   {
@@ -140,18 +254,46 @@
     "last_verified": "2026-08-05",
     "eligibility_rules": {
       "minimum_age": 18,
-      "eligible_gender": ["Female"],
-      "eligible_categories": ["SC", "ST", "Women"],
-      "business_stage": ["New / Greenfield"],
+      "eligible_gender": [
+        "Female"
+      ],
+      "eligible_categories": [
+        "SC",
+        "ST",
+        "Women"
+      ],
+      "business_stage": [
+        "New / Greenfield"
+      ],
       "min_loan_amount": 1000000,
       "max_loan_amount": 10000000
     },
     "required_documents": [
-      {"name": "Proof of Identity (Aadhaar/Passport/Voter ID)", "type": "Identity", "mandatory": true},
-      {"name": "SC/ST Category Certificate (if applicable)", "type": "Category", "mandatory": false},
-      {"name": "Proof of Residence", "type": "Address", "mandatory": true},
-      {"name": "Project Report / Business Plan", "type": "Business", "mandatory": true},
-      {"name": "Asset-Liability statement of promoter", "type": "Financial", "mandatory": true}
+      {
+        "name": "Proof of Identity (Aadhaar/Passport/Voter ID)",
+        "type": "Identity",
+        "mandatory": true
+      },
+      {
+        "name": "SC/ST Category Certificate (if applicable)",
+        "type": "Category",
+        "mandatory": false
+      },
+      {
+        "name": "Proof of Residence",
+        "type": "Address",
+        "mandatory": true
+      },
+      {
+        "name": "Project Report / Business Plan",
+        "type": "Business",
+        "mandatory": true
+      },
+      {
+        "name": "Asset-Liability statement of promoter",
+        "type": "Financial",
+        "mandatory": true
+      }
     ]
   },
   {
@@ -172,15 +314,53 @@
     "last_verified": "2026-08-15",
     "eligibility_rules": {
       "minimum_age": 18,
-      "trade_types": ["Carpenter", "Boat Maker", "Armourer", "Blacksmith", "Hammer and Tool Kit Maker", "Locksmith", "Goldsmith", "Potter", "Sculptor", "Cobbler", "Mason", "Basket/Mat/Broom Maker", "Doll & Toy Maker", "Barber", "Garland maker", "Washerman", "Tailor", "Fishing Net Maker"],
+      "trade_types": [
+        "Carpenter",
+        "Boat Maker",
+        "Armourer",
+        "Blacksmith",
+        "Hammer and Tool Kit Maker",
+        "Locksmith",
+        "Goldsmith",
+        "Potter",
+        "Sculptor",
+        "Cobbler",
+        "Mason",
+        "Basket/Mat/Broom Maker",
+        "Doll & Toy Maker",
+        "Barber",
+        "Garland maker",
+        "Washerman",
+        "Tailor",
+        "Fishing Net Maker"
+      ],
       "family_limit": "One member per family",
-      "urban_rural_eligible": ["Urban", "Rural"]
+      "urban_rural_eligible": [
+        "Urban",
+        "Rural"
+      ]
     },
     "required_documents": [
-      {"name": "Aadhaar Card", "type": "Identity", "mandatory": true},
-      {"name": "Bank Account details linked with Aadhaar", "type": "Financial", "mandatory": true},
-      {"name": "Ration Card / Family Declaration", "type": "Family", "mandatory": true},
-      {"name": "Mobile number registered with Aadhaar", "type": "Contact", "mandatory": true}
+      {
+        "name": "Aadhaar Card",
+        "type": "Identity",
+        "mandatory": true
+      },
+      {
+        "name": "Bank Account details linked with Aadhaar",
+        "type": "Financial",
+        "mandatory": true
+      },
+      {
+        "name": "Ration Card / Family Declaration",
+        "type": "Family",
+        "mandatory": true
+      },
+      {
+        "name": "Mobile number registered with Aadhaar",
+        "type": "Contact",
+        "mandatory": true
+      }
     ]
   },
   {
@@ -200,14 +380,34 @@
     "version": 1,
     "last_verified": "2026-08-12",
     "eligibility_rules": {
-      "occupation": ["Street Vendor", "Hawker", "Roadside Seller"],
-      "urban_rural_eligible": ["Urban", "Peri-Urban"],
-      "has_certificate_of_vending": true
+      "occupation": [
+        "Street Vendor",
+        "Hawker",
+        "Roadside Seller"
+      ],
+      "urban_rural_eligible": [
+        "Urban",
+        "Peri-Urban"
+      ],
+      "has_certificate_of_vending": true,
+      "minimum_age": 18
     },
     "required_documents": [
-      {"name": "Certificate of Vending / Recommendation Letter from ULB", "type": "Business", "mandatory": true},
-      {"name": "Aadhaar Card", "type": "Identity", "mandatory": true},
-      {"name": "Bank Passbook Copy", "type": "Financial", "mandatory": true}
+      {
+        "name": "Certificate of Vending / Recommendation Letter from ULB",
+        "type": "Business",
+        "mandatory": true
+      },
+      {
+        "name": "Aadhaar Card",
+        "type": "Identity",
+        "mandatory": true
+      },
+      {
+        "name": "Bank Passbook Copy",
+        "type": "Financial",
+        "mandatory": true
+      }
     ]
   },
   {
@@ -227,15 +427,38 @@
     "version": 1,
     "last_verified": "2026-08-18",
     "eligibility_rules": {
-      "enterprise_type": ["Micro Enterprise", "Small Enterprise"],
+      "enterprise_type": [
+        "Micro Enterprise",
+        "Small Enterprise"
+      ],
       "max_credit_limit": 50000000,
-      "urban_rural_eligible": ["Urban", "Rural"]
+      "urban_rural_eligible": [
+        "Urban",
+        "Rural"
+      ],
+      "minimum_age": 18
     },
     "required_documents": [
-      {"name": "Udyam Registration Certificate", "type": "Business", "mandatory": true},
-      {"name": "Project Feasibility Report", "type": "Business", "mandatory": true},
-      {"name": "KYC Documents of Directors / Partners / Proprietor", "type": "Identity", "mandatory": true},
-      {"name": "Audited Financial Statements", "type": "Financial", "mandatory": true}
+      {
+        "name": "Udyam Registration Certificate",
+        "type": "Business",
+        "mandatory": true
+      },
+      {
+        "name": "Project Feasibility Report",
+        "type": "Business",
+        "mandatory": true
+      },
+      {
+        "name": "KYC Documents of Directors / Partners / Proprietor",
+        "type": "Identity",
+        "mandatory": true
+      },
+      {
+        "name": "Audited Financial Statements",
+        "type": "Financial",
+        "mandatory": true
+      }
     ]
   },
   {
@@ -255,15 +478,42 @@
     "version": 1,
     "last_verified": "2026-08-02",
     "eligibility_rules": {
-      "eligible_gender": ["Female"],
-      "group_or_individual": ["Women SHG", "Individual Woman Entrepreneur"],
-      "sector": ["Non-Farm Sector", "Handicraft", "Textile", "Agro-Processing"]
+      "eligible_gender": [
+        "Female"
+      ],
+      "group_or_individual": [
+        "Women SHG",
+        "Individual Woman Entrepreneur"
+      ],
+      "sector": [
+        "Non-Farm Sector",
+        "Handicraft",
+        "Textile",
+        "Agro-Processing"
+      ],
+      "minimum_age": 18
     },
     "required_documents": [
-      {"name": "NGO Registration & Recommendation letter", "type": "Organizational", "mandatory": true},
-      {"name": "Aadhaar Card", "type": "Identity", "mandatory": true},
-      {"name": "Group Profile / SHG Details", "type": "Group", "mandatory": true},
-      {"name": "Detailed Project Report", "type": "Business", "mandatory": true}
+      {
+        "name": "NGO Registration & Recommendation letter",
+        "type": "Organizational",
+        "mandatory": true
+      },
+      {
+        "name": "Aadhaar Card",
+        "type": "Identity",
+        "mandatory": true
+      },
+      {
+        "name": "Group Profile / SHG Details",
+        "type": "Group",
+        "mandatory": true
+      },
+      {
+        "name": "Detailed Project Report",
+        "type": "Business",
+        "mandatory": true
+      }
     ]
   },
   {
@@ -284,15 +534,40 @@
     "last_verified": "2026-08-14",
     "eligibility_rules": {
       "minimum_age": 18,
-      "business_type": ["Food Processing", "Bakery", "Pickles & Spices", "Dairy Processing", "Oil Extraction"],
+      "business_type": [
+        "Food Processing",
+        "Bakery",
+        "Pickles & Spices",
+        "Dairy Processing",
+        "Oil Extraction"
+      ],
       "max_subsidy_amount": 1000000,
-      "urban_rural_eligible": ["Urban", "Rural"]
+      "urban_rural_eligible": [
+        "Urban",
+        "Rural"
+      ]
     },
     "required_documents": [
-      {"name": "FSSAI License / Registration", "type": "Regulatory", "mandatory": true},
-      {"name": "Aadhaar & PAN Card", "type": "Identity", "mandatory": true},
-      {"name": "Proof of Ownership / Rent agreement of premises", "type": "Property", "mandatory": true},
-      {"name": "Detailed Project Report for Food Unit", "type": "Business", "mandatory": true}
+      {
+        "name": "FSSAI License / Registration",
+        "type": "Regulatory",
+        "mandatory": true
+      },
+      {
+        "name": "Aadhaar & PAN Card",
+        "type": "Identity",
+        "mandatory": true
+      },
+      {
+        "name": "Proof of Ownership / Rent agreement of premises",
+        "type": "Property",
+        "mandatory": true
+      },
+      {
+        "name": "Detailed Project Report for Food Unit",
+        "type": "Business",
+        "mandatory": true
+      }
     ]
   },
   {
@@ -321,10 +596,26 @@
       "project_cost_max": 50000000
     },
     "required_documents": [
-      {"name": "Educational Degree / Diploma / ITI Marksheet", "type": "Qualification", "mandatory": true},
-      {"name": "Nativity / Community Certificate of Tamil Nadu", "type": "Domicile", "mandatory": true},
-      {"name": "Aadhaar Card", "type": "Identity", "mandatory": true},
-      {"name": "Detailed Project Profile", "type": "Business", "mandatory": true}
+      {
+        "name": "Educational Degree / Diploma / ITI Marksheet",
+        "type": "Qualification",
+        "mandatory": true
+      },
+      {
+        "name": "Nativity / Community Certificate of Tamil Nadu",
+        "type": "Domicile",
+        "mandatory": true
+      },
+      {
+        "name": "Aadhaar Card",
+        "type": "Identity",
+        "mandatory": true
+      },
+      {
+        "name": "Detailed Project Profile",
+        "type": "Business",
+        "mandatory": true
+      }
     ]
   },
   {
@@ -352,10 +643,26 @@
       "annual_family_income_max": 500000
     },
     "required_documents": [
-      {"name": "8th / 10th Transfer Certificate / Marksheet", "type": "Qualification", "mandatory": true},
-      {"name": "Income Certificate issued by Revenue Authority", "type": "Financial", "mandatory": true},
-      {"name": "Aadhaar Card & Smart Ration Card", "type": "Domicile", "mandatory": true},
-      {"name": "Quotation for Machinery / Equipment", "type": "Business", "mandatory": true}
+      {
+        "name": "8th / 10th Transfer Certificate / Marksheet",
+        "type": "Qualification",
+        "mandatory": true
+      },
+      {
+        "name": "Income Certificate issued by Revenue Authority",
+        "type": "Financial",
+        "mandatory": true
+      },
+      {
+        "name": "Aadhaar Card & Smart Ration Card",
+        "type": "Domicile",
+        "mandatory": true
+      },
+      {
+        "name": "Quotation for Machinery / Equipment",
+        "type": "Business",
+        "mandatory": true
+      }
     ]
   },
   {
@@ -378,13 +685,32 @@
       "state": "Uttar Pradesh",
       "minimum_age": 18,
       "odop_product_associated": true,
-      "urban_rural_eligible": ["Urban", "Rural"]
+      "urban_rural_eligible": [
+        "Urban",
+        "Rural"
+      ]
     },
     "required_documents": [
-      {"name": "Domicile Certificate of UP", "type": "Domicile", "mandatory": true},
-      {"name": "Aadhaar Card", "type": "Identity", "mandatory": true},
-      {"name": "Proof of involvement in ODOP craft / trade", "type": "Business", "mandatory": true},
-      {"name": "Bank account statement", "type": "Financial", "mandatory": true}
+      {
+        "name": "Domicile Certificate of UP",
+        "type": "Domicile",
+        "mandatory": true
+      },
+      {
+        "name": "Aadhaar Card",
+        "type": "Identity",
+        "mandatory": true
+      },
+      {
+        "name": "Proof of involvement in ODOP craft / trade",
+        "type": "Business",
+        "mandatory": true
+      },
+      {
+        "name": "Bank account statement",
+        "type": "Financial",
+        "mandatory": true
+      }
     ]
   },
   {
@@ -411,10 +737,26 @@
       "minimum_education": "7th Pass for projects above 10 Lakhs"
     },
     "required_documents": [
-      {"name": "Maharashtra Domicile Certificate", "type": "Domicile", "mandatory": true},
-      {"name": "Aadhaar & PAN Card", "type": "Identity", "mandatory": true},
-      {"name": "Project Report", "type": "Business", "mandatory": true},
-      {"name": "Caste Certificate (if claiming special subsidy)", "type": "Category", "mandatory": false}
+      {
+        "name": "Maharashtra Domicile Certificate",
+        "type": "Domicile",
+        "mandatory": true
+      },
+      {
+        "name": "Aadhaar & PAN Card",
+        "type": "Identity",
+        "mandatory": true
+      },
+      {
+        "name": "Project Report",
+        "type": "Business",
+        "mandatory": true
+      },
+      {
+        "name": "Caste Certificate (if claiming special subsidy)",
+        "type": "Category",
+        "mandatory": false
+      }
     ]
   },
   {
@@ -439,10 +781,26 @@
       "max_loan_amount": 100000000
     },
     "required_documents": [
-      {"name": "SSO ID of Rajasthan", "type": "Identity", "mandatory": true},
-      {"name": "Aadhaar Card & Bhabashah/Jan Aadhaar", "type": "Domicile", "mandatory": true},
-      {"name": "Udyam Registration Certificate", "type": "Business", "mandatory": true},
-      {"name": "Bank Sanction Letter", "type": "Financial", "mandatory": true}
+      {
+        "name": "SSO ID of Rajasthan",
+        "type": "Identity",
+        "mandatory": true
+      },
+      {
+        "name": "Aadhaar Card & Bhabashah/Jan Aadhaar",
+        "type": "Domicile",
+        "mandatory": true
+      },
+      {
+        "name": "Udyam Registration Certificate",
+        "type": "Business",
+        "mandatory": true
+      },
+      {
+        "name": "Bank Sanction Letter",
+        "type": "Financial",
+        "mandatory": true
+      }
     ]
   },
   {
@@ -466,14 +824,36 @@
       "minimum_age": 18,
       "maximum_age": 50,
       "minimum_education": "12th Pass / ITI / Polytechnic Diploma",
-      "business_stage": ["New Enterprise"]
+      "business_stage": [
+        "New Enterprise"
+      ]
     },
     "required_documents": [
-      {"name": "12th Pass / ITI Certificate", "type": "Qualification", "mandatory": true},
-      {"name": "Bihar Permanent Domicile Certificate", "type": "Domicile", "mandatory": true},
-      {"name": "Caste Certificate", "type": "Category", "mandatory": true},
-      {"name": "Aadhaar & PAN Card", "type": "Identity", "mandatory": true},
-      {"name": "Current Bank Account details", "type": "Financial", "mandatory": true}
+      {
+        "name": "12th Pass / ITI Certificate",
+        "type": "Qualification",
+        "mandatory": true
+      },
+      {
+        "name": "Bihar Permanent Domicile Certificate",
+        "type": "Domicile",
+        "mandatory": true
+      },
+      {
+        "name": "Caste Certificate",
+        "type": "Category",
+        "mandatory": true
+      },
+      {
+        "name": "Aadhaar & PAN Card",
+        "type": "Identity",
+        "mandatory": true
+      },
+      {
+        "name": "Current Bank Account details",
+        "type": "Financial",
+        "mandatory": true
+      }
     ]
   }
 ]

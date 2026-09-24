@@ -7,6 +7,7 @@ from app.core.config import settings
 from app.models.scheme import Scheme
 from app.models.profile import EntrepreneurProfile
 from app.security.rbac import get_current_user_token
+from app.services.openai_service import OpenAISchemeAdvisorService
 from app.services.gemini_service import GeminiSchemeAdvisorService
 from app.services.audit_service import AuditService
 from app.services.translation_service import SchemeTranslator
@@ -29,101 +30,91 @@ def chat_with_assistant(
     db: Session = Depends(get_db)
 ):
     """
-    RAG-powered Conversational AI Assistant.
-    Provides real-time eligibility Q&A, step-by-step application guidance, and scheme recommendations
-    tailored to the user's entrepreneur profile in their chosen language.
+    OpenAI ChatGPT & Gemini Powered Conversational Real-Time Speaking AI Assistant.
+    Provides step-by-step guidance for first-time / uneducated entrepreneurs on:
+    - How to use SchemeMate AI (OCR Scanning, Profile Creation, Financial Calculator, Partner Locator)
+    - Scheme Eligibility and 35% Margin Money Subsidies (PMEGP, MUDRA, PM Vishwakarma, CGTMSE)
+    - Returns answers in the user's selected language (Tamil, Hindi, English, etc.).
     """
     user_id = payload.get("sub")
     profile = db.query(EntrepreneurProfile).filter(EntrepreneurProfile.user_id == user_id).first()
 
-    profile_context = ""
+    prof_dict = {}
     if profile:
-        profile_context = f"""
-USER PROFILE CONTEXT:
-- Name: {profile.full_name or 'Entrepreneur'}
-- Age: {profile.age or 'Not specified'}
-- Gender: {profile.gender or 'Not specified'}
-- State: {profile.state or 'Not specified'}
-- District: {profile.district or 'Not specified'}
-- Category: {profile.category or 'Not specified'}
-- Business Type: {profile.business_type or 'Not specified'}
-- Annual Income: Rs. {profile.annual_income or 'Not specified'}
-- Funding Needed: Rs. {profile.funding_requirement or 'Not specified'}
-- Udyam Registered: {profile.has_udyam_registration or False}
-        """.strip()
+        prof_dict = {
+            "full_name": profile.full_name,
+            "age": profile.age,
+            "gender": profile.gender,
+            "state": profile.state,
+            "district": profile.district,
+            "category": profile.category,
+            "business_type": profile.business_type,
+            "annual_income": profile.annual_income,
+            "funding_requirement": profile.funding_requirement
+        }
 
-    # Retrieve relevant schemes for RAG context
-    all_schemes = db.query(Scheme).all()
-    scheme_summaries = []
-    for s in all_schemes[:10]:
-        scheme_summaries.append(f"• {s.scheme_name} (Ministry: {s.ministry}): {s.description[:150]}... Benefits: {s.benefits[:100]}")
-    schemes_context = "\n".join(scheme_summaries)
+    history_dicts = [{"role": m.role, "content": m.content} for m in req.conversation_history] if req.conversation_history else []
 
-    prompt = f"""
-You are SchemeMate AI, an expert, encouraging, and helpful government scheme advisor for Indian entrepreneurs.
-Answer the user's query clearly with accurate eligibility advice, scheme names, subsidies, and step-by-step guidance.
+    # 1. Attempt OpenAI ChatGPT AI Response First
+    openai_result = OpenAISchemeAdvisorService.generate_chatgpt_response(
+        user_message=req.message,
+        user_profile=prof_dict,
+        preferred_language=req.lang or "en",
+        conversation_history=history_dicts
+    )
 
-{profile_context}
-
-AVAILABLE TOP SCHEMES IN DATABASE:
-{schemes_context}
-
-USER QUESTION:
-"{req.message}"
-
-INSTRUCTIONS:
-1. Provide a direct, clear, structured answer.
-2. Highlight specific eligibility criteria or documents needed if applicable.
-3. Keep response concise, friendly, and empowering (3-5 short bullet points or clear paragraphs).
-    """.strip()
-
-    # Generate response
     ai_response_text = ""
-    try:
-        if profile:
-            prof_dict = {
-                "full_name": profile.full_name,
-                "age": profile.age,
-                "gender": profile.gender,
-                "state": profile.state,
-                "category": profile.category,
-                "business_type": profile.business_type,
-                "annual_income": profile.annual_income,
-                "funding_requirement": profile.funding_requirement
-            }
-            res = GeminiSchemeAdvisorService.suggest_schemes_with_gemini(
+    provider_used = "chatgpt"
+
+    if openai_result.get("success"):
+        ai_response_text = openai_result.get("reply", "")
+        provider_used = "openai_chatgpt"
+
+    # 2. Fallback to Gemini AI if OpenAI is unconfigured or unavailable
+    if not ai_response_text and prof_dict:
+        try:
+            gemini_res = GeminiSchemeAdvisorService.suggest_schemes_with_gemini(
                 profile=prof_dict,
                 query=req.message,
                 preferred_language=req.lang or "en"
             )
-            if res and res.get("ai_analysis_summary"):
-                ai_response_text = res["ai_analysis_summary"]
-    except Exception:
-        ai_response_text = ""
+            if gemini_res and gemini_res.get("ai_analysis_summary"):
+                ai_response_text = gemini_res["ai_analysis_summary"]
+                provider_used = "gemini_ai"
+        except Exception:
+            ai_response_text = ""
 
+    # 3. Knowledge Base RAG Fallback
     if not ai_response_text:
+        user_name = profile.full_name if profile and profile.full_name else 'Entrepreneur'
+        user_state = profile.state if profile and profile.state else 'India'
         ai_response_text = (
-            f"Hello {profile.full_name if profile and profile.full_name else 'Entrepreneur'}! "
-            f"Based on your profile details ({profile.state if profile and profile.state else 'India'}), "
-            f"you have strong eligibility for top central and state schemes like PMEGP (up to 35% margin money subsidy), "
-            f"MUDRA Tarun/Kishore loans, and PM Vishwakarma for traditional trades. "
-            f"Which specific scheme or eligibility criteria would you like to explore?"
+            f"Hello {user_name}! I am your SchemeMate AI Assistant. "
+            f"Based on your profile in {user_state}, you are eligible for top government support:\n"
+            f"1. **PMEGP**: Up to 35% margin money grant for starting your business!\n"
+            f"2. **PM MUDRA**: Collateral-free loans up to Rs 10 Lakh.\n"
+            f"3. **PM Vishwakarma**: Rs 15,000 toolkit grant + 5% loan for artisans.\n"
+            f"4. **OCR Scan Feature**: Click 'Scan Document' on top to auto-fill your profile instantly!\n"
+            f"5. **Financial Calculator**: Use our EMI & Subsidy calculator to check your monthly payback.\n"
+            f"How can I help you step-by-step today?"
         )
+        provider_used = "schememate_rag"
 
-    # Translate response if non-English requested
-    if req.lang and req.lang.lower() != "en":
+    # 4. Enforce translation to user selected language if needed
+    if req.lang and req.lang.lower() != "en" and provider_used != "openai_chatgpt":
         ai_response_text = SchemeTranslator.translate_text(ai_response_text, req.lang.lower())
 
-    AuditService.log_action(db, "ASSISTANT_CHAT", user_id=user_id, details=f"Query: {req.message[:50]}")
+    AuditService.log_action(db, "ASSISTANT_CHAT", user_id=user_id, details=f"[{provider_used}] Query: {req.message[:50]}")
 
     return {
         "success": True,
         "lang": req.lang,
+        "provider": provider_used,
         "reply": ai_response_text,
         "suggested_followups": [
-            "Am I eligible for PMEGP subsidy?",
-            "What documents do I need for MUDRA loan?",
-            "How do I apply for Udyam Registration?",
-            "Where is my nearest DIC office?"
+            "How do I use OCR Scan to auto-fill my profile?",
+            "Am I eligible for 35% PMEGP subsidy?",
+            "How do I calculate loan EMI in Financial Calculator?",
+            "Where is my nearest DIC office using Partner Locator?"
         ]
     }

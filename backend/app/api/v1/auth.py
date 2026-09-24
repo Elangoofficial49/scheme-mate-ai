@@ -19,7 +19,7 @@ class RegisterRequest(BaseModel):
     full_name: str = Field(..., example="Ramesh Kumar")
     email: EmailStr = Field(..., example="ramesh@example.com")
     phone: str = Field(..., example="9876543210")
-    password: str = Field(..., min_length=8)
+    password: str = Field(..., min_length=6)
     aadhaar_number: Optional[str] = None
     role: str = "USER"
 

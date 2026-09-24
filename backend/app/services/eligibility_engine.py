@@ -32,8 +32,8 @@ class DeterministicEligibilityEngine:
             else:
                 matched_rules.append(f"State eligibility matched ({required_state})")
 
-        # 2. Age criteria
-        min_age = scheme_rules.get("minimum_age")
+        # 2. Age criteria (Default minimum age is 18 for legal capacity to contract/borrow in India)
+        min_age = scheme_rules.get("minimum_age", 18)
         max_age = scheme_rules.get("maximum_age") or scheme_rules.get("maximum_age_general")
         user_age = profile.get("age")
         
