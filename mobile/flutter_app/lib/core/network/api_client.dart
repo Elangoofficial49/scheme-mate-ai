@@ -15,19 +15,15 @@ class ApiClient {
   static String? refreshToken;
 
   static Future<void> restoreSession() async {
-    try {
-      authToken = await _storage.read(key: 'access_token');
-      refreshToken = await _storage.read(key: 'refresh_token');
-    } catch (_) {}
+    authToken = await _storage.read(key: 'access_token');
+    refreshToken = await _storage.read(key: 'refresh_token');
   }
 
   static Future<void> _saveTokens(String access, String refresh) async {
     authToken = access;
     refreshToken = refresh;
-    try {
-      await _storage.write(key: 'access_token', value: access);
-      await _storage.write(key: 'refresh_token', value: refresh);
-    } catch (_) {}
+    await _storage.write(key: 'access_token', value: access);
+    await _storage.write(key: 'refresh_token', value: refresh);
   }
 
   static Future<void> saveTokens(String access, String refresh) async {
@@ -37,10 +33,8 @@ class ApiClient {
   static Future<void> clearSession() async {
     authToken = null;
     refreshToken = null;
-    try {
-      await _storage.delete(key: 'access_token');
-      await _storage.delete(key: 'refresh_token');
-    } catch (_) {}
+    await _storage.delete(key: 'access_token');
+    await _storage.delete(key: 'refresh_token');
   }
 
   static Future<bool> refreshSession() async {
@@ -89,18 +83,6 @@ class ApiClient {
           .timeout(const Duration(seconds: 35));
       return _processResponse(response);
     } catch (e) {
-      if (kIsWeb && baseUrl.contains("localhost")) {
-        try {
-          final fallbackUrl = baseUrl.replaceAll("localhost", "127.0.0.1");
-          final response = await http
-              .get(
-                Uri.parse("$fallbackUrl$endpoint"),
-                headers: _headers(),
-              )
-              .timeout(const Duration(seconds: 35));
-          return _processResponse(response);
-        } catch (_) {}
-      }
       return {
         "success": false,
         "error": {"message": "Network error or server offline: $e"}
@@ -120,19 +102,6 @@ class ApiClient {
           .timeout(const Duration(seconds: 35));
       return _processResponse(response);
     } catch (e) {
-      if (kIsWeb && baseUrl.contains("localhost")) {
-        try {
-          final fallbackUrl = baseUrl.replaceAll("localhost", "127.0.0.1");
-          final response = await http
-              .post(
-                Uri.parse("$fallbackUrl$endpoint"),
-                headers: _headers(),
-                body: json.encode(body),
-              )
-              .timeout(const Duration(seconds: 35));
-          return _processResponse(response);
-        } catch (_) {}
-      }
       return {
         "success": false,
         "error": {"message": "Network error or server offline: $e"}
@@ -152,19 +121,6 @@ class ApiClient {
           .timeout(const Duration(seconds: 35));
       return _processResponse(response);
     } catch (e) {
-      if (kIsWeb && baseUrl.contains("localhost")) {
-        try {
-          final fallbackUrl = baseUrl.replaceAll("localhost", "127.0.0.1");
-          final response = await http
-              .put(
-                Uri.parse("$fallbackUrl$endpoint"),
-                headers: _headers(),
-                body: json.encode(body),
-              )
-              .timeout(const Duration(seconds: 35));
-          return _processResponse(response);
-        } catch (_) {}
-      }
       return {
         "success": false,
         "error": {"message": "Network error or server offline: $e"}
@@ -205,35 +161,16 @@ class ApiClient {
 
   static Map<String, dynamic> _processResponse(http.Response response) {
     try {
-      final decoded = json.decode(response.body);
+      final data = json.decode(response.body);
       if (response.statusCode >= 200 && response.statusCode < 300) {
-        if (decoded is Map<String, dynamic>) {
-          return decoded;
-        }
-        return {"success": true, "data": decoded};
+        return data;
       }
-
-      String? extractedMsg;
-      if (decoded is Map<String, dynamic>) {
-        if (decoded["detail"] is Map) {
-          extractedMsg = decoded["detail"]["message"]?.toString() ?? decoded["detail"]["code"]?.toString();
-        } else if (decoded["detail"] != null) {
-          extractedMsg = decoded["detail"].toString();
-        } else if (decoded["error"] is Map) {
-          extractedMsg = decoded["error"]["message"]?.toString();
-        } else if (decoded["message"] != null) {
-          extractedMsg = decoded["message"].toString();
-        }
-        return {
-          "success": false,
-          "error": {"message": extractedMsg ?? "Error ${response.statusCode}"},
-          ...decoded,
-        };
-      }
-      return {
-        "success": false,
-        "error": {"message": "Error ${response.statusCode}"}
-      };
+      return data is Map<String, dynamic>
+          ? data
+          : {
+              "success": false,
+              "error": {"message": "Error ${response.statusCode}"}
+            };
     } catch (_) {
       return {
         "success": false,

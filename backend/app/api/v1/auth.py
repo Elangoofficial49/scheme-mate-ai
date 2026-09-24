@@ -39,14 +39,6 @@ class ResendOTPRequest(BaseModel):
     phone: str
     email: Optional[str] = None
 
-class ForgotPasswordRequest(BaseModel):
-    email: EmailStr
-
-class ResetPasswordRequest(BaseModel):
-    email: EmailStr
-    new_password: str = Field(..., min_length=6)
-    otp: Optional[str] = None
-
 @router.post("/register")
 def register(req: RegisterRequest, db: Session = Depends(get_db)):
     clean_phone = req.phone.strip()
@@ -129,7 +121,6 @@ def register(req: RegisterRequest, db: Session = Depends(get_db)):
         "full_name": target_user.full_name,
         "role": getattr(target_user, "role", None) or getattr(req, "role", "USER"),
         "is_verified": target_user.is_verified,
-        "hashed_password": target_user.hashed_password,
         "created_at": str(target_user.created_at) if hasattr(target_user, "created_at") else None
     }, query_filter={"email": target_user.email})
 
@@ -184,23 +175,13 @@ def login(req: LoginRequest, db: Session = Depends(get_db)):
                         is_active=bool(m_doc.get("is_active", 1)),
                         is_verified=bool(m_doc.get("is_verified", 1))
                     )
-                    try:
-                        db.add(user)
-                        db.commit()
-                        db.refresh(user)
-                    except Exception:
-                        db.rollback()
-                        user = db.query(User).filter((User.email == identifier.lower()) | (User.phone == identifier)).first()
+                    db.add(user)
+                    db.commit()
+                    db.refresh(user)
         except Exception as mongo_err:
             pass
 
-    clean_pwd = req.password.strip() if req.password else ""
-    is_valid_pwd = bool(user and user.hashed_password and (
-        verify_password(req.password, user.hashed_password) or
-        verify_password(clean_pwd, user.hashed_password)
-    ))
-
-    if not user or not is_valid_pwd:
+    if not user or not verify_password(req.password, user.hashed_password):
         AuditService.log_security_event(
             db, "FAILED_LOGIN", severity="MEDIUM", description=f"Failed login attempt for: {identifier}"
         )
@@ -318,107 +299,6 @@ def resend_otp(req: ResendOTPRequest, db: Session = Depends(get_db)):
             "email": user.email,
             "email_delivered": email_result.get("delivered", False)
         }
-    }
-
-@router.post("/forgot-password")
-def forgot_password(req: ForgotPasswordRequest, db: Session = Depends(get_db)):
-    clean_email = str(req.email).strip().lower()
-    user = db.query(User).filter(User.email == clean_email).first()
-    
-    # Check MongoDB if not found in SQLite
-    if not user:
-        try:
-            from app.core.mongodb import mongo_manager, init_mongodb
-            if mongo_manager.sync_client is None:
-                init_mongodb()
-            if mongo_manager.sync_client is not None:
-                sync_db = mongo_manager.sync_client[settings.MONGODB_DB_NAME]
-                m_doc = sync_db["users"].find_one({"email": clean_email})
-                if m_doc:
-                    user = User(
-                        id=m_doc.get("id", str(secrets.token_hex(16))),
-                        phone=m_doc.get("phone", "0000000000"),
-                        email=m_doc.get("email", clean_email),
-                        aadhaar_number=m_doc.get("aadhaar_number"),
-                        hashed_password=m_doc.get("hashed_password", get_password_hash("123456")),
-                        full_name=m_doc.get("full_name", "Entrepreneur"),
-                        is_active=bool(m_doc.get("is_active", 1)),
-                        is_verified=bool(m_doc.get("is_verified", 1))
-                    )
-                    db.add(user)
-                    db.commit()
-                    db.refresh(user)
-        except Exception:
-            db.rollback()
-
-    if not user:
-        raise HTTPException(
-            status_code=404,
-            detail={"code": "USER_NOT_FOUND", "message": "No account found with this email address. Please register."}
-        )
-
-    otp = f"{secrets.randbelow(900000) + 100000}"
-    user.email_otp = otp
-    user.otp_expires_at = datetime.datetime.utcnow() + datetime.timedelta(minutes=15)
-    user.otp_attempts = 0
-    db.commit()
-
-    EmailService.store_otp(clean_email, otp, expiry_minutes=15)
-    email_result = EmailService.send_otp_email(to_email=clean_email, otp=otp, user_name=user.full_name or "Entrepreneur")
-    AuditService.log_action(db, "PASSWORD_RESET_REQUESTED", user_id=user.id)
-
-    return {
-        "success": True,
-        "message": f"A 6-digit password reset OTP has been sent to {clean_email}.",
-        "data": {
-            "email": clean_email,
-            "email_delivered": email_result.get("delivered", False)
-        }
-    }
-
-@router.post("/reset-password")
-def reset_password(req: ResetPasswordRequest, db: Session = Depends(get_db)):
-    clean_email = str(req.email).strip().lower()
-    user = db.query(User).filter(User.email == clean_email).first()
-
-    if not user:
-        raise HTTPException(
-            status_code=404,
-            detail={"code": "USER_NOT_FOUND", "message": "No account found with this email address."}
-        )
-
-    if req.otp:
-        clean_otp = req.otp.replace(" ", "").strip()
-        is_valid = False
-        if user.otp_expires_at and user.otp_expires_at < datetime.datetime.utcnow():
-            raise HTTPException(status_code=400, detail={"code": "OTP_EXPIRED", "message": "OTP has expired. Please request a new one."})
-        elif user.email_otp and secrets.compare_digest(user.email_otp.strip(), clean_otp):
-            is_valid = True
-        elif EmailService.verify_otp(clean_email, clean_otp):
-            is_valid = True
-
-        if not is_valid:
-            raise HTTPException(status_code=400, detail={"code": "INVALID_OTP", "message": "Invalid OTP code entered."})
-
-    new_hash = get_password_hash(req.new_password)
-    user.hashed_password = new_hash
-    user.email_otp = None
-    user.otp_attempts = 0
-    user.is_verified = True
-    db.commit()
-
-    # Sync updated password to MongoDB Atlas
-    sync_save_to_mongodb("users", {
-        "email": clean_email,
-        "hashed_password": new_hash,
-        "is_verified": True
-    }, query_filter={"email": clean_email})
-
-    AuditService.log_action(db, "PASSWORD_RESET_SUCCESS", user_id=user.id)
-
-    return {
-        "success": True,
-        "message": "Password updated successfully! You can now log in with your new password."
     }
 
 @router.post("/refresh")

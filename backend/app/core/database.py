@@ -9,16 +9,10 @@ DATABASE_URL = settings.DATABASE_URL
 if DATABASE_URL.startswith("postgres://"):
     DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
 
-# Handle sqlite specific arguments and ensure consistent canonical path
+# Handle sqlite specific arguments
 connect_args = {}
 if DATABASE_URL.startswith("sqlite"):
     connect_args = {"check_same_thread": False}
-    if ":///" in DATABASE_URL:
-        db_raw = DATABASE_URL.split(":///", 1)[1]
-        if not os.path.isabs(db_raw):
-            backend_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-            canonical_db = os.path.normpath(os.path.join(backend_dir, os.path.basename(db_raw)))
-            DATABASE_URL = f"sqlite:///{canonical_db}"
 
 engine = create_engine(DATABASE_URL, connect_args=connect_args, echo=False)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
