@@ -18,6 +18,7 @@ class AuthScreen extends StatefulWidget {
 
 class _AuthScreenState extends State<AuthScreen> {
   late bool _isLoginTab;
+  bool _obscurePassword = true;
 
   final _phoneController = TextEditingController();
   final _passwordController = TextEditingController();
@@ -50,19 +51,22 @@ class _AuthScreenState extends State<AuthScreen> {
       bool success = await auth.login(
           _emailController.text.trim(), _passwordController.text.trim());
       setState(() => _isLoading = false);
+      if (!mounted) return;
 
-      if (success && context.mounted) {
+      if (success) {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
               builder: (context) => const BusinessProfileFormScreen()),
         );
-      } else if (context.mounted) {
+      } else {
+        final errorMsg = auth.lastError ??
+            "Authentication failed. Invalid email address or password.";
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text(
-                "Authentication failed. Invalid email address or password."),
+          SnackBar(
+            content: Text(errorMsg),
             backgroundColor: AppTheme.warningOrange,
+            duration: const Duration(seconds: 4),
           ),
         );
       }
@@ -349,6 +353,163 @@ if (res["success"] == true) {
     );
   }
 
+  void _showForgotPasswordDialog() {
+    final emailCtrl = TextEditingController(text: _emailController.text.trim());
+    final otpCtrl = TextEditingController();
+    final newPasswordCtrl = TextEditingController();
+    bool otpSent = false;
+    bool isProcessing = false;
+    String? statusMessage;
+
+    showDialog(
+      context: context,
+      builder: (ctx) {
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            return AlertDialog(
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              title: const Row(
+                children: [
+                  Icon(Icons.lock_reset_rounded, color: AppTheme.primaryNavy),
+                  SizedBox(width: 8),
+                  Text(
+                    "Reset Password",
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: AppTheme.primaryNavy),
+                  ),
+                ],
+              ),
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      otpSent
+                          ? "Enter the 6-digit OTP code sent to ${emailCtrl.text.trim()} and choose a new password."
+                          : "Enter your registered email address to receive a 6-digit password reset OTP.",
+                      style: const TextStyle(fontSize: 13, color: Colors.black87),
+                    ),
+                    const SizedBox(height: 16),
+                    TextField(
+                      controller: emailCtrl,
+                      enabled: !otpSent && !isProcessing,
+                      decoration: const InputDecoration(
+                        labelText: "Email Address",
+                        prefixIcon: Icon(Icons.email_outlined),
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                    if (otpSent) ...[
+                      const SizedBox(height: 16),
+                      TextField(
+                        controller: otpCtrl,
+                        keyboardType: TextInputType.number,
+                        maxLength: 6,
+                        decoration: const InputDecoration(
+                          labelText: "6-Digit OTP",
+                          prefixIcon: Icon(Icons.vpn_key_outlined),
+                          border: OutlineInputBorder(),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      TextField(
+                        controller: newPasswordCtrl,
+                        obscureText: true,
+                        decoration: const InputDecoration(
+                          labelText: "New Password (min 6 characters)",
+                          prefixIcon: Icon(Icons.lock_outline),
+                          border: OutlineInputBorder(),
+                        ),
+                      ),
+                    ],
+                    if (statusMessage != null) ...[
+                      const SizedBox(height: 12),
+                      Text(
+                        statusMessage!,
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: statusMessage!.contains("success") || statusMessage!.contains("sent")
+                              ? AppTheme.govGreen
+                              : AppTheme.warningOrange,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(ctx),
+                  child: const Text("Cancel"),
+                ),
+                ElevatedButton(
+                  onPressed: isProcessing
+                      ? null
+                      : () async {
+                          final auth = Provider.of<AuthProvider>(context, listen: false);
+                          if (!otpSent) {
+                            if (emailCtrl.text.trim().isEmpty) return;
+                            setModalState(() {
+                              isProcessing = true;
+                              statusMessage = null;
+                            });
+                            final res = await auth.forgotPassword(emailCtrl.text.trim());
+                            setModalState(() {
+                              isProcessing = false;
+                              if (res["success"] == true) {
+                                otpSent = true;
+                                statusMessage = "OTP sent to your email!";
+                              } else {
+                                statusMessage = res["error"]?["message"] ?? res["message"] ?? "Failed to send reset OTP.";
+                              }
+                            });
+                          } else {
+                            if (otpCtrl.text.trim().length != 6 || newPasswordCtrl.text.trim().length < 6) {
+                              setModalState(() => statusMessage = "Please enter 6-digit OTP and 6+ character password.");
+                              return;
+                            }
+                            setModalState(() {
+                              isProcessing = true;
+                              statusMessage = null;
+                            });
+                            final res = await auth.resetPassword(
+                              email: emailCtrl.text.trim(),
+                              newPassword: newPasswordCtrl.text.trim(),
+                              otp: otpCtrl.text.trim(),
+                            );
+                            setModalState(() => isProcessing = false);
+                            if (res["success"] == true && context.mounted) {
+                              Navigator.pop(ctx);
+                              _emailController.text = emailCtrl.text.trim();
+                              _passwordController.text = newPasswordCtrl.text.trim();
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text("Password updated successfully! Logging you in..."),
+                                  backgroundColor: AppTheme.govGreen,
+                                ),
+                              );
+                              _submit();
+                            } else {
+                              setModalState(() {
+                                statusMessage = res["error"]?["message"] ?? res["message"] ?? "Failed to reset password.";
+                              });
+                            }
+                          }
+                        },
+                  style: ElevatedButton.styleFrom(backgroundColor: AppTheme.primaryNavy),
+                  child: isProcessing
+                      ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                      : Text(otpSent ? "Reset Password" : "Send OTP"),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -503,7 +664,7 @@ if (res["success"] == true) {
 
                               TextField(
                                 controller: _passwordController,
-                                obscureText: true,
+                                obscureText: _obscurePassword,
                                 decoration: InputDecoration(
                                   labelText: context.tr("password"),
                                   hintText: _isLoginTab
@@ -511,10 +672,40 @@ if (res["success"] == true) {
                                       : context.tr("password_min_hint"),
                                   prefixIcon: const Icon(Icons.lock_outline,
                                       color: AppTheme.primaryNavy),
+                                  suffixIcon: IconButton(
+                                    icon: Icon(
+                                      _obscurePassword
+                                          ? Icons.visibility_off
+                                          : Icons.visibility,
+                                      color: Colors.grey,
+                                    ),
+                                    onPressed: () {
+                                      setState(() {
+                                        _obscurePassword = !_obscurePassword;
+                                      });
+                                    },
+                                  ),
                                   border: const OutlineInputBorder(),
                                 ),
                               ),
-                              const SizedBox(height: 24),
+                              if (_isLoginTab) ...[
+                                const SizedBox(height: 6),
+                                Align(
+                                  alignment: Alignment.centerRight,
+                                  child: TextButton(
+                                    onPressed: _showForgotPasswordDialog,
+                                    child: const Text(
+                                      "Forgot Password?",
+                                      style: TextStyle(
+                                        color: AppTheme.primaryNavy,
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: 13,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                              const SizedBox(height: 16),
 
                               SizedBox(
                                 width: double.infinity,
@@ -541,21 +732,44 @@ if (res["success"] == true) {
                               ),
                               const SizedBox(height: 16),
 
-                              if (_isLoginTab)
-                                TextButton(
-                                  onPressed: () {
-                                    _emailController.text =
-                                        "ramesh@example.com";
-                                    _passwordController.text = "123456";
-                                  },
-                                  child: const Text(
-                                    "⚡ Quick Demo Login (Ramesh Kumar)",
-                                    style: TextStyle(
-                                        color: AppTheme.primaryNavy,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 13),
-                                  ),
+                              if (_isLoginTab) ...[
+                                Wrap(
+                                  alignment: WrapAlignment.center,
+                                  spacing: 8,
+                                  children: [
+                                    TextButton.icon(
+                                      icon: const Icon(Icons.flash_on, size: 16, color: AppTheme.primaryNavy),
+                                      onPressed: () {
+                                        _emailController.text =
+                                            "elangosurendhar88@gmail.com";
+                                        _passwordController.text = "123456";
+                                      },
+                                      label: const Text(
+                                        "Quick Login (Elango)",
+                                        style: TextStyle(
+                                            color: AppTheme.primaryNavy,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 13),
+                                      ),
+                                    ),
+                                    TextButton.icon(
+                                      icon: const Icon(Icons.flash_on, size: 16, color: AppTheme.primaryNavy),
+                                      onPressed: () {
+                                        _emailController.text =
+                                            "ramesh@example.com";
+                                        _passwordController.text = "123456";
+                                      },
+                                      label: const Text(
+                                        "Demo Login (Ramesh Kumar)",
+                                        style: TextStyle(
+                                            color: AppTheme.primaryNavy,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 13),
+                                      ),
+                                    ),
+                                  ],
                                 ),
+                              ],
                             ],
                           ),
                         ),
