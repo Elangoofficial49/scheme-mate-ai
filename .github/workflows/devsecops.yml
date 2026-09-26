@@ -42,12 +42,7 @@ jobs:
           cd backend
           python -m pytest -v
 
-      - name: 5. Build Docker Containers
-        run: |
-          docker build -t schememate-backend:latest ./backend
-          docker build -t schememate-frontend:latest ./mobile/flutter_app
-
-      - name: 6. Flutter Static Analysis and Tests
+      - name: 5. Flutter Static Analysis and Tests
         uses: subosito/flutter-action@v2
         with:
           channel: stable
@@ -59,4 +54,5 @@ jobs:
           dart format --output=none --set-exit-if-changed lib test
           flutter analyze
           flutter test
+          flutter build web --release
 

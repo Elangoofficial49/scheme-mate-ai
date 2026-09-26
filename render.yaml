@@ -1,12 +1,13 @@
 services:
   - type: web
-    name: scheme-mate-api
-    runtime: docker
+    name: scheme-mate-app
+    runtime: python
     region: oregon
     plan: 0.5c-512mb
     autoDeployTrigger: checksPass
-    dockerfilePath: ./backend/Dockerfile
-    dockerContext: ./backend
+    buildCommand: python -m pip install -r backend/requirements.txt && bash scripts/render-build.sh
+    preDeployCommand: cd backend && python -m alembic upgrade head
+    startCommand: cd backend && exec python -m uvicorn app.main:app --host 0.0.0.0 --port $PORT
     healthCheckPath: /health
     disk:
       name: uploads
@@ -35,27 +36,8 @@ services:
         value: ""
       - key: MONGODB_DB_NAME
         value: schememate_ai
-
-  - type: web
-    name: scheme-mate-web
-    runtime: docker
-    region: oregon
-    plan: free
-    autoDeployTrigger: checksPass
-    dockerfilePath: ./mobile/flutter_app/Dockerfile
-    dockerContext: ./mobile/flutter_app
-    healthCheckPath: /
-    envVars:
-      - key: BACKEND_HOST
-        fromService:
-          name: scheme-mate-api
-          type: web
-          property: host
-      - key: BACKEND_PORT
-        fromService:
-          name: scheme-mate-api
-          type: web
-          property: port
+      - key: FLUTTER_VERSION
+        value: 3.47.2
 
 databases:
   - name: scheme-mate-db

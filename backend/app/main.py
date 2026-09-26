@@ -1,7 +1,9 @@
 import time
+from pathlib import Path
 from sqlalchemy import text
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from app.core.config import settings
 from app.core.database import init_db, engine
 from app.core.mongodb import init_mongodb, close_mongodb, get_mongodb
@@ -54,16 +56,6 @@ def startup_event():
 def shutdown_event():
     close_mongodb()
 
-@app.get("/")
-def root():
-    return {
-        "status": "online",
-        "system": settings.PROJECT_NAME,
-        "version": settings.VERSION,
-        "docs_url": "/docs",
-        "api_v1_base": settings.API_V1_STR
-    }
-
 @app.get("/health")
 def health_check():
     database_status = "connected"
@@ -87,3 +79,17 @@ def readiness_check():
     if health["database"] != "connected":
         return {"status": "not_ready", "checks": health}
     return {"status": "ready", "checks": health}
+
+web_assets = Path(__file__).resolve().parent / "static"
+if web_assets.is_dir():
+    app.mount("/", StaticFiles(directory=web_assets, html=True), name="web")
+else:
+    @app.get("/")
+    def root():
+        return {
+            "status": "online",
+            "system": settings.PROJECT_NAME,
+            "version": settings.VERSION,
+            "docs_url": "/docs",
+            "api_v1_base": settings.API_V1_STR
+        }

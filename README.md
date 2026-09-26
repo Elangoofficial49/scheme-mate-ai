@@ -47,10 +47,9 @@ Entrepreneur Situation / Prompt / Speech / Voice Input
 
 - **Mobile Frontend**: Flutter (Dart) — Android / Web / Cross-Platform with Multilingual i18n (`en`, `ta`, `hi`), Voice Mic simulator, high-contrast accessible UI, and local SharedPreferences offline caching.
 - **Backend API**: Python 3.12 + FastAPI (Modular Monolith)
-- **Database**: PostgreSQL with `pgvector` extension (Dual compatibility with SQLite for zero-dependency standalone execution)
-- **Cache**: Redis
+- **Database**: Render-managed PostgreSQL, with SQLite fallback for local development
 - **Security & DevSecOps**: Argon2id / bcrypt password hashing, short-lived JWT Access & Refresh Token rotation, RBAC (`USER`, `ADMIN`), Security headers middleware, Rate limiting, AI prompt injection guardrails, PII masking, Github Actions CI/CD.
-- **Containerization**: Docker & Docker Compose
+- **Deployment**: Render native Python web service and managed PostgreSQL
 
 ---
 
@@ -74,17 +73,18 @@ scheme-mate-ai/
 │   │   └── api/v1/             # REST endpoints (auth, profile, schemes, matching, documents, admin)
 │   ├── tests/                  # Pytest unit & integration test suite
 │   ├── requirements.txt
-│   └── Dockerfile
+│   ├── alembic.ini
+│   └── alembic/                # Database migrations
 ├── data/
 │   ├── seed_schemes.json       # 35+ verified central and state schemes
 │   └── seed_rules.json         # Eligibility operators & weighting config
 ├── infrastructure/
-│   ├── docker/init_pgvector.sql
-│   ├── nginx/nginx.conf
 │   └── monitoring/prometheus.yml
 ├── .github/workflows/devsecops.yml  # DevSecOps CI/CD pipeline
-├── docker-compose.yml
-├── .env.example
+├── render.yaml
+├── apt.txt
+├── .python-version
+├── scripts/render-build.sh
 └── README.md
 ```
 
@@ -92,30 +92,28 @@ scheme-mate-ai/
 
 ## Deploying to Render
 
-The root-level `render.yaml` defines a Render Blueprint for the FastAPI backend,
-PostgreSQL database, and Flutter web frontend. In Render, create a new Blueprint
-from this GitHub repository and deploy the `main` branch.
+The root-level `render.yaml` defines a native Render Blueprint for the FastAPI
+backend and managed PostgreSQL database. In Render, create a new Blueprint from
+this GitHub repository and deploy the `main` branch.
 
-- `scheme-mate-api` builds `backend/Dockerfile`, runs Alembic migrations, and
-  exposes `/health` for health checks.
-- `scheme-mate-db` provides PostgreSQL. The API receives its connection string
-  from Render, and JWT secrets are generated automatically.
-- `scheme-mate-web` builds the Flutter web app and serves it through Nginx.
-  Requests under `/api/` are proxied privately to the backend, so the browser
-  uses the same origin and does not need a hardcoded API URL.
+- `scheme-mate-app` installs the Python and OCR system dependencies, builds the
+  Flutter web app, runs Alembic migrations, and serves both the API and web app
+  from one origin.
+- `scheme-mate-db` provides PostgreSQL. Render supplies the connection string
+  and generates both JWT secrets automatically.
+- GitHub Actions validates Python and Flutter code before Render auto-deploys.
 
-The API service and database use paid Render plans in this Blueprint; the API
-also has a persistent disk for uploaded documents. Review the plan and storage
-costs in Render before creating the resources. The web service uses the free
-plan.
+The web service and database use Render plans that may incur charges. The web
+service also has a persistent disk for uploaded documents. Review current plan
+and storage costs in Render before creating the resources.
 
 AI is configured to use the local provider and MongoDB is disabled by default.
 To enable an external AI provider, set its API key and update `AI_PROVIDER` in
 the backend service environment. To use MongoDB Atlas or SMTP, add their
 connection credentials to the backend environment in the Render Dashboard.
 
-After deployment, open the `scheme-mate-web` URL. The backend health endpoint
-is available at the `scheme-mate-api` service URL followed by `/health`.
+After deployment, open the `scheme-mate-app` URL. The API health endpoint is
+available at `/health`, and API documentation is available at `/docs`.
 
 ---
 
@@ -135,13 +133,6 @@ python -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ```
 - Open Swagger API Documentation: `http://localhost:8000/docs`
 - Health check endpoint: `http://localhost:8000/health`
-
-### Option B: Running with Docker Compose (PostgreSQL + pgvector + Redis + FastAPI)
-
-```bash
-# From project root directory
-docker-compose up --build -d
-```
 
 ---
 
