@@ -25,4 +25,5 @@ pyzbar>=0.1.9
 pypdf>=4.2.0
 gTTS>=2.5.1
 redis>=5.0.4
+openai>=1.14.0
 

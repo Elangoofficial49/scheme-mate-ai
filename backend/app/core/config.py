@@ -48,11 +48,20 @@ class Settings(BaseSettings):
     REDIS_URL: str = "redis://localhost:6379/0"
     
     # AI Providers
-    AI_PROVIDER: str = "gemini"  # "gemini", "openai", "local"
+    AI_PROVIDER: str = "openai"  # "openai", "gemini", "local"
     AI_API_KEY: Optional[str] = None
+    OPENAI_API_KEY: Optional[str] = None
+    OPENAI_MODEL: str = "gpt-4o-mini"
     GEMINI_API_KEY: Optional[str] = None
     GEMINI_MODEL: str = "gemini-3.6-flash"
     EMBEDDING_MODEL: str = "all-MiniLM-L6-v2"
+
+    @property
+    def effective_openai_api_key(self) -> Optional[str]:
+        return (
+            self.OPENAI_API_KEY or
+            os.getenv("OPENAI_API_KEY")
+        )
 
     @property
     def effective_gemini_api_key(self) -> Optional[str]:
