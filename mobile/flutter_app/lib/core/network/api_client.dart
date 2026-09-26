@@ -8,9 +8,7 @@ class ApiClient {
   static const _configuredBaseUrl = String.fromEnvironment('API_BASE_URL');
   static String get baseUrl => _configuredBaseUrl.isNotEmpty
       ? _configuredBaseUrl
-      : (kIsWeb
-          ? "http://localhost:8000/api/v1"
-          : "http://10.0.2.2:8000/api/v1");
+      : (kIsWeb ? "${Uri.base.origin}/api/v1" : "http://10.0.2.2:8000/api/v1");
   static String? authToken;
   static String? refreshToken;
 

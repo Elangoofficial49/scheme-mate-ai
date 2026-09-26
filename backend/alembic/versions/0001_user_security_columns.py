@@ -15,6 +15,9 @@ depends_on = None
 
 def upgrade():
     inspector = inspect(op.get_bind())
+    if "users" not in inspector.get_table_names():
+        return
+
     columns = {column["name"] for column in inspector.get_columns("users")}
     if "otp_attempts" not in columns:
         op.add_column("users", sa.Column("otp_attempts", sa.Integer(), nullable=False, server_default="0"))

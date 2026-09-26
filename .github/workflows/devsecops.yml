@@ -45,6 +45,7 @@ jobs:
       - name: 5. Build Docker Containers
         run: |
           docker build -t schememate-backend:latest ./backend
+          docker build -t schememate-frontend:latest ./mobile/flutter_app
 
       - name: 6. Flutter Static Analysis and Tests
         uses: subosito/flutter-action@v2

@@ -90,6 +90,35 @@ scheme-mate-ai/
 
 ---
 
+## Deploying to Render
+
+The root-level `render.yaml` defines a Render Blueprint for the FastAPI backend,
+PostgreSQL database, and Flutter web frontend. In Render, create a new Blueprint
+from this GitHub repository and deploy the `main` branch.
+
+- `scheme-mate-api` builds `backend/Dockerfile`, runs Alembic migrations, and
+  exposes `/health` for health checks.
+- `scheme-mate-db` provides PostgreSQL. The API receives its connection string
+  from Render, and JWT secrets are generated automatically.
+- `scheme-mate-web` builds the Flutter web app and serves it through Nginx.
+  Requests under `/api/` are proxied privately to the backend, so the browser
+  uses the same origin and does not need a hardcoded API URL.
+
+The API service and database use paid Render plans in this Blueprint; the API
+also has a persistent disk for uploaded documents. Review the plan and storage
+costs in Render before creating the resources. The web service uses the free
+plan.
+
+AI is configured to use the local provider and MongoDB is disabled by default.
+To enable an external AI provider, set its API key and update `AI_PROVIDER` in
+the backend service environment. To use MongoDB Atlas or SMTP, add their
+connection credentials to the backend environment in the Render Dashboard.
+
+After deployment, open the `scheme-mate-web` URL. The backend health endpoint
+is available at the `scheme-mate-api` service URL followed by `/health`.
+
+---
+
 ## 🚀 Running the Application Locally
 
 ### Option A: Running FastAPI Backend via Python Virtual Environment

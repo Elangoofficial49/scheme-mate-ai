@@ -1,0 +1,65 @@
+services:
+  - type: web
+    name: scheme-mate-api
+    runtime: docker
+    region: oregon
+    plan: 0.5c-512mb
+    autoDeployTrigger: checksPass
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    healthCheckPath: /health
+    disk:
+      name: uploads
+      mountPath: /var/lib/schememate
+      sizeGB: 1
+    envVars:
+      - key: ENVIRONMENT
+        value: production
+      - key: DEBUG
+        value: "false"
+      - key: DATABASE_URL
+        fromDatabase:
+          name: scheme-mate-db
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_REFRESH_SECRET
+        generateValue: true
+      - key: AI_PROVIDER
+        value: local
+      - key: OCR_PROVIDER
+        value: tesseract
+      - key: UPLOAD_DIR
+        value: /var/lib/schememate/uploads
+      - key: MONGODB_URL
+        value: ""
+      - key: MONGODB_DB_NAME
+        value: schememate_ai
+
+  - type: web
+    name: scheme-mate-web
+    runtime: docker
+    region: oregon
+    plan: free
+    autoDeployTrigger: checksPass
+    dockerfilePath: ./mobile/flutter_app/Dockerfile
+    dockerContext: ./mobile/flutter_app
+    healthCheckPath: /
+    envVars:
+      - key: BACKEND_HOST
+        fromService:
+          name: scheme-mate-api
+          type: web
+          property: host
+      - key: BACKEND_PORT
+        fromService:
+          name: scheme-mate-api
+          type: web
+          property: port
+
+databases:
+  - name: scheme-mate-db
+    databaseName: schememate
+    user: schememate_user
+    plan: 0.1c-256mb
+    region: oregon
