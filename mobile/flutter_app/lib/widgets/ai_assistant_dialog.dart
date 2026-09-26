@@ -43,21 +43,23 @@ class _AiAssistantDialogState extends State<AiAssistantDialog> {
   }
 
   void _addInitialGreeting() {
-    String greeting = "Namaste! 🙏 I am your ChatGPT Real-Time Voice & Scheme Assistant.\n\n"
-        "I know everything about SchemeMate AI and Government Subsidies! "
-        "I can guide you step-by-step on:\n"
+    String greeting = "Namaste! 🙏 I am your SchemeMate Gen AI Assistant.\n\n"
+        "I'm here to chat with you like a human and guide you step-by-step on:\n"
         "• How to fill your profile or use OCR Document Scan\n"
         "• 35% Margin Money Subsidies (PMEGP, MUDRA, PM Vishwakarma)\n"
         "• Financial Loan Calculator & Partner Locator Maps\n\n"
+        "⚠️ Note: I specialize exclusively in SchemeMate AI and government entrepreneurship schemes. If you ask questions apart from our website, I will politely ask you to stay on website topics! 😊\n\n"
         "How can I help you today? You can type your question in any language!";
 
     if (_selectedLang == 'ta') {
-      greeting = "வணக்கம்! 🙏 நான் உங்கள் SchemeMate AI ChatGPT குரல் உதவி முகவர்.\n\n"
-          "அரசு திட்டங்கள், 35% மானியம் (PMEGP, MUDRA), OCR ஆவண ஸ்கேனர் மற்றும் கடன் கணிப்பான் பற்றி உங்களுக்கு எளிமையாக வழிகாட்ட நான் தயார்!\n\n"
+      greeting = "வணக்கம்! 🙏 நான் உங்கள் SchemeMate Gen AI உதவி முகவர்.\n\n"
+          "அரசு திட்டங்கள், 35% மானியம் (PMEGP, MUDRA), OCR ஆவண ஸ்கேனர் மற்றும் கடன் கணிப்பான் பற்றி ஒரு மனிதனைப் போல வழிகாட்ட நான் தயார்!\n\n"
+          "⚠️ குறிப்பு: இந்த இணையதளம் மற்றும் அரசு திட்டங்கள் சார்ந்த கேள்விகளுக்கு மட்டுமே நான் பதிலளிப்பேன். இணையதள அம்சங்கள் பற்றி கேளுங்கள்! 😊\n\n"
           "உங்களுக்கு என்ன உதவி வேண்டும்? கீழே தட்டச்சு செய்யவும்!";
     } else if (_selectedLang == 'hi') {
-      greeting = "नमस्ते! 🙏 मैं आपका SchemeMate AI ChatGPT रियल-टाइम वॉयस असिस्टेंट हूं।\n\n"
-          "मैं आपको सरकारी योजनाओं, 35% सब्सिडी (PMEGP, MUDRA), OCR दस्तावेज़ स्कैनर और ऋण कैलकुलेटर के बारे में सरल चरणों में मार्गदर्शन करूंगा!\n\n"
+      greeting = "नमस्ते! 🙏 मैं आपका SchemeMate Gen AI सहायक हूं।\n\n"
+          "मैं एक इंसान की तरह आपसे बातचीत करके सरकारी योजनाओं, 35% सब्सिडी (PMEGP, MUDRA), OCR दस्तावेज़ स्कैनर और ऋण कैलकुलेटर के बारे में आपका मार्गदर्शन करूंगा!\n\n"
+          "⚠️ नोट: मैं केवल हमारी वेबसाइट और सरकारी योजनाओं से संबंधित सवालों के जवाब देता हूँ। 😊\n\n"
           "आज मैं आपकी क्या सहायता कर सकता हूँ?";
     }
 
@@ -97,7 +99,16 @@ class _AiAssistantDialogState extends State<AiAssistantDialog> {
         _messages.add({"role": "assistant", "content": reply});
       });
     } catch (e) {
-      final fallbackMsg = "SchemeMate AI Assistant is active! You can check your eligibility score, use the OCR scanner to upload your Aadhaar/PAN, or locate your nearest DIC office using our Partner Map.";
+      final qLower = query.toLowerCase();
+      final isOutOfDomain = [
+        'cricket', 'football', 'movie', 'film', 'song', 'weather', 'python',
+        'code', 'recipe', 'biryani', 'actor', 'actress', 'capital of', 'game'
+      ].any((k) => qLower.contains(k));
+
+      final fallbackMsg = isOutOfDomain
+          ? "I am your SchemeMate Gen AI Assistant, dedicated exclusively to assisting you with SchemeMate AI, government schemes, business subsidies, and entrepreneur loans. Please ask questions related to our website features or government schemes! 😊"
+          : "Hello! I am your SchemeMate Gen AI Assistant. I can guide you through our website features:\n\n• **Scan Document**: Auto-fill your profile with Aadhaar/PAN\n• **35% PMEGP Subsidy**: Claim top government grants\n• **PM MUDRA Loans**: Collateral-free credit up to ₹10 Lakhs\n• **Financial Calculator**: Check your monthly EMI and subsidy deduction\n• **Partner Locator**: Find your nearest DIC office on the map!";
+
       setState(() {
         _messages.add({"role": "assistant", "content": fallbackMsg});
       });
@@ -158,7 +169,7 @@ class _AiAssistantDialogState extends State<AiAssistantDialog> {
                       const Row(
                         children: [
                           Text(
-                            'SchemeMate ChatGPT AI',
+                            'SchemeMate Gen AI Assistant',
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 16,
@@ -170,7 +181,7 @@ class _AiAssistantDialogState extends State<AiAssistantDialog> {
                         ],
                       ),
                       Text(
-                        'Real-Time Multilingual Scheme Guide',
+                        'Human-like Conversational Scheme Guide',
                         style: TextStyle(fontSize: 11, color: Colors.grey[600]),
                       ),
                     ],
@@ -272,7 +283,7 @@ class _AiAssistantDialogState extends State<AiAssistantDialog> {
                     ),
                     const SizedBox(width: 10),
                     Text(
-                      "ChatGPT is generating real-time response...",
+                      "Gen AI is generating a human-like response...",
                       style: TextStyle(fontSize: 12, color: Colors.grey[700], fontStyle: FontStyle.italic),
                     ),
                   ],
