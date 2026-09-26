@@ -15,7 +15,6 @@ import 'scheme_requirements_screen.dart';
 import 'admin_screen.dart';
 import 'financial_calculator_screen.dart';
 import 'partner_locator_screen.dart';
-import '../widgets/ai_assistant_dialog.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -720,18 +719,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ],
           ),
         ),
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          showDialog(
-            context: context,
-            builder: (context) => const AiAssistantDialog(),
-          );
-        },
-        backgroundColor: AppTheme.primaryNavy,
-        icon: const Icon(Icons.smart_toy, color: Colors.amber),
-        label: const Text('Ask AI Assistant',
-            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
       ),
     );
   }
