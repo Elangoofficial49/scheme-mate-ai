@@ -216,7 +216,8 @@ class ApiClient {
       String? extractedMsg;
       if (decoded is Map<String, dynamic>) {
         if (decoded["detail"] is Map) {
-          extractedMsg = decoded["detail"]["message"]?.toString() ?? decoded["detail"]["code"]?.toString();
+          extractedMsg = decoded["detail"]["message"]?.toString() ??
+              decoded["detail"]["code"]?.toString();
         } else if (decoded["detail"] != null) {
           extractedMsg = decoded["detail"].toString();
         } else if (decoded["error"] is Map) {

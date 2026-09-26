@@ -94,24 +94,24 @@ class _AuthScreenState extends State<AuthScreen> {
         password: _passwordController.text.trim(),
       );
 
-     setState(() => _isLoading = false);
+      setState(() => _isLoading = false);
 
-if (!mounted) return;
+      if (!mounted) return;
 
-if (res["success"] == true) {
-  _showEmailOTPDialog(
-    phone: _phoneController.text.trim(),
-    email: _emailController.text.trim(),
-  );
-} else {
-  ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(
-      content: Text(res["message"] ??
-          "Registration failed. Email or phone number might already be registered."),
-      backgroundColor: AppTheme.warningOrange,
-    ),
-  );
-}
+      if (res["success"] == true) {
+        _showEmailOTPDialog(
+          phone: _phoneController.text.trim(),
+          email: _emailController.text.trim(),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(res["message"] ??
+                "Registration failed. Email or phone number might already be registered."),
+            backgroundColor: AppTheme.warningOrange,
+          ),
+        );
+      }
     }
   }
 
@@ -367,14 +367,18 @@ if (res["success"] == true) {
         return StatefulBuilder(
           builder: (context, setModalState) {
             return AlertDialog(
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12)),
               title: const Row(
                 children: [
                   Icon(Icons.lock_reset_rounded, color: AppTheme.primaryNavy),
                   SizedBox(width: 8),
                   Text(
                     "Reset Password",
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: AppTheme.primaryNavy),
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                        color: AppTheme.primaryNavy),
                   ),
                 ],
               ),
@@ -387,7 +391,8 @@ if (res["success"] == true) {
                       otpSent
                           ? "Enter the 6-digit OTP code sent to ${emailCtrl.text.trim()} and choose a new password."
                           : "Enter your registered email address to receive a 6-digit password reset OTP.",
-                      style: const TextStyle(fontSize: 13, color: Colors.black87),
+                      style:
+                          const TextStyle(fontSize: 13, color: Colors.black87),
                     ),
                     const SizedBox(height: 16),
                     TextField(
@@ -428,7 +433,8 @@ if (res["success"] == true) {
                         statusMessage!,
                         style: TextStyle(
                           fontSize: 12,
-                          color: statusMessage!.contains("success") || statusMessage!.contains("sent")
+                          color: statusMessage!.contains("success") ||
+                                  statusMessage!.contains("sent")
                               ? AppTheme.govGreen
                               : AppTheme.warningOrange,
                           fontWeight: FontWeight.bold,
@@ -447,26 +453,32 @@ if (res["success"] == true) {
                   onPressed: isProcessing
                       ? null
                       : () async {
-                          final auth = Provider.of<AuthProvider>(context, listen: false);
+                          final auth =
+                              Provider.of<AuthProvider>(context, listen: false);
                           if (!otpSent) {
                             if (emailCtrl.text.trim().isEmpty) return;
                             setModalState(() {
                               isProcessing = true;
                               statusMessage = null;
                             });
-                            final res = await auth.forgotPassword(emailCtrl.text.trim());
+                            final res = await auth
+                                .forgotPassword(emailCtrl.text.trim());
                             setModalState(() {
                               isProcessing = false;
                               if (res["success"] == true) {
                                 otpSent = true;
                                 statusMessage = "OTP sent to your email!";
                               } else {
-                                statusMessage = res["error"]?["message"] ?? res["message"] ?? "Failed to send reset OTP.";
+                                statusMessage = res["error"]?["message"] ??
+                                    res["message"] ??
+                                    "Failed to send reset OTP.";
                               }
                             });
                           } else {
-                            if (otpCtrl.text.trim().length != 6 || newPasswordCtrl.text.trim().length < 6) {
-                              setModalState(() => statusMessage = "Please enter 6-digit OTP and 6+ character password.");
+                            if (otpCtrl.text.trim().length != 6 ||
+                                newPasswordCtrl.text.trim().length < 6) {
+                              setModalState(() => statusMessage =
+                                  "Please enter 6-digit OTP and 6+ character password.");
                               return;
                             }
                             setModalState(() {
@@ -482,24 +494,33 @@ if (res["success"] == true) {
                             if (res["success"] == true && context.mounted) {
                               Navigator.pop(ctx);
                               _emailController.text = emailCtrl.text.trim();
-                              _passwordController.text = newPasswordCtrl.text.trim();
+                              _passwordController.text =
+                                  newPasswordCtrl.text.trim();
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
-                                  content: Text("Password updated successfully! Logging you in..."),
+                                  content: Text(
+                                      "Password updated successfully! Logging you in..."),
                                   backgroundColor: AppTheme.govGreen,
                                 ),
                               );
                               _submit();
                             } else {
                               setModalState(() {
-                                statusMessage = res["error"]?["message"] ?? res["message"] ?? "Failed to reset password.";
+                                statusMessage = res["error"]?["message"] ??
+                                    res["message"] ??
+                                    "Failed to reset password.";
                               });
                             }
                           }
                         },
-                  style: ElevatedButton.styleFrom(backgroundColor: AppTheme.primaryNavy),
+                  style: ElevatedButton.styleFrom(
+                      backgroundColor: AppTheme.primaryNavy),
                   child: isProcessing
-                      ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                      ? const SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(
+                              color: Colors.white, strokeWidth: 2))
                       : Text(otpSent ? "Reset Password" : "Send OTP"),
                 ),
               ],
@@ -738,7 +759,9 @@ if (res["success"] == true) {
                                   spacing: 8,
                                   children: [
                                     TextButton.icon(
-                                      icon: const Icon(Icons.flash_on, size: 16, color: AppTheme.primaryNavy),
+                                      icon: const Icon(Icons.flash_on,
+                                          size: 16,
+                                          color: AppTheme.primaryNavy),
                                       onPressed: () {
                                         _emailController.text =
                                             "elangosurendhar88@gmail.com";
@@ -753,7 +776,9 @@ if (res["success"] == true) {
                                       ),
                                     ),
                                     TextButton.icon(
-                                      icon: const Icon(Icons.flash_on, size: 16, color: AppTheme.primaryNavy),
+                                      icon: const Icon(Icons.flash_on,
+                                          size: 16,
+                                          color: AppTheme.primaryNavy),
                                       onPressed: () {
                                         _emailController.text =
                                             "ramesh@example.com";

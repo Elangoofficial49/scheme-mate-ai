@@ -1,7 +1,6 @@
-// ignore: avoid_web_libraries_in_flutter
-import 'dart:html' as html;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../core/i18n/app_localizations.dart';
 import '../core/i18n/scheme_translation_helper.dart';
 import '../core/theme/app_theme.dart';
@@ -15,7 +14,7 @@ class SchemeRequirementsScreen extends StatelessWidget {
 
   const SchemeRequirementsScreen({super.key, required this.scheme});
 
-  void _applyForScheme(BuildContext context) {
+  Future<void> _applyForScheme(BuildContext context) async {
     final String url =
         (scheme['official_application_url'] ?? '').toString().trim();
     final String fallback =
@@ -31,7 +30,10 @@ class SchemeRequirementsScreen extends StatelessWidget {
       );
       return;
     }
-    html.window.open(portalUrl, '_blank');
+    await launchUrl(
+      Uri.parse(portalUrl),
+      mode: LaunchMode.externalApplication,
+    );
   }
 
   String _localizeReqText(String input, String langCode) {

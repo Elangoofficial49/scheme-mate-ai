@@ -2,6 +2,7 @@ import time
 from fastapi import Request, Response, HTTPException
 from fastapi.responses import JSONResponse
 from starlette.middleware.base import BaseHTTPMiddleware
+from app.core.config import settings
 from app.core.logging import logger
 
 class SecurityHeadersMiddleware(BaseHTTPMiddleware):
