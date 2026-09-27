@@ -6,9 +6,18 @@ import 'package:http/http.dart' as http;
 class ApiClient {
   static const _storage = FlutterSecureStorage();
   static const _configuredBaseUrl = String.fromEnvironment('API_BASE_URL');
-  static String get baseUrl => _configuredBaseUrl.isNotEmpty
-      ? _configuredBaseUrl
-      : (kIsWeb ? "${Uri.base.origin}/api/v1" : "http://10.0.2.2:8000/api/v1");
+  static String get baseUrl {
+    if (_configuredBaseUrl.isNotEmpty) return _configuredBaseUrl;
+    if (!kIsWeb) return "http://10.0.2.2:8000/api/v1";
+
+    final uri = Uri.base;
+    final isLocalDevelopment =
+        uri.host == "localhost" || uri.host == "127.0.0.1";
+    final origin = isLocalDevelopment
+        ? "${uri.scheme}://${uri.host}:8000"
+        : uri.origin;
+    return "$origin/api/v1";
+  }
   static String? authToken;
   static String? refreshToken;
 
