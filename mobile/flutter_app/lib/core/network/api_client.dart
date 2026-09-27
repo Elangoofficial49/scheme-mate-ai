@@ -13,11 +13,11 @@ class ApiClient {
     final uri = Uri.base;
     final isLocalDevelopment =
         uri.host == "localhost" || uri.host == "127.0.0.1";
-    final origin = isLocalDevelopment
-        ? "${uri.scheme}://${uri.host}:8000"
-        : uri.origin;
+    final origin =
+        isLocalDevelopment ? "${uri.scheme}://${uri.host}:8000" : uri.origin;
     return "$origin/api/v1";
   }
+
   static String? authToken;
   static String? refreshToken;
 
