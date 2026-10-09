@@ -55,17 +55,17 @@ class EmailService:
     @classmethod
     def send_otp_email(cls, to_email: str, otp: str, user_name: str = "Entrepreneur") -> dict:
         """
-        Send a formatted security OTP email through Resend's HTTPS API.
+        Send a formatted security OTP email through Brevo's HTTPS API.
 
         Always returns a dict of the form:
             {"delivered": bool, "reason": str when delivery fails}
         so callers can safely use .get('delivered') without type errors.
         """
-        logger.info("Sending security OTP email through Resend")
+        logger.info("Sending security OTP email through Brevo")
 
-        if not settings.RESEND_API_KEY or not settings.RESEND_FROM_EMAIL:
-            logger.warning("Resend credentials are not configured; OTP delivery is disabled")
-            return {"delivered": False, "reason": "resend_not_configured"}
+        if not settings.BREVO_API_KEY or not settings.BREVO_SENDER_EMAIL:
+            logger.warning("Brevo credentials are not configured; OTP delivery is disabled")
+            return {"delivered": False, "reason": "brevo_not_configured"}
 
         safe_user_name = html.escape(user_name)
         plain_text = (
@@ -107,27 +107,30 @@ class EmailService:
 
         try:
             response = httpx.post(
-                "https://api.resend.com/emails",
+                "https://api.brevo.com/v3/smtp/email",
                 headers={
-                    "Authorization": f"Bearer {settings.RESEND_API_KEY}",
+                    "api-key": settings.BREVO_API_KEY,
                     "Content-Type": "application/json",
                 },
                 json={
-                    "from": settings.RESEND_FROM_EMAIL,
-                    "to": [to_email],
+                    "sender": {
+                        "name": "SchemeMate AI",
+                        "email": settings.BREVO_SENDER_EMAIL,
+                    },
+                    "to": [{"email": to_email}],
                     "subject": "Your SchemeMate AI Verification OTP",
-                    "text": plain_text,
-                    "html": html_content,
+                    "textContent": plain_text,
+                    "htmlContent": html_content,
                 },
                 timeout=10.0,
             )
         except httpx.RequestError as exc:
-            logger.warning("Resend HTTPS request failed (%s)", type(exc).__name__)
-            return {"delivered": False, "reason": "resend_request_failed"}
+            logger.warning("Brevo HTTPS request failed (%s)", type(exc).__name__)
+            return {"delivered": False, "reason": "brevo_request_failed"}
 
         if not response.is_success:
-            logger.warning("Resend rejected OTP email with HTTP status %s", response.status_code)
-            return {"delivered": False, "reason": f"resend_http_{response.status_code}"}
+            logger.warning("Brevo rejected OTP email with HTTP status %s", response.status_code)
+            return {"delivered": False, "reason": f"brevo_http_{response.status_code}"}
 
-        logger.info("Resend accepted OTP email for delivery")
+        logger.info("Brevo accepted OTP email for delivery")
         return {"delivered": True}

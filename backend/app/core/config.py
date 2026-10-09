@@ -78,9 +78,9 @@ class Settings(BaseSettings):
     UPLOAD_DIR: str = "uploads"
     MAX_UPLOAD_SIZE_BYTES: int = 5 * 1024 * 1024
     
-    # Email delivery through the Resend HTTPS API
-    RESEND_API_KEY: Optional[str] = None
-    RESEND_FROM_EMAIL: Optional[str] = None
+    # Email delivery through the Brevo HTTPS API
+    BREVO_API_KEY: Optional[str] = None
+    BREVO_SENDER_EMAIL: Optional[str] = None
     
     # CORS
     BACKEND_CORS_ORIGINS: List[str] = [

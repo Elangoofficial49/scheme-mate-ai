@@ -113,13 +113,13 @@ Review current plan and storage costs in Render before creating the service.
 
 AI is configured to use the local provider and MongoDB is disabled by default.
 To enable an external AI provider, set its API key and update `AI_PROVIDER` in
-the backend service environment. OTP email delivery uses the Resend HTTPS API.
-In the Render Dashboard, set `RESEND_API_KEY` to a Resend API key and
-`RESEND_FROM_EMAIL` to a sender address verified in Resend (for example,
-`SchemeMate AI <otp@your-verified-domain.com>`). Never put the API key in source
-control. Remove the old `SMTP_*` variables from Render and revoke the Gmail app
-password if it is no longer needed. After saving the environment variables,
-redeploy the web service.
+the backend service environment. OTP email delivery uses the Brevo HTTPS API.
+In the Render Dashboard, set `BREVO_API_KEY` to a Brevo API key and
+`BREVO_SENDER_EMAIL` to a sender address added and verified in Brevo. Brevo
+requires sender-address verification; domain authentication may improve
+deliverability, but is not the same as verifying the sender email. Never put
+the API key in source control. Remove old `SMTP_*` and `RESEND_*` variables
+from Render, then redeploy the web service.
 
 After deployment, open the `scheme-mate-app` URL. The API health endpoint is
 available at `/health`, and API documentation is available at `/docs`.

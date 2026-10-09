@@ -20,9 +20,9 @@ services:
         value: "false"
       - key: DATABASE_URL
         sync: false
-      - key: RESEND_API_KEY
+      - key: BREVO_API_KEY
         sync: false
-      - key: RESEND_FROM_EMAIL
+      - key: BREVO_SENDER_EMAIL
         sync: false
       - key: JWT_SECRET
         generateValue: true

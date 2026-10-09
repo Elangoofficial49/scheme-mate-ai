@@ -88,7 +88,7 @@ def test_auth_email_register_and_login_flow():
 def test_registration_reports_email_delivery_failure():
     with patch(
         "app.api.v1.auth.EmailService.send_otp_email",
-        return_value={"delivered": False, "reason": "resend_not_configured"},
+        return_value={"delivered": False, "reason": "brevo_not_configured"},
     ):
         response = client.post("/api/v1/auth/register", json={
             "full_name": "Mail Delivery Test",
