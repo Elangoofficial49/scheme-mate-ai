@@ -32,7 +32,7 @@ class _BusinessProfileFormScreenState extends State<BusinessProfileFormScreen> {
   String _selectedCategory = "OBC (Other Backward Class)";
   String _selectedState = "Tamil Nadu";
   String _selectedBusinessType = "Manufacturing";
-  String _selectedCertificateType = "Udyam Registration Certificate";
+  String _selectedCertificateType = "Aadhaar / Identity Proof";
   bool _isLoading = false;
   bool _isScanningOCR = false;
   Map<String, dynamic>? _ocrResultData;
@@ -118,11 +118,7 @@ class _BusinessProfileFormScreenState extends State<BusinessProfileFormScreen> {
   ];
 
   final List<String> _certificateOptions = [
-    "Udyam Registration Certificate",
-    "Income Certificate",
-    "Community / Caste Certificate",
     "Aadhaar / Identity Proof",
-    "Ration / Smart Card"
   ];
 
   @override
@@ -217,11 +213,13 @@ class _BusinessProfileFormScreenState extends State<BusinessProfileFormScreen> {
             }
           }
         }
-        if (data["certificate_type"] != null &&
-            _certificateOptions.contains(data["certificate_type"])) {
-          _selectedCertificateType = data["certificate_type"];
+        if (data["certificate_type"] == "Aadhaar / Identity Proof") {
+          _selectedCertificateType = "Aadhaar / Identity Proof";
+        } else {
+          _certificateNumberController.clear();
         }
-        if (data["certificate_number"] != null) {
+        if (data["certificate_type"] == "Aadhaar / Identity Proof" &&
+            data["certificate_number"] != null) {
           _certificateNumberController.text =
               data["certificate_number"].toString();
         }
