@@ -262,8 +262,7 @@ class _AuthScreenState extends State<AuthScreen> {
                                           fallback:
                                               "We couldn't send the OTP. Please try again later.",
                                         )),
-                                        backgroundColor:
-                                            AppTheme.warningOrange,
+                                        backgroundColor: AppTheme.warningOrange,
                                       ),
                                     );
                                   }
