@@ -78,22 +78,20 @@ class Settings(BaseSettings):
     UPLOAD_DIR: str = "uploads"
     MAX_UPLOAD_SIZE_BYTES: int = 5 * 1024 * 1024
     
-    # Email / SMTP Service
-    SMTP_HOST: Optional[str] = "smtp.gmail.com"
-    SMTP_PORT: int = 587
-    SMTP_USER: Optional[str] = None
-    SMTP_PASSWORD: Optional[str] = None
-    SMTP_FROM_EMAIL: str = "noreply.schememate@gmail.com"
-    SMTP_USE_TLS: bool = True
+    # Email delivery through the Resend HTTPS API
+    RESEND_API_KEY: Optional[str] = None
+    RESEND_FROM_EMAIL: Optional[str] = None
     
     # CORS
     BACKEND_CORS_ORIGINS: List[str] = [
         "http://localhost:3000",
         "http://localhost:8000",
         "http://localhost:8080",
+        "http://localhost:5000",
         "http://127.0.0.1:3000",
         "http://127.0.0.1:8000",
         "http://127.0.0.1:8080",
+        "http://127.0.0.1:5000",
     ]
 
     class Config:

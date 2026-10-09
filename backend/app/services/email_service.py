@@ -1,9 +1,10 @@
 import time
 import secrets
-import smtplib
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
-from typing import Dict, Tuple, Optional
+import html
+from typing import Dict, Tuple
+
+import httpx
+
 from app.core.config import settings
 from app.core.logging import logger
 
@@ -54,27 +55,26 @@ class EmailService:
     @classmethod
     def send_otp_email(cls, to_email: str, otp: str, user_name: str = "Entrepreneur") -> dict:
         """
-        Send a formatted HTML Security OTP email to the registered email address.
+        Send a formatted security OTP email through Resend's HTTPS API.
 
         Always returns a dict of the form:
-            {"delivered": bool, "reason": Optional[str]}
+            {"delivered": bool, "reason": str when delivery fails}
         so callers can safely use .get('delivered') without type errors.
         """
-        logger.info(f"Sending security OTP email to {to_email}")
+        logger.info("Sending security OTP email through Resend")
 
-        if not settings.SMTP_USER or not settings.SMTP_PASSWORD:
-            logger.warning("SMTP credentials are not configured; OTP delivery is disabled")
-            return {"delivered": False, "reason": "smtp_not_configured"}
+        if not settings.RESEND_API_KEY or not settings.RESEND_FROM_EMAIL:
+            logger.warning("Resend credentials are not configured; OTP delivery is disabled")
+            return {"delivered": False, "reason": "resend_not_configured"}
 
-        try:
-            msg = MIMEMultipart("alternative")
-            msg["Subject"] = f"🔐 Your SchemeMate AI Verification OTP: {otp}"
-            msg["From"] = f"SchemeMate AI <{settings.SMTP_FROM_EMAIL}>"
-            msg["To"] = to_email
-            msg["Reply-To"] = settings.SMTP_FROM_EMAIL
-
-            plain_text = f"Hello {user_name},\n\nYour SchemeMate AI security verification OTP is: {otp}\n\nThis OTP is valid for 15 minutes. For your security, do not share this OTP with anyone.\n\nSchemeMate AI Team"
-            html_content = f"""
+        safe_user_name = html.escape(user_name)
+        plain_text = (
+            f"Hello {user_name},\n\n"
+            f"Your SchemeMate AI security verification OTP is: {otp}\n\n"
+            "This OTP is valid for 15 minutes. For your security, do not share "
+            "this OTP with anyone.\n\nSchemeMate AI Team"
+        )
+        html_content = f"""
             <!DOCTYPE html>
             <html>
             <body style="font-family: Arial, sans-serif; background-color: #f4f6f9; padding: 20px; color: #333;">
@@ -84,7 +84,7 @@ class EmailService:
                         <p style="color: #666; font-size: 14px; margin-top: 4px;">AI-Driven Government Scheme Matching & Assistance</p>
                     </div>
                     <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;" />
-                    <p>Hello <strong>{user_name}</strong>,</p>
+                    <p>Hello <strong>{safe_user_name}</strong>,</p>
                     <p>Thank you for registering on <strong>SchemeMate AI</strong>. Please use the 6-digit security OTP code below to verify your email address and activate your account:</p>
 
                     <div style="text-align: center; margin: 30px 0;">
@@ -104,18 +104,30 @@ class EmailService:
             </body>
             </html>
             """
-            msg.attach(MIMEText(plain_text, "plain"))
-            msg.attach(MIMEText(html_content, "html"))
 
-            server = smtplib.SMTP(settings.SMTP_HOST, settings.SMTP_PORT, timeout=10)
-            if settings.SMTP_USE_TLS:
-                server.starttls()
-            server.login(settings.SMTP_USER, settings.SMTP_PASSWORD)
-            server.sendmail(settings.SMTP_FROM_EMAIL, [to_email], msg.as_string())
-            server.quit()
+        try:
+            response = httpx.post(
+                "https://api.resend.com/emails",
+                headers={
+                    "Authorization": f"Bearer {settings.RESEND_API_KEY}",
+                    "Content-Type": "application/json",
+                },
+                json={
+                    "from": settings.RESEND_FROM_EMAIL,
+                    "to": [to_email],
+                    "subject": "Your SchemeMate AI Verification OTP",
+                    "text": plain_text,
+                    "html": html_content,
+                },
+                timeout=10.0,
+            )
+        except httpx.RequestError as exc:
+            logger.warning("Resend HTTPS request failed (%s)", type(exc).__name__)
+            return {"delivered": False, "reason": "resend_request_failed"}
 
-            logger.info(f"✅ Real OTP email successfully delivered to {to_email}")
-            return {"delivered": True, "otp": otp}
-        except Exception as e:
-            logger.warning(f"⚡ [EMAIL SERVICE NOTICE] SMTP email send error for {to_email}: {e}")
-            return {"delivered": False, "reason": str(e)}
+        if not response.is_success:
+            logger.warning("Resend rejected OTP email with HTTP status %s", response.status_code)
+            return {"delivered": False, "reason": f"resend_http_{response.status_code}"}
+
+        logger.info("Resend accepted OTP email for delivery")
+        return {"delivered": True}

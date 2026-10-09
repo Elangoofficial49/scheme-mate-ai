@@ -35,7 +35,13 @@ def test_auth_email_register_and_login_flow():
     # Force a deterministic OTP so we don't have to guess the random one.
     # auth.py generates it as: f"{secrets.randbelow(900000) + 100000}"
     # randbelow(900000) returning 23456 -> otp = "123456"
-    with patch("app.api.v1.auth.secrets.randbelow", return_value=23456):
+    with (
+        patch("app.api.v1.auth.secrets.randbelow", return_value=23456),
+        patch(
+            "app.api.v1.auth.EmailService.send_otp_email",
+            return_value={"delivered": True},
+        ),
+    ):
         reg_res = client.post("/api/v1/auth/register", json={
             "full_name": "Test User",
             "email": test_email,
@@ -77,3 +83,19 @@ def test_auth_email_register_and_login_flow():
         "password": test_password
     })
     assert wrong_email_res.status_code == 401
+
+
+def test_registration_reports_email_delivery_failure():
+    with patch(
+        "app.api.v1.auth.EmailService.send_otp_email",
+        return_value={"delivered": False, "reason": "resend_not_configured"},
+    ):
+        response = client.post("/api/v1/auth/register", json={
+            "full_name": "Mail Delivery Test",
+            "email": "mail_delivery_test@example.com",
+            "phone": "9870001133",
+            "password": "SecurePassword123!",
+        })
+
+    assert response.status_code == 503
+    assert response.json()["detail"]["code"] == "OTP_EMAIL_DELIVERY_FAILED"

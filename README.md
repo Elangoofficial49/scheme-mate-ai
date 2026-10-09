@@ -113,8 +113,13 @@ Review current plan and storage costs in Render before creating the service.
 
 AI is configured to use the local provider and MongoDB is disabled by default.
 To enable an external AI provider, set its API key and update `AI_PROVIDER` in
-the backend service environment. To use MongoDB Atlas or SMTP, add their
-connection credentials to the backend environment in the Render Dashboard.
+the backend service environment. OTP email delivery uses the Resend HTTPS API.
+In the Render Dashboard, set `RESEND_API_KEY` to a Resend API key and
+`RESEND_FROM_EMAIL` to a sender address verified in Resend (for example,
+`SchemeMate AI <otp@your-verified-domain.com>`). Never put the API key in source
+control. Remove the old `SMTP_*` variables from Render and revoke the Gmail app
+password if it is no longer needed. After saving the environment variables,
+redeploy the web service.
 
 After deployment, open the `scheme-mate-app` URL. The API health endpoint is
 available at `/health`, and API documentation is available at `/docs`.

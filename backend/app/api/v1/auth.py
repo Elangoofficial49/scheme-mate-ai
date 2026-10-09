@@ -137,17 +137,24 @@ def register(req: RegisterRequest, db: Session = Depends(get_db)):
 
     AuditService.log_action(db, "USER_REGISTER_INITIATED", user_id=target_user.id, details=f"Delivered: {email_result.get('delivered')}")
 
-    success_msg = f"Security OTP sent to your registered email address ({clean_email})" if email_result.get("delivered") else f"Security OTP generated for {clean_email}"
+    if not email_result.get("delivered"):
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail={
+                "code": "OTP_EMAIL_DELIVERY_FAILED",
+                "message": "Your account was saved, but we couldn't send the verification email. Please try resending the OTP later.",
+            },
+        )
 
     return {
         "success": True,
-        "message": success_msg,
+        "message": f"Security OTP sent to your registered email address ({clean_email})",
         "data": {
             "user_id": target_user.id,
             "phone": target_user.phone,
             "email": target_user.email,
             "otp_sent": True,
-            "email_delivered": email_result.get("delivered", False)
+            "email_delivered": True
         }
     }
 
@@ -308,15 +315,22 @@ def resend_otp(req: ResendOTPRequest, db: Session = Depends(get_db)):
 
     AuditService.log_action(db, "OTP_RESENT", user_id=user.id, details=f"Email: {user.email}, Delivered: {email_result.get('delivered')}")
 
-    success_msg = f"A fresh 6-digit security OTP has been sent to your email ({user.email})." if email_result.get("delivered") else f"A fresh 6-digit security OTP has been generated for {user.email}."
+    if not email_result.get("delivered"):
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail={
+                "code": "OTP_EMAIL_DELIVERY_FAILED",
+                "message": "We couldn't send the verification email. Please try again later.",
+            },
+        )
 
     return {
         "success": True,
-        "message": success_msg,
+        "message": f"A fresh 6-digit security OTP has been sent to your email ({user.email}).",
         "data": {
             "phone": user.phone,
             "email": user.email,
-            "email_delivered": email_result.get("delivered", False)
+            "email_delivered": True
         }
     }
 

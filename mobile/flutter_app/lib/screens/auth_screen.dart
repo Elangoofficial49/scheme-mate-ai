@@ -8,6 +8,20 @@ import '../widgets/gov_top_header.dart';
 import '../widgets/gov_footer.dart';
 import 'business_profile_form_screen.dart';
 
+String _apiErrorMessage(
+  Map<String, dynamic> response, {
+  required String fallback,
+}) {
+  final error = response["error"];
+  if (error is Map && error["message"] != null) {
+    return error["message"].toString();
+  }
+  if (response["message"] != null) {
+    return response["message"].toString();
+  }
+  return fallback;
+}
+
 class AuthScreen extends StatefulWidget {
   final bool startInCreateAccountTab;
   const AuthScreen({super.key, this.startInCreateAccountTab = false});
@@ -106,8 +120,11 @@ class _AuthScreenState extends State<AuthScreen> {
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(res["message"] ??
-                "Registration failed. Email or phone number might already be registered."),
+            content: Text(_apiErrorMessage(
+              res,
+              fallback:
+                  "Registration failed. Email or phone number might already be registered.",
+            )),
             backgroundColor: AppTheme.warningOrange,
           ),
         );
@@ -235,6 +252,18 @@ class _AuthScreenState extends State<AuthScreen> {
                                         content: Text(
                                             "Dispatched 6-digit OTP to $email!"),
                                         backgroundColor: AppTheme.primaryNavy,
+                                      ),
+                                    );
+                                  } else if (context.mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(_apiErrorMessage(
+                                          res,
+                                          fallback:
+                                              "We couldn't send the OTP. Please try again later.",
+                                        )),
+                                        backgroundColor:
+                                            AppTheme.warningOrange,
                                       ),
                                     );
                                   }
