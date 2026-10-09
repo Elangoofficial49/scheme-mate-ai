@@ -21,7 +21,10 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
                 "img-src 'self' data: cdn.jsdelivr.net"
             )
         else:
-            response.headers["Content-Security-Policy"] = "default-src 'self' 'unsafe-inline' *"
+            response.headers["Content-Security-Policy"] = (
+                "default-src 'self' 'unsafe-inline' *; "
+                "script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' *"
+            )
         return response
 
 class RateLimitMiddleware(BaseHTTPMiddleware):
