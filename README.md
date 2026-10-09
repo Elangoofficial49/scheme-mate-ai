@@ -47,9 +47,9 @@ Entrepreneur Situation / Prompt / Speech / Voice Input
 
 - **Mobile Frontend**: Flutter (Dart) — Android / Web / Cross-Platform with Multilingual i18n (`en`, `ta`, `hi`), Voice Mic simulator, high-contrast accessible UI, and local SharedPreferences offline caching.
 - **Backend API**: Python 3.12 + FastAPI (Modular Monolith)
-- **Database**: Render-managed PostgreSQL, with SQLite fallback for local development
+- **Database**: PostgreSQL configured through `DATABASE_URL`, with SQLite fallback for local development
 - **Security & DevSecOps**: Argon2id / bcrypt password hashing, short-lived JWT Access & Refresh Token rotation, RBAC (`USER`, `ADMIN`), Security headers middleware, Rate limiting, AI prompt injection guardrails, PII masking, Github Actions CI/CD.
-- **Deployment**: Render native Python web service and managed PostgreSQL
+- **Deployment**: Render native Python web service and externally configured PostgreSQL
 
 ---
 
@@ -93,19 +93,23 @@ scheme-mate-ai/
 ## Deploying to Render
 
 The root-level `render.yaml` defines a native Render Blueprint for the FastAPI
-backend and managed PostgreSQL database. In Render, create a new Blueprint from
-this GitHub repository and deploy the `main` branch.
+backend. In Render, create or update the Blueprint from this GitHub repository
+and deploy the `main` branch.
 
 - `scheme-mate-app` installs the Python and OCR system dependencies, builds the
   Flutter web app, runs Alembic migrations, and serves both the API and web app
   from one origin.
-- `scheme-mate-db` provides PostgreSQL. Render supplies the connection string
-  and generates both JWT secrets automatically.
+- The backend uses the PostgreSQL database configured by `DATABASE_URL`.
+  Supply the database connection string when syncing the Blueprint, or set it
+  in the web service's Render environment. Use the provider's internal URL when
+  the database and web service share a private network; otherwise use its
+  externally accessible URL. Keep the value in Render's environment settings,
+  not in source control.
+- Render generates both JWT secrets automatically.
 - GitHub Actions validates Python and Flutter code before Render auto-deploys.
 
-The web service and database use Render plans that may incur charges. The web
-service also has a persistent disk for uploaded documents. Review current plan
-and storage costs in Render before creating the resources.
+The web service uses a Render plan and persistent disk for uploaded documents.
+Review current plan and storage costs in Render before creating the service.
 
 AI is configured to use the local provider and MongoDB is disabled by default.
 To enable an external AI provider, set its API key and update `AI_PROVIDER` in
@@ -163,4 +167,3 @@ flutter run
 2. **AI Guardrails**: Inputs are sanitized against prompt injections, PII (Aadhaar, PAN) is masked, and AI outputs are checked to prevent fake approval claims or invalid URLs.
 3. **OCR Safety**: OCR extracted fields are presented in a verification modal requiring explicit user confirmation before updating profiles.
 4. **Audit Log & Security Monitoring**: Sensitive operations (login, admin edits, scheme publishing, file uploads) emit structured immutable audit logs.
-

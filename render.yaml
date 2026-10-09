@@ -18,10 +18,8 @@ services:
         value: production
       - key: DEBUG
         value: "false"
-      - key: postgresql://schememate_ai_user:zuGoo3gOaqChEABsoSs83agyZQ9prZDl@dpg-db4faqvlk1mc73frr69g-a.singapore-postgres.render.com/schememate_ai
-        fromDatabase:
-          name: scheme-mate-db
-          property: connectionString
+      - key: DATABASE_URL
+        sync: false
       - key: JWT_SECRET
         generateValue: true
       - key: JWT_REFRESH_SECRET
@@ -38,4 +36,3 @@ services:
         value: schememate_ai
       - key: FLUTTER_VERSION
         value: 3.47.2
-
