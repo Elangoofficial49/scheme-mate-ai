@@ -18,7 +18,7 @@ services:
         value: production
       - key: DEBUG
         value: "false"
-      - key: DATABASE_URL
+      - key: postgresql://schememate_ai_user:zuGoo3gOaqChEABsoSs83agyZQ9prZDl@dpg-db4faqvlk1mc73frr69g-a.singapore-postgres.render.com/schememate_ai
         fromDatabase:
           name: scheme-mate-db
           property: connectionString
@@ -31,7 +31,7 @@ services:
       - key: OCR_PROVIDER
         value: tesseract
       - key: UPLOAD_DIR
-        value: /var/lib/schememate/uploads
+        value: /tmp/schememate-uploads
       - key: MONGODB_URL
         value: ""
       - key: MONGODB_DB_NAME
@@ -39,9 +39,3 @@ services:
       - key: FLUTTER_VERSION
         value: 3.47.2
 
-databases:
-  - name: scheme-mate-db
-    databaseName: schememate
-    user: schememate_user
-    plan: 0.1c-256mb
-    region: oregon
