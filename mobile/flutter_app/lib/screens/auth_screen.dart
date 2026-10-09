@@ -22,6 +22,14 @@ String _apiErrorMessage(
   return fallback;
 }
 
+String? _apiErrorCode(Map<String, dynamic> response) {
+  final detail = response["detail"];
+  if (detail is Map && detail["code"] != null) {
+    return detail["code"].toString();
+  }
+  return null;
+}
+
 class AuthScreen extends StatefulWidget {
   final bool startInCreateAccountTab;
   const AuthScreen({super.key, this.startInCreateAccountTab = false});
@@ -117,6 +125,15 @@ class _AuthScreenState extends State<AuthScreen> {
           phone: _phoneController.text.trim(),
           email: _emailController.text.trim(),
         );
+      } else if (_apiErrorCode(res) == "OTP_EMAIL_DELIVERY_FAILED") {
+        _showEmailOTPDialog(
+          phone: _phoneController.text.trim(),
+          email: _emailController.text.trim(),
+          initialNotice:
+              "Your account was created but is not verified yet. The email "
+              "provider did not accept the OTP. Tap Resend OTP to try again. "
+              "If it fails again, check the email provider settings.",
+        );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -132,11 +149,15 @@ class _AuthScreenState extends State<AuthScreen> {
     }
   }
 
-  void _showEmailOTPDialog({required String phone, required String email}) {
+  void _showEmailOTPDialog({
+    required String phone,
+    required String email,
+    String? initialNotice,
+  }) {
     final otpController = TextEditingController();
     bool isVerifying = false;
     bool isResending = false;
-    int secondsRemaining = 15;
+    int secondsRemaining = initialNotice == null ? 15 : 0;
     Timer? countdownTimer;
 
     showDialog(
@@ -176,6 +197,16 @@ class _AuthScreenState extends State<AuthScreen> {
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    if (initialNotice != null) ...[
+                      Text(
+                        initialNotice,
+                        style: const TextStyle(
+                          color: AppTheme.warningOrange,
+                          fontSize: 13,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                    ],
                     Text(
                       context.tr("otp_subtitle"),
                       style:
