@@ -129,10 +129,7 @@ class _AuthScreenState extends State<AuthScreen> {
         _showEmailOTPDialog(
           phone: _phoneController.text.trim(),
           email: _emailController.text.trim(),
-          initialNotice:
-              "Your account was created but is not verified yet. The email "
-              "provider did not accept the OTP. Tap Resend OTP to try again. "
-              "If it fails again, check the email provider settings.",
+          resendImmediately: true,
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -152,12 +149,12 @@ class _AuthScreenState extends State<AuthScreen> {
   void _showEmailOTPDialog({
     required String phone,
     required String email,
-    String? initialNotice,
+    bool resendImmediately = false,
   }) {
     final otpController = TextEditingController();
     bool isVerifying = false;
     bool isResending = false;
-    int secondsRemaining = initialNotice == null ? 15 : 0;
+    int secondsRemaining = resendImmediately ? 0 : 15;
     Timer? countdownTimer;
 
     showDialog(
@@ -197,16 +194,6 @@ class _AuthScreenState extends State<AuthScreen> {
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    if (initialNotice != null) ...[
-                      Text(
-                        initialNotice,
-                        style: const TextStyle(
-                          color: AppTheme.warningOrange,
-                          fontSize: 13,
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                    ],
                     Text(
                       context.tr("otp_subtitle"),
                       style:

@@ -169,7 +169,7 @@ class GeminiSchemeAdvisorService:
             }
         }
 
-        with httpx.Client(timeout=3.5) as client:
+        with httpx.Client(timeout=httpx.Timeout(30.0, connect=5.0)) as client:
             response = client.post(url, json=payload)
             if response.status_code != 200:
                 payload["generationConfig"].pop("responseMimeType", None)
