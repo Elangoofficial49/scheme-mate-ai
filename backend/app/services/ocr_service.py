@@ -156,13 +156,13 @@ class OCRService:
 
         try:
             import pytesseract
-            from PIL import Image
+            from PIL import Image, ImageOps
 
             tesseract_win_path = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
             if os.path.exists(tesseract_win_path):
                 pytesseract.pytesseract.tesseract_cmd = tesseract_win_path
 
-            base_img = Image.open(io.BytesIO(file_bytes))
+            base_img = ImageOps.exif_transpose(Image.open(io.BytesIO(file_bytes)))
             w, h = base_img.size
 
             # Scale small/low-res images up for enhanced OCR accuracy
@@ -172,7 +172,7 @@ class OCRService:
             else:
                 scaled_img = base_img
 
-            gray_img = scaled_img.convert('L')
+            gray_img = ImageOps.autocontrast(scaled_img.convert('L'))
             
             combined_text = []
             ocr_succeeded = False
@@ -187,7 +187,10 @@ class OCRService:
                             combined_text.append(text)
                             ocr_succeeded = True
                             # If certificate number patterns are detected, stop early and return
-                            if re.search(r'\b\d{4}\s?\d{4}\s?\d{4}\b|\b[A-Z]{5}\d{4}[A-Z]{1}\b|UDYAM-[A-Z]{2}-\d{2}-\d{7}|\b[A-Z]{2,4}/\d{4}/\d{3,6}\b', text, re.IGNORECASE):
+                            if (
+                                cls._extract_aadhaar_number(text)
+                                or re.search(r'\b[A-Z]{5}\d{4}[A-Z]{1}\b|UDYAM-[A-Z]{2}-\d{2}-\d{7}|\b[A-Z]{2,4}/\d{4}/\d{3,6}\b', text, re.IGNORECASE)
+                            ):
                                 return "\n".join(combined_text), True
                     except Exception:
                         pass
@@ -291,20 +294,55 @@ class OCRService:
 
     @staticmethod
     def _parse_aadhaar(text: str) -> Dict[str, Any]:
-        aadhaar_match = re.search(r'\b\d{4}\s?\d{4}\s?\d{4}\b', text) if text else None
+        aadhaar_number = OCRService._extract_aadhaar_number(text)
         name_match = re.search(r'Name\s*[:\-]?\s*([A-Za-z\s\.]+?)(?:,|\n|$)', text, re.IGNORECASE) if text else None
         dob_match = re.search(r'\b(\d{2}[-/]\d{2}[-/]\d{4})\b', text) if text else None
         gender_match = re.search(r'\b(Male|Female|Transgender)\b', text, re.IGNORECASE) if text else None
 
         return {
             "document_name": "Aadhaar Card",
-            "extracted_number": aadhaar_match.group(0) if aadhaar_match else None,
+            "extracted_number": aadhaar_number,
             "full_name": name_match.group(1).strip() if name_match else None,
             "date_of_birth": dob_match.group(1) if dob_match else None,
             "gender": gender_match.group(1).title() if gender_match else None,
             "state": None,
             "address": None,
         }
+
+    @staticmethod
+    def _extract_aadhaar_number(text: str) -> Optional[str]:
+        if not text:
+            return None
+
+        ocr_digit = r"[0-9OQDI|!LSBZ]"
+        digit_group = rf"{ocr_digit}(?:[ \t]*{ocr_digit}){{3}}"
+        pattern = re.compile(
+            rf"(?<![A-Za-z0-9])({digit_group}(?:[\s./:_-]*{digit_group}){{2}})(?![A-Za-z0-9])"
+            rf"(?![\s./:_-]*{ocr_digit})",
+            re.IGNORECASE,
+        )
+        digit_corrections = str.maketrans({
+            "O": "0", "Q": "0", "D": "0",
+            "I": "1", "L": "1", "|": "1", "!": "1",
+            "S": "5", "B": "8", "Z": "2",
+        })
+
+        adjacent_digit_pattern = re.compile(
+            rf"{ocr_digit}[ \t./:_-]*$", re.IGNORECASE
+        )
+        adjacent_digit_suffix = re.compile(
+            rf"^[ \t./:_-]*{ocr_digit}", re.IGNORECASE
+        )
+        for match in pattern.finditer(text):
+            if (
+                adjacent_digit_pattern.search(text[:match.start()])
+                or adjacent_digit_suffix.match(text[match.end():])
+            ):
+                continue
+            candidate = re.sub(r"\D", "", match.group(1).upper().translate(digit_corrections))
+            if len(candidate) == 12:
+                return candidate
+        return None
 
     @staticmethod
     def _parse_pan(text: str) -> Dict[str, Any]:

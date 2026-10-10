@@ -33,3 +33,34 @@ def test_qr_proof_without_identifier_is_unverified(monkeypatch):
     assert "Unverified" in res["status"]
     assert res["verified"] is False
     assert res["requires_user_confirmation"] is False
+
+
+def test_aadhaar_ocr_normalizes_common_separators_and_digit_confusions():
+    res = OCRService._parse_aadhaar(
+        "Aadhaar Number: l234-\n56S8 / 9O12"
+    )
+
+    assert res["extracted_number"] == "123456589012"
+
+
+def test_aadhaar_ocr_does_not_accept_masked_or_virtual_id():
+    assert OCRService._parse_aadhaar(
+        "Masked Aadhaar: XXXX XXXX 9012"
+    )["extracted_number"] is None
+    assert OCRService._parse_aadhaar(
+        "VID: 1234 5678 9012 3456"
+    )["extracted_number"] is None
+
+
+def test_aadhaar_scan_extracts_number_from_ocr_text(monkeypatch):
+    monkeypatch.setattr(OCRService, "decode_qr_code", lambda file_bytes: None)
+    monkeypatch.setattr(
+        OCRService,
+        "_run_tesseract",
+        lambda file_bytes: ("Aadhaar Number: 1234 5678 9012", True),
+    )
+
+    res = OCRService.scan_qr_proof("Aadhaar Card", b"image bytes")
+
+    assert res["scan_succeeded"] is True
+    assert res["extracted_fields"]["extracted_number"] == "123456789012"

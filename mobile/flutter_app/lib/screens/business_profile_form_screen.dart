@@ -402,16 +402,19 @@ class _BusinessProfileFormScreenState extends State<BusinessProfileFormScreen> {
       // Send document bytes to FastAPI backend for Multi-Angle QR & OCR Extraction
       final uploadRes = await ApiClient.uploadDocument(
           bytes, fileName, _selectedCertificateType);
+      if (uploadRes["success"] != true || uploadRes["data"] == null) {
+        final message = uploadRes["error"]?["message"]?.toString() ??
+            "The document scanning service could not process this image.";
+        throw StateError(message);
+      }
 
       String extractedNum = "";
       bool matchFound = false;
       Map<String, dynamic>? ocrData;
 
-      if (uploadRes["success"] == true &&
-          uploadRes["data"] != null &&
-          uploadRes["data"]["ocr_result"] != null) {
-        ocrData = uploadRes["data"]["ocr_result"];
-        final fields = ocrData!["extracted_fields"] ?? {};
+      if (uploadRes["data"]["ocr_result"] != null) {
+        ocrData = Map<String, dynamic>.from(uploadRes["data"]["ocr_result"]);
+        final fields = ocrData["extracted_fields"] ?? {};
         extractedNum = fields["extracted_number"] ??
             fields["udyam_number"] ??
             fields["pan_number"] ??
@@ -419,47 +422,6 @@ class _BusinessProfileFormScreenState extends State<BusinessProfileFormScreen> {
             "";
         if (extractedNum.isNotEmpty && ocrData["confidence_score"] != "0%") {
           matchFound = true;
-        }
-      }
-
-      // Fallback local regex scan if offline/unauthenticated
-      if (!matchFound) {
-        String certTypeClean = _selectedCertificateType.toLowerCase();
-        String textContent = "";
-        try {
-          textContent = String.fromCharCodes(bytes);
-        } catch (_) {}
-
-        if (certTypeClean.contains("udyam")) {
-          final match =
-              RegExp(r'UDYAM-[A-Z]{2}-\d{2}-\d{7}', caseSensitive: false)
-                  .firstMatch(textContent);
-          if (match != null) {
-            extractedNum = match.group(0)!.toUpperCase();
-            matchFound = true;
-          }
-        } else if (certTypeClean.contains("pan")) {
-          final match = RegExp(r'[A-Z]{5}\d{4}[A-Z]{1}', caseSensitive: false)
-              .firstMatch(textContent);
-          if (match != null) {
-            extractedNum = match.group(0)!.toUpperCase();
-            matchFound = true;
-          }
-        } else if (certTypeClean.contains("income")) {
-          final match =
-              RegExp(r'\b[A-Z]{2,4}/\d{4}/\d{3,6}\b', caseSensitive: false)
-                  .firstMatch(textContent);
-          if (match != null) {
-            extractedNum = match.group(0)!.toUpperCase();
-            matchFound = true;
-          }
-        } else if (certTypeClean.contains("aadhaar")) {
-          final match =
-              RegExp(r'\b\d{4}\s?\d{4}\s?\d{4}\b').firstMatch(textContent);
-          if (match != null) {
-            extractedNum = match.group(0)!;
-            matchFound = true;
-          }
         }
       }
 
@@ -473,15 +435,18 @@ class _BusinessProfileFormScreenState extends State<BusinessProfileFormScreen> {
             "confidence_score": "0%",
             "engine_used": "multi_angle_ocr",
             "scanned_at": "Just now",
-            "status": "Failed: Invalid Document / Certificate Number Not Found"
+            "status": "Could not detect the document number"
           };
         });
 
         if (mounted) {
+          final isAadhaar =
+              _selectedCertificateType.toLowerCase().contains("aadhaar");
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(
-                  "❌ Invalid Document: Could not detect a valid $_selectedCertificateType number in '$fileName'. Please ensure the photo is clear."),
+              content: Text(isAadhaar
+                  ? "Could not read the Aadhaar number. Use a clear, unmasked image with all 12 digits visible, or enter the number manually."
+                  : "Could not read a $_selectedCertificateType number. Please use a clear, well-aligned image."),
               backgroundColor: Colors.red,
               duration: const Duration(seconds: 4),
             ),
