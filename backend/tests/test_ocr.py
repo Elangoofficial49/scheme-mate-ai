@@ -1,3 +1,8 @@
+from io import BytesIO
+
+import pytesseract
+from PIL import Image
+
 from app.services.ocr_service import OCRService
 
 def test_file_validation_safety():
@@ -64,3 +69,24 @@ def test_aadhaar_scan_extracts_number_from_ocr_text(monkeypatch):
 
     assert res["scan_succeeded"] is True
     assert res["extracted_fields"]["extracted_number"] == "123456789012"
+
+
+def test_tesseract_uses_number_only_pass_when_general_ocr_misses(monkeypatch):
+    image = Image.new("RGB", (100, 60), "white")
+    image_bytes = BytesIO()
+    image.save(image_bytes, format="PNG")
+    configs = []
+
+    def fake_image_to_string(image, config):
+        configs.append(config)
+        if "tessedit_char_whitelist" in config:
+            return "1234 5678 9012"
+        return ""
+
+    monkeypatch.setattr(pytesseract, "image_to_string", fake_image_to_string)
+
+    text, succeeded = OCRService._run_tesseract(image_bytes.getvalue())
+
+    assert succeeded is True
+    assert OCRService._extract_aadhaar_number(text) == "123456789012"
+    assert any("tessedit_char_whitelist" in config for config in configs)

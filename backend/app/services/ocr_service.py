@@ -196,6 +196,30 @@ class OCRService:
                         pass
 
             full_extracted = "\n".join(combined_text)
+            number_only_config = (
+                "--oem 3 --psm 11 "
+                "-c tessedit_char_whitelist=0123456789OQDI|!LSBZ "
+                "-c load_system_dawg=0 -c load_freq_dawg=0"
+            )
+            for threshold in (145, 190):
+                number_image = gray_img.point(
+                    lambda pixel: 255 if pixel >= threshold else 0
+                )
+                for angle in [0, 90, 180, 270]:
+                    rotated = (
+                        number_image.rotate(angle, expand=True)
+                        if angle > 0
+                        else number_image
+                    )
+                    try:
+                        number_text = pytesseract.image_to_string(
+                            rotated, config=number_only_config
+                        )
+                    except Exception:
+                        continue
+                    if cls._extract_aadhaar_number(number_text):
+                        return f"{full_extracted}\n{number_text}", True
+
             return full_extracted, ocr_succeeded
         except Exception:
             return "", False
