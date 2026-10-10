@@ -810,50 +810,6 @@ class _AuthScreenState extends State<AuthScreen> {
                                         ),
                                 ),
                               ),
-                              const SizedBox(height: 16),
-
-                              if (_isLoginTab) ...[
-                                Wrap(
-                                  alignment: WrapAlignment.center,
-                                  spacing: 8,
-                                  children: [
-                                    TextButton.icon(
-                                      icon: const Icon(Icons.flash_on,
-                                          size: 16,
-                                          color: AppTheme.primaryNavy),
-                                      onPressed: () {
-                                        _emailController.text =
-                                            "elangosurendhar88@gmail.com";
-                                        _passwordController.text = "123456";
-                                      },
-                                      label: const Text(
-                                        "Quick Login (Elango)",
-                                        style: TextStyle(
-                                            color: AppTheme.primaryNavy,
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 13),
-                                      ),
-                                    ),
-                                    TextButton.icon(
-                                      icon: const Icon(Icons.flash_on,
-                                          size: 16,
-                                          color: AppTheme.primaryNavy),
-                                      onPressed: () {
-                                        _emailController.text =
-                                            "ramesh@example.com";
-                                        _passwordController.text = "123456";
-                                      },
-                                      label: const Text(
-                                        "Demo Login (Ramesh Kumar)",
-                                        style: TextStyle(
-                                            color: AppTheme.primaryNavy,
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 13),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
                             ],
                           ),
                         ),

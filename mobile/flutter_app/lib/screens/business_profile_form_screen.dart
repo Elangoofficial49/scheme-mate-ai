@@ -1,3 +1,5 @@
+import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import '../core/i18n/app_localizations.dart';
@@ -327,11 +329,17 @@ class _BusinessProfileFormScreenState extends State<BusinessProfileFormScreen> {
                   backgroundColor: Colors.teal,
                   child: Icon(Icons.camera_alt, color: Colors.white),
                 ),
-                title: const Text("Take Photo with Camera",
-                    style:
-                        TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-                subtitle:
-                    const Text("Capture live photo of physical certificate"),
+                title: kIsWeb
+                    ? const Text("Choose Photo",
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 14))
+                    : const Text("Take Photo with Camera",
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 14)),
+                subtitle: kIsWeb
+                    ? const Text(
+                        "Select an image; your browser may offer camera capture")
+                    : const Text("Capture live photo of physical certificate"),
                 onTap: () {
                   Navigator.pop(ctx);
                   _pickAndScanLocalFile(ImageSource.camera);
@@ -362,16 +370,34 @@ class _BusinessProfileFormScreenState extends State<BusinessProfileFormScreen> {
 
   void _pickAndScanLocalFile(ImageSource source) async {
     try {
-      final ImagePicker picker = ImagePicker();
-      final XFile? image = await picker.pickImage(source: source);
-      if (image == null) return; // User cancelled file picker
+      String fileName;
+      List<int> bytes;
+      if (kIsWeb) {
+        final result = await FilePicker.platform.pickFiles(
+          type: FileType.image,
+          allowMultiple: false,
+          withData: true,
+        );
+        if (result == null || result.files.isEmpty) return;
+        final selectedFile = result.files.single;
+        final fileBytes = selectedFile.bytes;
+        if (fileBytes == null) {
+          throw StateError(
+              "The browser did not provide the selected image data.");
+        }
+        fileName = selectedFile.name;
+        bytes = fileBytes;
+      } else {
+        final ImagePicker picker = ImagePicker();
+        final XFile? image = await picker.pickImage(source: source);
+        if (image == null) return;
+        fileName = image.name;
+        bytes = await image.readAsBytes();
+      }
 
       setState(() {
         _isScanningOCR = true;
       });
-
-      final String fileName = image.name;
-      final bytes = await image.readAsBytes();
 
       // Send document bytes to FastAPI backend for Multi-Angle QR & OCR Extraction
       final uploadRes = await ApiClient.uploadDocument(
