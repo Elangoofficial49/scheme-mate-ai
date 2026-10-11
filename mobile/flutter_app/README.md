@@ -10,6 +10,11 @@ extracts a possible document number on-device. The image is not sent to the
 backend by the scan flow. Review and correct the extracted number, or enter it
 manually, before saving it to the profile.
 
+The camera can also be opened from supported web browsers on laptops and
+phones. Web capture requires camera permission and HTTPS (localhost is also
+allowed for development); web images are sent to the document-scanning API for
+QR/OCR extraction because ML Kit is not available on Flutter Web.
+
 QR/OCR extraction does not authenticate a document. Users should verify every
 value themselves. Other platforms retain manual document-number entry.
 

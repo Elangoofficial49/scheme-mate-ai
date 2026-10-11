@@ -4,6 +4,7 @@ import 'package:image_picker/image_picker.dart';
 import '../core/i18n/app_localizations.dart';
 import '../core/network/api_client.dart';
 import '../core/theme/app_theme.dart';
+import 'camera_capture_screen.dart';
 import '../services/document_scan_service.dart';
 import '../widgets/language_selector_sheet.dart';
 import 'dashboard_screen.dart';
@@ -314,11 +315,11 @@ class _BusinessProfileFormScreenState extends State<BusinessProfileFormScreen> {
               ),
               const SizedBox(height: 4),
               const Text(
-                "The app checks QR codes first, then reads text on this device. Review the number before saving your profile.",
+                "The app checks for a QR code, then reads document text. Review the number before saving. Browser scans send the image to the document-scanning server.",
                 style: TextStyle(fontSize: 13, color: Colors.black54),
               ),
               const SizedBox(height: 16),
-              if (DocumentScanService.supportsOnDeviceScanning) ...[
+              if (DocumentScanService.supportsCamera) ...[
                 ListTile(
                   leading: const CircleAvatar(
                     backgroundColor: AppTheme.primaryBlue,
@@ -343,8 +344,8 @@ class _BusinessProfileFormScreenState extends State<BusinessProfileFormScreen> {
                   title: const Text("Take photo with camera",
                       style:
                           TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-                  subtitle: const Text(
-                      "The document image stays on this device during scanning"),
+                  subtitle:
+                      const Text("Open your device camera or browser webcam"),
                   onTap: () {
                     Navigator.pop(ctx);
                     _pickAndScanLocalFile(ImageSource.camera);
@@ -363,22 +364,19 @@ class _BusinessProfileFormScreenState extends State<BusinessProfileFormScreen> {
   }
 
   void _pickAndScanLocalFile(ImageSource source) async {
-    if (!DocumentScanService.supportsOnDeviceScanning) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-              "On-device QR and text scanning is supported on Android and iOS. Enter the certificate number manually."),
-        ),
-      );
-      return;
-    }
-
     try {
-      final image = await ImagePicker().pickImage(
-        source: source,
-        imageQuality: 90,
-        maxWidth: 2400,
-      );
+      final XFile? image;
+      if (source == ImageSource.camera) {
+        image = await Navigator.of(context).push<XFile>(
+          MaterialPageRoute(builder: (_) => const CameraCaptureScreen()),
+        );
+      } else {
+        image = await ImagePicker().pickImage(
+          source: source,
+          imageQuality: 90,
+          maxWidth: 2400,
+        );
+      }
       if (image == null || !mounted) return;
 
       setState(() {
@@ -386,8 +384,8 @@ class _BusinessProfileFormScreenState extends State<BusinessProfileFormScreen> {
         _ocrResultData = null;
       });
 
-      final result = await DocumentScanService.scanImage(
-          image.path, _selectedCertificateType);
+      final result =
+          await DocumentScanService.scanImage(image, _selectedCertificateType);
       if (!mounted) return;
       final extractedNum = result.identifier ?? "";
       final matchFound = extractedNum.isNotEmpty &&

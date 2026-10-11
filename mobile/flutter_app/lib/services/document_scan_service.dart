@@ -1,6 +1,9 @@
 import 'package:flutter/foundation.dart';
 import 'package:google_mlkit_barcode_scanning/google_mlkit_barcode_scanning.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
+import 'package:image_picker/image_picker.dart';
+
+import '../core/network/api_client.dart';
 
 class DocumentScanResult {
   const DocumentScanResult({
@@ -15,19 +18,45 @@ class DocumentScanResult {
 }
 
 class DocumentScanService {
-  static bool get supportsOnDeviceScanning =>
-      !kIsWeb &&
-      (defaultTargetPlatform == TargetPlatform.android ||
-          defaultTargetPlatform == TargetPlatform.iOS);
+  static bool get supportsCamera =>
+      kIsWeb ||
+      defaultTargetPlatform == TargetPlatform.android ||
+      defaultTargetPlatform == TargetPlatform.iOS;
 
   static Future<DocumentScanResult> scanImage(
-      String imagePath, String documentType) async {
-    if (!supportsOnDeviceScanning) {
-      throw UnsupportedError(
-          "On-device document scanning is available on Android and iOS. Enter the document number manually on this device.");
+      XFile image, String documentType) async {
+    if (kIsWeb) {
+      final response = await ApiClient.uploadDocument(
+          await image.readAsBytes(), image.name, documentType);
+      if (response["success"] != true || response["data"] is! Map) {
+        final errorMessage = response["error"] is Map
+            ? response["error"]["message"]?.toString()
+            : null;
+        throw StateError(errorMessage ?? "The document could not be scanned.");
+      }
+
+      final data = response["data"] as Map;
+      final ocrResult = data["ocr_result"];
+      final fields = ocrResult is Map ? ocrResult["extracted_fields"] : null;
+      final extractedFields =
+          fields is Map ? fields : const <String, dynamic>{};
+      final identifier = extractedFields["extracted_number"] ??
+          extractedFields["pan_number"] ??
+          extractedFields["udyam_number"] ??
+          extractedFields["certificate_number"];
+      return DocumentScanResult(
+        identifier: identifier?.toString(),
+        source: "server QR/text recognition (web)",
+        recognizedText: "",
+      );
     }
 
-    final inputImage = InputImage.fromFilePath(imagePath);
+    if (!supportsCamera) {
+      throw UnsupportedError(
+          "Camera scanning is not supported on this device.");
+    }
+
+    final inputImage = InputImage.fromFilePath(image.path);
     final barcodeScanner =
         BarcodeScanner(formats: const [BarcodeFormat.qrCode]);
     String? qrPayload;

@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../core/network/api_client.dart';
 import '../core/theme/app_theme.dart';
+import 'camera_capture_screen.dart';
 import '../services/document_scan_service.dart';
 import 'dashboard_screen.dart';
 
@@ -41,11 +43,18 @@ class _OCRScanScreenState extends State<OCRScanScreen> {
 
   Future<void> _pickAndScan(ImageSource source) async {
     try {
-      final image = await ImagePicker().pickImage(
-        source: source,
-        imageQuality: 90,
-        maxWidth: 2400,
-      );
+      final XFile? image;
+      if (source == ImageSource.camera) {
+        image = await Navigator.of(context).push<XFile>(
+          MaterialPageRoute(builder: (_) => const CameraCaptureScreen()),
+        );
+      } else {
+        image = await ImagePicker().pickImage(
+          source: source,
+          imageQuality: 90,
+          maxWidth: 2400,
+        );
+      }
       if (image == null || !mounted) return;
 
       setState(() {
@@ -59,7 +68,7 @@ class _OCRScanScreenState extends State<OCRScanScreen> {
       });
 
       final result =
-          await DocumentScanService.scanImage(image.path, _selectedDocType);
+          await DocumentScanService.scanImage(image, _selectedDocType);
       if (!mounted) return;
 
       setState(() {
@@ -200,12 +209,14 @@ class _OCRScanScreenState extends State<OCRScanScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
-              "Scan a QR code first. If none is found, text recognition runs on your device.",
+              "Scan a QR code first, then extract text. Camera capture works in the mobile app and supported web browsers.",
               style: TextStyle(fontSize: 15),
             ),
             const SizedBox(height: 8),
             const Text(
-              "Scanning only extracts possible text; it does not verify that a document is genuine.",
+              kIsWeb
+                  ? "For web scans, the captured image is sent to the document-scanning server. Extraction does not verify document authenticity."
+                  : "Mobile scans are processed on your device. Extraction does not verify document authenticity.",
               style: TextStyle(color: Colors.black54, fontSize: 13),
             ),
             const SizedBox(height: 18),
@@ -226,7 +237,7 @@ class _OCRScanScreenState extends State<OCRScanScreen> {
                     },
             ),
             const SizedBox(height: 16),
-            if (DocumentScanService.supportsOnDeviceScanning) ...[
+            if (DocumentScanService.supportsCamera) ...[
               Row(
                 children: [
                   Expanded(
