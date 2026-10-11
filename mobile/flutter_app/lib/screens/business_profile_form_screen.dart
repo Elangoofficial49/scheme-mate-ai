@@ -1050,7 +1050,10 @@ class _BusinessProfileFormScreenState extends State<BusinessProfileFormScreen> {
                               keyboardType: TextInputType.number,
                               inputFormatters: [
                                 FilteringTextInputFormatter.digitsOnly,
+                                LengthLimitingTextInputFormatter(12),
                               ],
+                              autovalidateMode:
+                                  AutovalidateMode.onUserInteraction,
                               onChanged: (_) => setState(() {}),
                               validator: (val) {
                                 if (val == null || val.trim().isEmpty) {
@@ -1060,7 +1063,7 @@ class _BusinessProfileFormScreenState extends State<BusinessProfileFormScreen> {
                                         .toLowerCase()
                                         .contains("aadhaar") &&
                                     !_isValidAadhaarNumber(val)) {
-                                  return "Aadhaar number must contain exactly 12 digits";
+                                  return "Enter the correct Aadhaar number (12 digits)";
                                 }
                                 return null;
                               },
