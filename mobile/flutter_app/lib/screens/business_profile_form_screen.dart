@@ -1,11 +1,10 @@
-import 'package:file_picker/file_picker.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import '../core/i18n/app_localizations.dart';
 import '../core/network/api_client.dart';
 import '../core/theme/app_theme.dart';
+import '../services/document_scan_service.dart';
 import '../widgets/language_selector_sheet.dart';
 import 'dashboard_screen.dart';
 
@@ -283,7 +282,7 @@ class _BusinessProfileFormScreenState extends State<BusinessProfileFormScreen> {
         _isValidAadhaarNumber(certificateNumber);
   }
 
-  void _uploadAndScanCertificateOCR() {
+  void _showCertificateScanOptions() {
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
@@ -301,7 +300,7 @@ class _BusinessProfileFormScreenState extends State<BusinessProfileFormScreen> {
                 children: [
                   Expanded(
                     child: Text(
-                      "Upload $_selectedCertificateType",
+                      "Scan $_selectedCertificateType",
                       style: const TextStyle(
                           fontSize: 16, fontWeight: FontWeight.bold),
                       overflow: TextOverflow.ellipsis,
@@ -315,63 +314,47 @@ class _BusinessProfileFormScreenState extends State<BusinessProfileFormScreen> {
               ),
               const SizedBox(height: 4),
               const Text(
-                "Choose a source to select your certificate file for OCR scanning:",
+                "The app checks QR codes first, then reads text on this device. Review the number before saving your profile.",
                 style: TextStyle(fontSize: 13, color: Colors.black54),
               ),
               const SizedBox(height: 16),
-              ListTile(
-                leading: const CircleAvatar(
-                  backgroundColor: AppTheme.primaryBlue,
-                  child: Icon(Icons.folder_open, color: Colors.white),
+              if (DocumentScanService.supportsOnDeviceScanning) ...[
+                ListTile(
+                  leading: const CircleAvatar(
+                    backgroundColor: AppTheme.primaryBlue,
+                    child: Icon(Icons.folder_open, color: Colors.white),
+                  ),
+                  title: const Text("Choose certificate image",
+                      style:
+                          TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                  subtitle: const Text(
+                      "QR scan first, then on-device text recognition"),
+                  onTap: () {
+                    Navigator.pop(ctx);
+                    _pickAndScanLocalFile(ImageSource.gallery);
+                  },
                 ),
-                title: const Text("Browse System Folders / Files",
-                    style:
-                        TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-                subtitle: const Text(
-                    "Select image or certificate file from your local storage/folder"),
-                onTap: () {
-                  Navigator.pop(ctx);
-                  _pickAndScanLocalFile(ImageSource.gallery);
-                },
-              ),
-              const Divider(height: 1),
-              ListTile(
-                leading: const CircleAvatar(
-                  backgroundColor: Colors.teal,
-                  child: Icon(Icons.camera_alt, color: Colors.white),
+                const Divider(height: 1),
+                ListTile(
+                  leading: const CircleAvatar(
+                    backgroundColor: Colors.teal,
+                    child: Icon(Icons.camera_alt, color: Colors.white),
+                  ),
+                  title: const Text("Take photo with camera",
+                      style:
+                          TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                  subtitle: const Text(
+                      "The document image stays on this device during scanning"),
+                  onTap: () {
+                    Navigator.pop(ctx);
+                    _pickAndScanLocalFile(ImageSource.camera);
+                  },
                 ),
-                title: kIsWeb
-                    ? const Text("Choose Photo",
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 14))
-                    : const Text("Take Photo with Camera",
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 14)),
-                subtitle: kIsWeb
-                    ? const Text(
-                        "Select an image; your browser may offer camera capture")
-                    : const Text("Capture live photo of physical certificate"),
-                onTap: () {
-                  Navigator.pop(ctx);
-                  _pickAndScanLocalFile(ImageSource.camera);
-                },
-              ),
-              const Divider(height: 1),
-              ListTile(
-                leading: const CircleAvatar(
-                  backgroundColor: Colors.orangeAccent,
-                  child: Icon(Icons.science_outlined, color: Colors.white),
+              ] else
+                const Text(
+                  "On-device scanning is available on Android and iOS. Enter the certificate number in the form.",
+                  style: TextStyle(fontSize: 13, color: Colors.black54),
                 ),
-                title: const Text("Use Sample Mock Certificate",
-                    style:
-                        TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-                subtitle: const Text(
-                    "Quickly test OCR engine with pre-formatted sample certificate"),
-                onTap: () {
-                  Navigator.pop(ctx);
-                  _scanMockCertificateData();
-                },
-              ),
             ],
           ),
         );
@@ -380,90 +363,56 @@ class _BusinessProfileFormScreenState extends State<BusinessProfileFormScreen> {
   }
 
   void _pickAndScanLocalFile(ImageSource source) async {
+    if (!DocumentScanService.supportsOnDeviceScanning) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+              "On-device QR and text scanning is supported on Android and iOS. Enter the certificate number manually."),
+        ),
+      );
+      return;
+    }
+
     try {
-      String fileName;
-      List<int> bytes;
-      if (kIsWeb) {
-        final result = await FilePicker.platform.pickFiles(
-          type: FileType.image,
-          allowMultiple: false,
-          withData: true,
-        );
-        if (result == null || result.files.isEmpty) return;
-        final selectedFile = result.files.single;
-        final fileBytes = selectedFile.bytes;
-        if (fileBytes == null) {
-          throw StateError(
-              "The browser did not provide the selected image data.");
-        }
-        fileName = selectedFile.name;
-        bytes = fileBytes;
-      } else {
-        final ImagePicker picker = ImagePicker();
-        final XFile? image = await picker.pickImage(source: source);
-        if (image == null) return;
-        fileName = image.name;
-        bytes = await image.readAsBytes();
-      }
+      final image = await ImagePicker().pickImage(
+        source: source,
+        imageQuality: 90,
+        maxWidth: 2400,
+      );
+      if (image == null || !mounted) return;
 
       setState(() {
         _isScanningOCR = true;
+        _ocrResultData = null;
       });
 
-      // Send document bytes to FastAPI backend for Multi-Angle QR & OCR Extraction
-      final uploadRes = await ApiClient.uploadDocument(
-          bytes, fileName, _selectedCertificateType);
-      if (uploadRes["success"] != true || uploadRes["data"] == null) {
-        final message = uploadRes["error"]?["message"]?.toString() ??
-            "The document scanning service could not process this image.";
-        throw StateError(message);
-      }
-
-      String extractedNum = "";
-      bool matchFound = false;
-      Map<String, dynamic>? ocrData;
-
-      if (uploadRes["data"]["ocr_result"] != null) {
-        ocrData = Map<String, dynamic>.from(uploadRes["data"]["ocr_result"]);
-        final fields = ocrData["extracted_fields"] ?? {};
-        extractedNum = fields["extracted_number"] ??
-            fields["udyam_number"] ??
-            fields["pan_number"] ??
-            fields["certificate_number"] ??
-            "";
-        if (extractedNum.isNotEmpty && ocrData["confidence_score"] != "0%") {
-          matchFound =
-              !_selectedCertificateType.toLowerCase().contains("aadhaar") ||
-                  _isValidAadhaarNumber(extractedNum);
-        }
-      }
+      final result = await DocumentScanService.scanImage(
+          image.path, _selectedCertificateType);
+      if (!mounted) return;
+      final extractedNum = result.identifier ?? "";
+      final matchFound = extractedNum.isNotEmpty &&
+          (!_selectedCertificateType.toLowerCase().contains("aadhaar") ||
+              _isValidAadhaarNumber(extractedNum));
 
       if (!matchFound) {
         setState(() {
           _isScanningOCR = false;
           _ocrResultData = {
             "document_type": _selectedCertificateType,
-            "file_name": fileName,
             "extracted_number": "Not Found",
-            "confidence_score": "0%",
-            "engine_used": "multi_angle_ocr",
+            "confidence_score": "Manual entry available",
+            "engine_used": result.source,
             "scanned_at": "Just now",
-            "status":
-                ocrData?["status"] ?? "Could not detect the document number",
-            "display_prompt": ocrData?["display_prompt"],
+            "status": "No matching document number detected",
           };
         });
 
         if (mounted) {
-          final scanMessage = ocrData?["display_prompt"]?.toString();
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(scanMessage != null && scanMessage.isNotEmpty
-                  ? scanMessage
-                  : _selectedCertificateType.toLowerCase().contains("aadhaar")
-                      ? "Could not read the Aadhaar number. Use a clear, unmasked image with all 12 digits visible, or enter the number manually."
-                      : "Could not read a $_selectedCertificateType number. Please use a clear, well-aligned image."),
-              backgroundColor: Colors.red,
+              content: Text(
+                  "Could not detect a $_selectedCertificateType number. Enter it manually in the form."),
+              backgroundColor: Colors.orange.shade800,
               duration: const Duration(seconds: 4),
             ),
           );
@@ -477,85 +426,30 @@ class _BusinessProfileFormScreenState extends State<BusinessProfileFormScreen> {
         _isScanningOCR = false;
         _ocrResultData = {
           "document_type": _selectedCertificateType,
-          "file_name": fileName,
           "extracted_number": extractedNum,
-          "confidence_score": ocrData?["confidence_score"] ?? "95.0%",
-          "engine_used": ocrData?["scanner_used"] ?? "multi_angle_ocr",
+          "confidence_score": "Review required",
+          "engine_used": result.source,
           "scanned_at": "Just now",
-          "status": ocrData?["status"] ?? "Verified Certificate Number"
+          "status": "Possible number detected; verify it before saving",
         };
       });
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
+          const SnackBar(
             content: Text(
-                "✅ Document '$fileName' scanned successfully! Number: '$extractedNum'"),
+                "Possible certificate number detected. Review it in the form before saving."),
             backgroundColor: AppTheme.successGreen,
           ),
         );
       }
     } catch (e) {
-      setState(() {
-        _isScanningOCR = false;
-      });
+      if (mounted) setState(() => _isScanningOCR = false);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text("Unable to scan file: $e"),
-              backgroundColor: Colors.red),
+          SnackBar(content: Text("Unable to scan image: $e")),
         );
       }
-    }
-  }
-
-  void _scanMockCertificateData() async {
-    setState(() {
-      _isScanningOCR = true;
-    });
-
-    await Future.delayed(const Duration(milliseconds: 1000));
-
-    String certTypeClean = _selectedCertificateType.toLowerCase();
-    String extractedNum = "";
-
-    if (certTypeClean.contains("udyam")) {
-      extractedNum = "UDYAM-TN-03-0012345";
-    } else if (certTypeClean.contains("pan")) {
-      extractedNum = "ABCDE1234F";
-    } else if (certTypeClean.contains("income")) {
-      extractedNum = "INC/2026/98231";
-    } else if (certTypeClean.contains("community") ||
-        certTypeClean.contains("caste")) {
-      extractedNum = "COMM-OBC-2024-9812";
-    } else if (certTypeClean.contains("aadhaar")) {
-      extractedNum = "3489 1204 9871";
-    } else {
-      extractedNum = "CERT/2026/77812";
-    }
-
-    setState(() {
-      _certificateNumberController.text = extractedNum;
-      _isScanningOCR = false;
-      _ocrResultData = {
-        "document_type": _selectedCertificateType,
-        "file_name": "sample_certificate_mock.png",
-        "extracted_number": extractedNum,
-        "confidence_score": "96.8%",
-        "engine_used": "local_regex",
-        "scanned_at": "Just now",
-        "status": "Verified via Mock Sample"
-      };
-    });
-
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-              "✅ Sample certificate scanned! Number '$extractedNum' extracted via OCR."),
-          backgroundColor: AppTheme.successGreen,
-        ),
-      );
     }
   }
 
@@ -1088,7 +982,7 @@ class _BusinessProfileFormScreenState extends State<BusinessProfileFormScreen> {
                               child: OutlinedButton.icon(
                                 onPressed: _isScanningOCR
                                     ? null
-                                    : _uploadAndScanCertificateOCR,
+                                    : _showCertificateScanOptions,
                                 icon: _isScanningOCR
                                     ? const SizedBox(
                                         width: 16,
@@ -1101,8 +995,8 @@ class _BusinessProfileFormScreenState extends State<BusinessProfileFormScreen> {
                                         size: 18),
                                 label: Text(
                                   _isScanningOCR
-                                      ? "Scanning Certificate with OCR Service..."
-                                      : "📷 Upload Certificate File & Scan with OCR",
+                                      ? "Checking QR, then reading text..."
+                                      : "📷 Scan Certificate (QR / Text)",
                                   style: const TextStyle(
                                       fontWeight: FontWeight.bold,
                                       fontSize: 13),
@@ -1139,7 +1033,7 @@ class _BusinessProfileFormScreenState extends State<BusinessProfileFormScreen> {
                                         const SizedBox(width: 6),
                                         Expanded(
                                           child: Text(
-                                            "OCR Extracted: ${_ocrResultData!['document_type']}",
+                                            "Scan result: ${_ocrResultData!['document_type']}",
                                             style: const TextStyle(
                                                 fontWeight: FontWeight.bold,
                                                 fontSize: 13,
@@ -1150,14 +1044,14 @@ class _BusinessProfileFormScreenState extends State<BusinessProfileFormScreen> {
                                           padding: const EdgeInsets.symmetric(
                                               horizontal: 6, vertical: 2),
                                           decoration: BoxDecoration(
-                                            color: AppTheme.successGreen,
+                                            color: Colors.orange.shade800,
                                             borderRadius:
                                                 BorderRadius.circular(4),
                                           ),
                                           child: Text(
                                             _ocrResultData![
                                                     'confidence_score'] ??
-                                                "96.8%",
+                                                "Review required",
                                             style: const TextStyle(
                                                 color: Colors.white,
                                                 fontSize: 11,
@@ -1174,8 +1068,14 @@ class _BusinessProfileFormScreenState extends State<BusinessProfileFormScreen> {
                                           fontWeight: FontWeight.w600),
                                     ),
                                     Text(
-                                      "Engine Used: OCR_PROVIDER=${_ocrResultData!['engine_used']}",
+                                      "Method: ${_ocrResultData!['engine_used']}",
                                       style: const TextStyle(
+                                          fontSize: 11, color: Colors.black54),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    const Text(
+                                      "This is text extraction, not document authentication. Check the number before saving.",
+                                      style: TextStyle(
                                           fontSize: 11, color: Colors.black54),
                                     ),
                                   ],
