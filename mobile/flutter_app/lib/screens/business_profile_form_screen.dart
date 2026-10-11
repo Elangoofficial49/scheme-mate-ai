@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/foundation.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:file_picker/file_picker.dart';
 import '../core/i18n/app_localizations.dart';
 import '../core/network/api_client.dart';
 import '../core/theme/app_theme.dart';
@@ -370,6 +372,26 @@ class _BusinessProfileFormScreenState extends State<BusinessProfileFormScreen> {
         image = await Navigator.of(context).push<DocumentScanImage>(
           MaterialPageRoute(builder: (_) => const CameraCaptureScreen()),
         );
+      } else if (kIsWeb) {
+        final selection = await FilePicker.platform.pickFiles(
+          type: FileType.image,
+          withData: true,
+        );
+        final file = selection == null || selection.files.isEmpty
+            ? null
+            : selection.files.first;
+        final bytes = file?.bytes;
+        if (file != null && (bytes == null || bytes.isEmpty)) {
+          throw StateError(
+              "The selected image could not be read by the browser.");
+        }
+        image = file == null
+            ? null
+            : DocumentScanImage(
+                path: "",
+                name: file.name,
+                webBytes: bytes,
+              );
       } else {
         final pickedImage = await ImagePicker().pickImage(
           source: source,

@@ -1,7 +1,11 @@
 import 'package:camera/camera.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../services/document_scan_service.dart';
+import '../services/web_camera_capture_stub.dart'
+    if (dart.library.js_interop) '../services/web_camera_capture_web.dart'
+    as web_camera;
 
 class CameraCaptureScreen extends StatefulWidget {
   const CameraCaptureScreen({super.key});
@@ -74,8 +78,23 @@ class _CameraCaptureScreenState extends State<CameraCaptureScreen> {
 
     setState(() => _isTakingPicture = true);
     try {
-      final image = await controller.takePicture();
-      final scanImage = await DocumentScanImage.fromXFile(image);
+      final DocumentScanImage scanImage;
+      if (kIsWeb) {
+        final bytes = await web_camera.captureCameraFrame(controller.cameraId);
+        if (bytes == null || bytes.isEmpty) {
+          throw StateError(
+            "The browser camera frame could not be read. Please allow camera access and try again.",
+          );
+        }
+        scanImage = DocumentScanImage(
+          path: "",
+          name: "camera_capture.jpg",
+          webBytes: bytes,
+        );
+      } else {
+        final image = await controller.takePicture();
+        scanImage = await DocumentScanImage.fromXFile(image);
+      }
       if (mounted) Navigator.pop(context, scanImage);
     } on CameraException catch (error) {
       if (mounted) {
@@ -88,7 +107,8 @@ class _CameraCaptureScreenState extends State<CameraCaptureScreen> {
     } catch (error) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Could not prepare the captured image: $error")),
+          SnackBar(
+              content: Text("Could not prepare the captured image: $error")),
         );
       }
     } finally {

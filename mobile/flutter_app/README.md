@@ -13,7 +13,9 @@ manually, before saving it to the profile.
 The camera can also be opened from supported web browsers on laptops and
 phones. Web capture requires camera permission and HTTPS (localhost is also
 allowed for development); web images are sent to the document-scanning API for
-QR/OCR extraction because ML Kit is not available on Flutter Web.
+QR/OCR extraction because ML Kit is not available on Flutter Web. Webcam frames
+are copied directly from the active preview, and selected files are read as
+bytes to avoid depending on temporary browser Blob URLs.
 
 QR/OCR extraction does not authenticate a document. Users should verify every
 value themselves. Other platforms retain manual document-number entry.
