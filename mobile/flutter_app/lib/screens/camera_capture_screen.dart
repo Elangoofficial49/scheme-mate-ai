@@ -1,6 +1,8 @@
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 
+import '../services/document_scan_service.dart';
+
 class CameraCaptureScreen extends StatefulWidget {
   const CameraCaptureScreen({super.key});
 
@@ -73,13 +75,20 @@ class _CameraCaptureScreenState extends State<CameraCaptureScreen> {
     setState(() => _isTakingPicture = true);
     try {
       final image = await controller.takePicture();
-      if (mounted) Navigator.pop(context, image);
+      final scanImage = await DocumentScanImage.fromXFile(image);
+      if (mounted) Navigator.pop(context, scanImage);
     } on CameraException catch (error) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(error.description ?? "Could not capture the image."),
           ),
+        );
+      }
+    } catch (error) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Could not prepare the captured image: $error")),
         );
       }
     } finally {

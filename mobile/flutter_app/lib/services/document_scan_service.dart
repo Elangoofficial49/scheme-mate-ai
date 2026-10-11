@@ -17,6 +17,26 @@ class DocumentScanResult {
   final String recognizedText;
 }
 
+class DocumentScanImage {
+  const DocumentScanImage({
+    required this.path,
+    required this.name,
+    this.webBytes,
+  });
+
+  final String path;
+  final String name;
+  final Uint8List? webBytes;
+
+  static Future<DocumentScanImage> fromXFile(XFile file) async {
+    return DocumentScanImage(
+      path: file.path,
+      name: file.name,
+      webBytes: kIsWeb ? await file.readAsBytes() : null,
+    );
+  }
+}
+
 class DocumentScanService {
   static bool get supportsCamera =>
       kIsWeb ||
@@ -24,10 +44,15 @@ class DocumentScanService {
       defaultTargetPlatform == TargetPlatform.iOS;
 
   static Future<DocumentScanResult> scanImage(
-      XFile image, String documentType) async {
+      DocumentScanImage image, String documentType) async {
     if (kIsWeb) {
-      final response = await ApiClient.uploadDocument(
-          await image.readAsBytes(), image.name, documentType);
+      final bytes = image.webBytes;
+      if (bytes == null || bytes.isEmpty) {
+        throw StateError(
+            "The selected image could not be loaded. Please retake it or choose another image.");
+      }
+      final response =
+          await ApiClient.uploadDocument(bytes, image.name, documentType);
       if (response["success"] != true || response["data"] is! Map) {
         final errorMessage = response["error"] is Map
             ? response["error"]["message"]?.toString()

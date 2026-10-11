@@ -22,7 +22,7 @@ class _OCRScanScreenState extends State<OCRScanScreen> {
   String _selectedDocType = "Aadhaar";
   bool _isProcessing = false;
   bool _isSaving = false;
-  XFile? _selectedImage;
+  DocumentScanImage? _selectedImage;
   String? _scanSource;
   String? _scanMessage;
 
@@ -43,17 +43,20 @@ class _OCRScanScreenState extends State<OCRScanScreen> {
 
   Future<void> _pickAndScan(ImageSource source) async {
     try {
-      final XFile? image;
+      final DocumentScanImage? image;
       if (source == ImageSource.camera) {
-        image = await Navigator.of(context).push<XFile>(
+        image = await Navigator.of(context).push<DocumentScanImage>(
           MaterialPageRoute(builder: (_) => const CameraCaptureScreen()),
         );
       } else {
-        image = await ImagePicker().pickImage(
+        final pickedImage = await ImagePicker().pickImage(
           source: source,
           imageQuality: 90,
           maxWidth: 2400,
         );
+        image = pickedImage == null
+            ? null
+            : await DocumentScanImage.fromXFile(pickedImage);
       }
       if (image == null || !mounted) return;
 
