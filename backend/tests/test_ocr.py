@@ -57,6 +57,15 @@ def test_aadhaar_ocr_does_not_accept_masked_or_virtual_id():
     )["extracted_number"] is None
 
 
+def test_aadhaar_ocr_requires_exactly_12_digits():
+    assert OCRService._parse_aadhaar(
+        "Aadhaar Number: 12345678901"
+    )["extracted_number"] is None
+    assert OCRService._parse_aadhaar(
+        "Aadhaar Number: 1234567890123"
+    )["extracted_number"] is None
+
+
 def test_aadhaar_scan_extracts_number_from_ocr_text(monkeypatch):
     monkeypatch.setattr(OCRService, "decode_qr_code", lambda file_bytes: None)
     monkeypatch.setattr(
@@ -65,10 +74,28 @@ def test_aadhaar_scan_extracts_number_from_ocr_text(monkeypatch):
         lambda file_bytes: ("Aadhaar Number: 1234 5678 9012", True),
     )
 
-    res = OCRService.scan_qr_proof("Aadhaar Card", b"image bytes")
+    res = OCRService.scan_qr_proof(
+        "Aadhaar / Identity Proof", b"image bytes"
+    )
 
     assert res["scan_succeeded"] is True
     assert res["extracted_fields"]["extracted_number"] == "123456789012"
+
+
+def test_aadhaar_scan_rejects_partial_number(monkeypatch):
+    monkeypatch.setattr(OCRService, "decode_qr_code", lambda file_bytes: None)
+    monkeypatch.setattr(
+        OCRService,
+        "_run_tesseract",
+        lambda file_bytes: ("Aadhaar Number: 7", True),
+    )
+
+    res = OCRService.scan_qr_proof(
+        "Aadhaar / Identity Proof", b"image bytes"
+    )
+
+    assert res["scan_succeeded"] is False
+    assert res["extracted_fields"]["extracted_number"] is None
 
 
 def test_tesseract_uses_number_only_pass_when_general_ocr_misses(monkeypatch):

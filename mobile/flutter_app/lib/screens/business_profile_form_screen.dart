@@ -1,6 +1,7 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import '../core/i18n/app_localizations.dart';
 import '../core/network/api_client.dart';
@@ -250,7 +251,7 @@ class _BusinessProfileFormScreenState extends State<BusinessProfileFormScreen> {
     } else if (certType.contains("Community")) {
       return "Community / Caste Certificate Number";
     } else if (certType.contains("Aadhaar")) {
-      return "Aadhaar Number / Virtual ID";
+      return "Aadhaar Number (12 digits)";
     } else if (certType.contains("Ration")) {
       return "Ration / Smart Card Number";
     }
@@ -265,11 +266,21 @@ class _BusinessProfileFormScreenState extends State<BusinessProfileFormScreen> {
     } else if (certType.contains("Community")) {
       return "e.g. COMM-OBC-2023-456";
     } else if (certType.contains("Aadhaar")) {
-      return "e.g. 12-digit Aadhaar / VID";
+      return "Enter the 12-digit Aadhaar number";
     } else if (certType.contains("Ration")) {
       return "e.g. 33/W/0123456";
     }
     return "Enter certificate number";
+  }
+
+  bool _isValidAadhaarNumber(String value) =>
+      RegExp(r'^\d{12}$').hasMatch(value.trim());
+
+  bool _isValidCertificateNumber(String? value) {
+    final certificateNumber = value?.trim() ?? "";
+    if (certificateNumber.isEmpty) return false;
+    return !_selectedCertificateType.toLowerCase().contains("aadhaar") ||
+        _isValidAadhaarNumber(certificateNumber);
   }
 
   void _uploadAndScanCertificateOCR() {
@@ -421,7 +432,9 @@ class _BusinessProfileFormScreenState extends State<BusinessProfileFormScreen> {
             fields["certificate_number"] ??
             "";
         if (extractedNum.isNotEmpty && ocrData["confidence_score"] != "0%") {
-          matchFound = true;
+          matchFound =
+              !_selectedCertificateType.toLowerCase().contains("aadhaar") ||
+                  _isValidAadhaarNumber(extractedNum);
         }
       }
 
@@ -435,18 +448,21 @@ class _BusinessProfileFormScreenState extends State<BusinessProfileFormScreen> {
             "confidence_score": "0%",
             "engine_used": "multi_angle_ocr",
             "scanned_at": "Just now",
-            "status": "Could not detect the document number"
+            "status":
+                ocrData?["status"] ?? "Could not detect the document number",
+            "display_prompt": ocrData?["display_prompt"],
           };
         });
 
         if (mounted) {
-          final isAadhaar =
-              _selectedCertificateType.toLowerCase().contains("aadhaar");
+          final scanMessage = ocrData?["display_prompt"]?.toString();
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(isAadhaar
-                  ? "Could not read the Aadhaar number. Use a clear, unmasked image with all 12 digits visible, or enter the number manually."
-                  : "Could not read a $_selectedCertificateType number. Please use a clear, well-aligned image."),
+              content: Text(scanMessage != null && scanMessage.isNotEmpty
+                  ? scanMessage
+                  : _selectedCertificateType.toLowerCase().contains("aadhaar")
+                      ? "Could not read the Aadhaar number. Use a clear, unmasked image with all 12 digits visible, or enter the number manually."
+                      : "Could not read a $_selectedCertificateType number. Please use a clear, well-aligned image."),
               backgroundColor: Colors.red,
               duration: const Duration(seconds: 4),
             ),
@@ -981,14 +997,12 @@ class _BusinessProfileFormScreenState extends State<BusinessProfileFormScreen> {
                           color: Colors.grey.shade50,
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
-                            color: _certificateNumberController.text
-                                    .trim()
-                                    .isNotEmpty
+                            color: _isValidCertificateNumber(
+                                    _certificateNumberController.text)
                                 ? AppTheme.successGreen
                                 : Colors.grey.shade300,
-                            width: _certificateNumberController.text
-                                    .trim()
-                                    .isNotEmpty
+                            width: _isValidCertificateNumber(
+                                    _certificateNumberController.text)
                                 ? 1.5
                                 : 1,
                           ),
@@ -1033,10 +1047,20 @@ class _BusinessProfileFormScreenState extends State<BusinessProfileFormScreen> {
                             const SizedBox(height: 6),
                             TextFormField(
                               controller: _certificateNumberController,
+                              keyboardType: TextInputType.number,
+                              inputFormatters: [
+                                FilteringTextInputFormatter.digitsOnly,
+                              ],
                               onChanged: (_) => setState(() {}),
                               validator: (val) {
                                 if (val == null || val.trim().isEmpty) {
                                   return "Please enter or upload your certificate / registration number";
+                                }
+                                if (_selectedCertificateType
+                                        .toLowerCase()
+                                        .contains("aadhaar") &&
+                                    !_isValidAadhaarNumber(val)) {
+                                  return "Aadhaar number must contain exactly 12 digits";
                                 }
                                 return null;
                               },
@@ -1045,9 +1069,8 @@ class _BusinessProfileFormScreenState extends State<BusinessProfileFormScreen> {
                                     _selectedCertificateType),
                                 prefixIcon: const Icon(
                                     Icons.confirmation_number_outlined),
-                                suffixIcon: _certificateNumberController.text
-                                        .trim()
-                                        .isNotEmpty
+                                suffixIcon: _isValidCertificateNumber(
+                                        _certificateNumberController.text)
                                     ? const Icon(Icons.check_circle,
                                         color: AppTheme.successGreen)
                                     : null,
@@ -1156,9 +1179,8 @@ class _BusinessProfileFormScreenState extends State<BusinessProfileFormScreen> {
                                 ),
                               ),
                             ],
-                            if (_certificateNumberController.text
-                                .trim()
-                                .isNotEmpty) ...[
+                            if (_isValidCertificateNumber(
+                                _certificateNumberController.text)) ...[
                               const SizedBox(height: 10),
                               Container(
                                 padding: const EdgeInsets.symmetric(
